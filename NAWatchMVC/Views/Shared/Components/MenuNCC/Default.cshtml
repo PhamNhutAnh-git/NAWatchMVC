@@ -1,0 +1,19 @@
+﻿@model IEnumerable<NAWatchMVC.ViewModels.MenuNCCVM>
+
+<div class="d-flex flex-wrap gap-2">
+    @foreach (var item in Model)
+    {
+        @* <a asp-controller="HangHoa" asp-action="Index" asp-route-ncc="@item.MaNcc"
+           class="btn btn-outline-secondary btn-sm rounded px-3 border-light-subtle filter-btn">
+            @item.TenNcc (@item.SoLuong)
+        </a> *@
+        @* Quan trọng nhất: Đổi name thành "ncc" cho khớp với Controller *@
+        <input type="radio" name="ncc" value="@item.TenNcc" id="brand_@item.MaNcc" class="btn-check"
+        @(Context.Request.Query["ncc"] == item.TenNcc ? "checked" : "")>
+
+        @* Sử dụng class btn-outline-dark và rounded-pill để đồng bộ với các nút khác *@
+        <label class="btn btn-outline-dark rounded-pill px-3 btn-filter-size" for="brand_@item.MaNcc">
+            @item.TenNcc (@item.SoLuong)
+        </label>
+    }
+</div>

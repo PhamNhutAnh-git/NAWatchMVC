@@ -1,0 +1,81 @@
+﻿@* @model IEnumerable<NAWatchMVC.ViewModels.MenuLoaiVM>
+
+<div class="d-flex flex-wrap gap-2">
+    @foreach (var item in Model)
+    {
+        <a asp-controller="HangHoa" asp-action="Index" asp-route-loai="@item.MaLoai"
+           class="btn btn-outline-primary rounded-pill px-3 py-2 filter-item-btn">
+            @item.TenLoai
+            <span class="badge rounded-pill bg-light text-primary ms-1 border">@item.SoLuong</span>
+        </a>
+    }
+</div>
+
+<style>
+    /* CSS để làm nút bấm giống phong cách hiện đại của TGDĐ */
+    .filter-item-btn {
+        border-color: #E0E0E0; /* Màu viền xám nhẹ bạn chọn */
+        color: #333333; /* Màu chữ nội dung */
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .filter-item-btn:hover {
+        background-color: #1E88E5 !important; /* Màu xanh Primary bạn chọn */
+        border-color: #1E88E5 !important;
+        color: white !important;
+    }
+
+    .filter-item-btn:hover .badge {
+        background-color: white !important;
+        color: #1E88E5 !important;
+    }
+</style> *@
+@model IEnumerable<NAWatchMVC.ViewModels.MenuLoaiVM>
+
+<div class="d-flex flex-wrap gap-2">
+    @foreach (var item in Model)
+    {
+        @* 1. Input Radio: Ẩn đi nhưng dùng để gửi dữ liệu 'loai' lên Controller *@
+        <input type="radio" name="loai" value="@item.MaLoai" id="loai_@item.MaLoai" class="btn-check"
+        @(Context.Request.Query["loai"] == item.MaLoai.ToString() ? "checked" : "")>
+
+        @* 2. Label: Đóng vai trò là nút bấm hiển thị *@
+        <label class="btn btn-outline-dark rounded-pill px-3 py-2 btn-filter-size d-flex align-items-center" for="loai_@item.MaLoai">
+            @item.TenLoai
+            @* Badge hiển thị số lượng sản phẩm *@
+            <span class="badge rounded-pill bg-light text-primary ms-1 border">@item.SoLuong</span>
+        </label>
+    }
+</div>
+
+<style>
+    /* CSS đồng bộ với phong cách NAWatch */
+    .btn-filter-size {
+        border-color: #000000 !important; /* Viền đen theo yêu cầu của Nhựt Anh */
+        color: #000000 !important; /* Chữ đen */
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        height: 40px; /* Khớp với nút Xóa bộ lọc */
+    }
+
+        /* Hiệu ứng khi di chuột (Hover) */
+        .btn-filter-size:hover {
+            background-color: rgba(30, 136, 229, 0.05) !important;
+            border-color: #1E88E5 !important;
+            color: #1E88E5 !important;
+        }
+
+    /* Hiệu ứng khi được CHỌN (Checked) */
+    .btn-check:checked + .btn-filter-size {
+        background-color: #1E88E5 !important; /* Đổi sang nền xanh */
+        border-color: #1E88E5 !important;
+        color: white !important;
+    }
+
+        /* Đổi màu badge khi nút được chọn */
+        .btn-check:checked + .btn-filter-size .badge {
+            background-color: white !important;
+            color: #1E88E5 !important;
+        }
+</style>

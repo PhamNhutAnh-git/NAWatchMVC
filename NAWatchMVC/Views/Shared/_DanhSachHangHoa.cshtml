@@ -1,0 +1,349 @@
+﻿@{
+    Layout = "_LayoutCustomer";
+}
+@* --- PHẦN ĐẦU TRANG (BREADCRUMB) --- *@
+
+@RenderSection("BREADCRUMB", required: false)
+
+@* Phần dưới bắt đầu trang sản phẩm  *@
+<div class="container-fluid py-3" style="background-color: #F8F9FA; ">
+    <div class="container ">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold mb-1" style="color: #0A2540;">Đồng hồ Chính hãng</h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem;">
+                Số Đồng Hồ <i class="fas fa-chevron-right mx-2" style="font-size: 0.7rem;"></i>
+                @* Tránh lỗi Null khi danh sách trống *@
+                <b class="text-dark">@(Model?.Count ?? 0)</b> sản phẩm
+            </p>
+        </div>
+        @* --- HÀNG 1: THANH CÔNG CỤ (Sắp xếp, Tìm kiếm, Các hãng) --- *@
+        @* <div class="d-flex justify-content-end align-items-center mb-4 gap-2"> *@
+        <div class="d-flex justify-content-end align-items-center mb-3 gap-2 flex-wrap">
+            @* 0. CÁC HÃNG PHỔ BIẾN (Kích thước bằng nút Bộ lọc) *@
+            <div class="d-none d-md-flex gap-2 me-auto">
+                @* Bỏ btn-sm, giữ px-4 để size bằng nút Bộ lọc *@
+                <a asp-action="Index" asp-route-ncc="CASIO" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">Casio</a>
+                <a asp-action="Index" asp-route-ncc="CITIZEN" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">Citizen</a>
+                <a asp-action="Index" asp-route-ncc="MVW" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">Mvm</a>
+                <a asp-action="Index" asp-route-ncc="EDIFICE" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">Edifice</a>
+                <a asp-action="Index" asp-route-ncc="ELIO" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">Elio</a>
+                <a asp-action="Index" asp-route-ncc="ORIENT" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">Orient</a>
+                <a asp-action="Index" asp-route-ncc="SMILEKID" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">Smilekid</a>
+            </div>
+            @*1. Nút mở Modal - Nhựt Anh chú ý ID #filterModal phải khớp bên dưới *@
+            <button class="btn btn-outline-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <i class="fas fa-filter me-2"></i>Bộ lọc
+            </button>
+            @* 2. Nút Sắp xếp: Thêm logic 'selected' để giữ trạng thái hiển thị *@
+            <select class="form-select rounded-pill border-primary shadow-sm text-dark"
+                    style="width: auto; border-color: #1E88E5 !important;"
+                    onchange="location = this.value;">
+
+                @* Kiểm tra nếu sort trống hoặc null thì chọn Mới nhất *@
+                <option value="@Url.Action("Index", new { sort = "" })"
+                        selected="@(string.IsNullOrEmpty(Context.Request.Query["sort"]))">
+                    Sắp xếp: Mới nhất
+                </option>
+
+                @* Kiểm tra nếu sort là price_asc *@
+                <option value="@Url.Action("Index", new { sort = "price_asc" })"
+                        selected="@(Context.Request.Query["sort"] == "price_asc")">
+                    Giá thấp đến cao
+                </option>
+
+                @* Kiểm tra nếu sort là price_desc *@
+                <option value="@Url.Action("Index", new { sort = "price_desc" })"
+                        selected="@(Context.Request.Query["sort"] == "price_desc")">
+                    Giá cao đến thấp
+                </option>
+            </select>
+            @* 3. THANH TÌM KIẾM: Thu ngắn lại và đổi viền xanh *@
+            <form asp-action="Index" method="get" class="d-flex position-relative ms-lg-1">
+                @* Giảm width từ 250px xuống còn 180px để thanh tìm kiếm ngắn lại *@
+                <input name="query"
+                       class="form-control rounded-pill border-primary shadow-sm px-4"
+                       type="search"
+                       placeholder="Tìm..."
+                       style="width: 180px; padding-right: 45px; border-color: #1E88E5 !important;">
+
+                @* Nút Search icon: Giữ nguyên màu xanh dương đặc *@
+                <button class="btn btn-primary rounded-circle position-absolute end-0 h-100 shadow-sm"
+                        type="submit"
+                        style="width: 40px; border: 2px solid white;">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        @* --- HÀNG 2: TRẠNG THÁI BỘ LỌC (Đã đồng bộ kích thước) --- *@
+        <div class="mb-0 d-flex gap-2 flex-wrap">
+            @if (Context.Request.Query.Count > 0)
+            {
+                @* --- KHỐI HIỂN THỊ TRẠNG THÁI BỘ LỌC --- *@
+                <div class="mb-4 d-flex align-items-center gap-2 flex-wrap">
+                    @if (Context.Request.Query.Count > 0 && !(Context.Request.Query.Count == 1 && Context.Request.Query.ContainsKey("sort")))
+                    {
+                        @* 1. Nút Xóa tất cả: Kích thước bằng nút Bộ lọc (px-4, rounded-pill) *@
+                        @* <a asp-action="Index" class="btn btn-danger rounded-pill px-4 shadow-sm d-flex align-items-center">
+                Xóa bộ lọc <i class="fas fa-times-circle ms-2"></i>
+                </a> *@
+                        <a asp-action="Index" class="btn btn-danger rounded-pill px-4 d-flex align-items-center shadow-sm" style="height: 40px;">
+                            Xóa bộ lọc <i class="fas fa-times-circle ms-2"></i>
+                        </a>
+                        @* 2. Danh sách các Tag đang lọc (Hiện bên phải nút xóa) *@
+                        <div class="d-flex gap-2 flex-wrap ms-1">
+                            @* Lọc theo Từ khóa tìm kiếm *@
+                            @if (!string.IsNullOrEmpty(Context.Request.Query["query"]))
+                            {
+                                <span class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal" style="height: 40px; cursor: default;">
+                                    Tìm kiếm: <b>@Context.Request.Query["query"]</b>
+                                </span>
+                            }
+
+                            @* Lọc theo Hãng sản xuất *@
+                            @if (!string.IsNullOrEmpty(Context.Request.Query["ncc"]))
+                            {
+                                <a class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal" style="height: 40px; cursor: default;">
+                                    Hãng: <b>@Context.Request.Query["ncc"]</b>
+                                </a>
+                            }
+
+                            @* Lọc theo Loại máy *@
+                            @if (!string.IsNullOrEmpty(Context.Request.Query["loaiMay"]))
+                            {
+                                <span class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal" style="height: 40px; cursor: default;">
+                                    Máy: <b>@Context.Request.Query["loaiMay"]</b>
+                                </span>
+                            }
+
+                            @* Lọc theo Chất liệu dây *@
+                            @if (!string.IsNullOrEmpty(Context.Request.Query["day"]))
+                            {
+                                <span class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal" style="height: 40px; cursor: default;">
+                                    Dây: <b>@Context.Request.Query["day"]</b>
+                                </span>
+                            }
+
+                            @* Lọc theo Khoảng giá *@
+                            @if (!string.IsNullOrEmpty(Context.Request.Query["mucGia"]))
+                            {
+                                @* Lưu giá trị từ URL vào biến để xử lý hiển thị *@
+                                var hienThiGia = Context.Request.Query["mucGia"].ToString() switch
+                                {
+                                    "duoi-2tr" => "Dưới 2 triệu",
+                                    "2tr-5tr" => "2 - 5 triệu",
+                                    "tren-10tr" => "Trên 10 triệu",
+                                    _ => Context.Request.Query["mucGia"].ToString()
+                                };
+
+                                <span class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal btn-filter-size"
+                                      style="cursor: default; background-color: white;">
+                                    Giá: <b class="ms-1 text-primary">@hienThiGia</b>
+                                </span>
+                            }
+                            @* --- Lọc theo Đối tượng sử dụng (ID chuyển sang Tên) --- *@
+                            @if (!string.IsNullOrEmpty(Context.Request.Query["loai"]))
+                            {
+                                @* "Dịch" ID từ URL sang tên hiển thị dựa trên dữ liệu MenuLoai của bạn *@
+                                var tenDoiTuong = Context.Request.Query["loai"].ToString() switch
+                                {
+                                    "1" => "Đồng hồ Nam",
+                                    "2" => "Đồng hồ Nữ",
+                                    "3" => "Đồng hồ Trẻ em",
+                                    "4" => "Đồng hồ Unisex",
+                                    _ => "Loại khác"
+                                };
+
+                                <span class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal btn-filter-size"
+                                      style="cursor: default; background-color: white;">
+                                    Đối tượng: <b class="ms-1 text-primary">@tenDoiTuong</b>
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        @*  phần sản phẩm show ra *@
+        <div class="row g-4">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+@* đây là phần menu lọc *@
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            @* Form sử dụng phương thức GET để truyền tham số lên URL *@
+            <form asp-controller="HangHoa" asp-action="Index" method="get">
+
+                @* Header của Modal *@
+                <div class="modal-header text-white" style="background-color: #1E88E5;">
+                    <h5 class="modal-title fw-bold" id="filterModalLabel">Tìm đồng hồ phù hợp</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                @* Body của Modal *@
+                <div class="modal-body p-4" style="max-height: 70vh; overflow-y: auto;">
+
+                    @* 1. Hãng sản xuất - Nhựt Anh lưu ý Component này nên trả về các Radio/Checkbox *@
+                    <div class="filter-section mb-4">
+                        <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-copyright me-2"></i>Hãng sản xuất</h6>
+                        @await Component.InvokeAsync("MenuNCC")
+                    </div>
+
+                    @* 2. Đối tượng sử dụng *@
+                    <div class="filter-section mb-4">
+                        <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-users me-2"></i>Đối tượng sử dụng</h6>
+                        @await Component.InvokeAsync("MenuLoai")
+                    </div>
+
+                    @* 3. Khoảng giá - Chuyển sang Radio để chọn 1 khoảng giá duy nhất Đồng bộ UI với các phần trên*@
+                    <div class="filter-section mb-4">
+                        <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-money-bill-wave me-2"></i>Khoảng giá</h6>
+                        <div class="d-flex flex-wrap gap-2">
+
+                            @* 1. Dưới 2 triệu - Dùng chung name "mucGia" để tạo thành 1 nhóm *@
+                            <input type="radio" name="mucGia" value="duoi-2tr" id="price1" class="btn-check"
+                            @(Context.Request.Query["mucGia"] == "duoi-2tr" ? "checked" : "")>
+                            <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="price1">Dưới 2 triệu</label>
+
+                            @* 2. Từ 2 - 5 triệu *@
+                            <input type="radio" name="mucGia" value="2tr-5tr" id="price2" class="btn-check"
+                            @(Context.Request.Query["mucGia"] == "2tr-5tr" ? "checked" : "")>
+                            <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="price2">2 - 5 triệu</label>
+
+                            @* 3. Trên 10 triệu *@
+                            <input type="radio" name="mucGia" value="tren-10tr" id="price3" class="btn-check"
+                            @(Context.Request.Query["mucGia"] == "tren-10tr" ? "checked" : "")>
+                            <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="price3">Trên 10 triệu</label>
+
+                        </div>
+                    </div>
+
+                    @* 4. Các tiện ích khác *@
+                    <div class="row">
+                        <div class="col-md-12 mb-4">
+                            <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-bolt me-2"></i>Nguồn năng lượng</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                @* 1. Máy Pin (Quartz) *@
+                                <input type="radio" name="loaiMay" value="Pin" id="mayPin" class="btn-check"
+                                @(Context.Request.Query["loaiMay"] == "Pin" ? "checked" : "")>
+                                <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="mayPin">Máy Pin</label>
+
+                                @* 2. Năng lượng mặt trời (Solar/Eco-Drive) *@
+                                <input type="radio" name="loaiMay" value="Năng lượng mặt trời" id="maySolar" class="btn-check"
+                                @(Context.Request.Query["loaiMay"] == "Năng lượng mặt trời" ? "checked" : "")>
+                                <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="maySolar">Năng lượng mặt trời</label>
+
+                                @* 3. Cơ tự động (Automatic) *@
+                                <input type="radio" name="loaiMay" value="Cơ tự động" id="mayCo" class="btn-check"
+                                @(Context.Request.Query["loaiMay"] == "Cơ tự động" ? "checked" : "")>
+                                <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="mayCo">Cơ tự động</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-4">
+                            <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-ring me-2"></i>Chất liệu dây</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                @* 1. Dây Da *@
+                                <input type="radio" name="day" value="Da" id="dayDa" class="btn-check"
+                                @(Context.Request.Query["day"] == "Da" ? "checked" : "")>
+                                <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="dayDa">Dây da</label>
+
+                                @* 2. Dây Kim loại (Thép) *@
+                                <input type="radio" name="day" value="Thép" id="dayKimLoai" class="btn-check"
+                                @(Context.Request.Query["day"] == "Thép" ? "checked" : "")>
+                                <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="dayKimLoai">Dây kim loại</label>
+
+                                @* 3. Dây Nhựa / Silicon (Nếu trong DB của Nhựt Anh có) *@
+                                <input type="radio" name="day" value="Nhựa" id="dayNhua" class="btn-check"
+                                @(Context.Request.Query["day"] == "Nhựa" ? "checked" : "")>
+                                <label class="btn btn-outline-dark rounded-pill px-4 btn-filter-size" for="dayNhua">Dây nhựa / Cao su</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Footer của Modal *@
+                <div class="modal-footer bg-light border-0 text-dark">
+                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Đóng</button>
+                    @* Nút type="submit" sẽ gửi toàn bộ form đi *@
+                    <button type="submit" class="btn btn-primary px-5 rounded-pill shadow">
+                        Xem kết quả
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@* JavaScript: Toggle Radio Buttons để kích hoạt tính năng "Nhấn lần 2 là bỏ chọn": *@
+@section Scripts {
+    @* 1. HỨNG SCRIPTS TỪ INDEX: Dòng này là "cứu cánh" để hết lỗi *@
+    @RenderSection("Scripts", required: false)
+    @* 2. CHỈ GIỮ LẠI SCRIPT XỬ LÝ RADIO TẠI ĐÂY (Vì Modal nằm ở file này) *@
+    <script>
+        $(document).ready(function () {
+            // Lắng nghe sự kiện click vào tất cả các nút check trong Modal
+            $('.btn-check').on('click', function () {
+                var $radio = $(this);
+                var name = $radio.attr('name'); // Lấy tên nhóm (ví dụ: ncc, loaiMay...)
+
+                // Nếu nút này đang được chọn (checked) từ trước đó
+                if ($radio.data('waschecked') === true) {
+                    $radio.prop('checked', false);
+                    $radio.data('waschecked', false);
+                    $radio.trigger('change');
+                } else {
+                    // Nếu là chọn mới:
+                    // 1. Reset trạng thái 'waschecked' của tất cả các nút cùng nhóm
+                    $('input[name="' + name + '"]').data('waschecked', false);
+                    // 2. Đánh dấu nút hiện tại là đã chọn
+                    $radio.data('waschecked', true);
+                }
+            });
+        });
+    </script>
+}
+
+
+
+
+<style>
+    /* Fix lỗi Modal bị tối đen: Ép Modal nổi lên trên cùng */
+    .modal {
+        z-index: 9999 !important;
+    }
+
+    .modal-backdrop {
+        z-index: 9998 !important;
+    }
+
+    /* Style cho các nút lọc trong Modal */
+    .btn-outline-primary {
+        color: #1E88E5;
+        border-color: #1E88E5;
+        transition: 0.3s;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #1E88E5;
+            color: white;
+        }
+
+    /* Thanh cuộn Modal kiểu TGDĐ */
+    .modal-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background-color: #1E88E5;
+        border-radius: 10px;
+    }
+
+    /* Badge xóa bộ lọc */
+    .badge.bg-danger:hover {
+        background-color: #b30000 !important;
+    }
+</style>

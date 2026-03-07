@@ -1,0 +1,39 @@
+﻿@model IEnumerable<NAWatchMVC.ViewModels.HangHoaVM>
+
+@{
+    ViewData["Title"] = "Cửa hàng NAWatch Sản Phẩm";
+    Layout = "_DanhSachHangHoa";
+}
+@* --- PHẦN ĐẦU TRANG (BREADCRUMB) --- *@
+@section BREADCRUMB{
+<div class="container-fluid page-header py-5 shadow-sm">
+    <h1 class="text-center text-white display-6">Cửa Hàng NAWATCH MVC</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        @* Link về Trang chủ *@
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index" class="text-white-50">Trang chủ</a>
+        </li>
+        @* Vị trí hiện tại *@
+        <li class="breadcrumb-item active text-white">Sản phẩm 0</li>
+    </ol>
+</div>
+}
+@if (Model != null && Model.Any())
+{
+    @foreach (var item in Model)
+    {
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            @* Sử dụng Partial View để tái sử dụng code *@
+            <partial name="_ProductItem" model="item" />
+        </div>
+    }
+}
+else
+{
+    <div class="col-12 text-center py-5">
+        <img src="~/img/no-product.png" alt="No product" style="width: 150px; opacity: 0.5;">
+        <p class="mt-3 text-muted">Rất tiếc, không tìm thấy đồng hồ nào phù hợp.</p>
+    </div>
+}
+
+ 

@@ -1,0 +1,100 @@
+﻿@model NAWatchMVC.ViewModels.HangHoaVM
+
+<div class="card h-100 border-0 shadow-sm tgdd-product-card position-relative">
+    @* 1. Nhãn ưu đãi & Giảm giá (Góc trên) *@
+    <div class="position-absolute d-flex flex-column gap-1" style="top: 10px; left: 10px; z-index: 2;">
+        @if (!string.IsNullOrEmpty(Model.NhanUuDai))
+        {
+            @* Đổi text-dark thành text-primary (Xanh dương) để đồng bộ *@
+            <span class="badge bg-light text-primary border shadow-sm px-2 py-1" style="font-size: 0.7rem;">
+                @Model.NhanUuDai
+            </span>
+        }
+        @if (Model.GiamGia > 0)
+        {
+            <span class="badge bg-danger px-2 py-1" style="font-size: 0.7rem; width: fit-content;">
+                Giảm @Model.GiamGia%
+            </span>
+        }
+    </div>
+
+    @* 2. Hình ảnh sản phẩm (Giữ nguyên logic) *@
+    <a asp-controller="HangHoa" asp-action="Detail" asp-route-id="@Model.MaHh" class="text-decoration-none">
+        <div class="p-4 text-center product-img-container" style="height: 220px;">
+            <img src="~/anhall/@Model.Hinh"
+                 class="img-fluid transition-img"
+                 alt="@Model.TenHh"
+                 style="max-height: 100%; object-fit: contain;">
+        </div>
+    </a>
+
+    @* 3. Nội dung thông tin *@
+    <div class="card-body pt-0 d-flex flex-column">
+        <a asp-controller="HangHoa" asp-action="Detail" asp-route-id="@Model.MaHh" class="text-decoration-none">
+            @* Dùng class tgdd-product-title để nhận màu Navy đậm từ CSS *@
+            <h6 class="card-title mb-2 tgdd-product-title">@Model.TenHh</h6>
+        </a>
+
+        @* Giá tiền: Hiển thị chuẩn phong cách TGDĐ *@
+        <div class="mb-2 d-flex align-items-center flex-wrap">
+            @* 1. Giá bán hiện tại: Đỏ đậm, nổi bật nhất *@
+            <strong class="text-danger fs-5 fw-bold">@Model.DonGia.ToString("#,##0")₫</strong>
+
+            @if (Model.GiamGia > 0)
+            {
+                @* Nhóm giá gốc và % giảm nằm cạnh nhau trên cùng một dòng *@
+                <span class="ms-2 d-inline-flex align-items-center">
+                    @* 2. Giá gốc: Màu xám, gạch ngang, cỡ chữ nhỏ hơn (0.85rem) *@
+                    <small class="text-muted text-decoration-line-through" style="font-size: 0.85rem;">
+                        @Model.GiaGoc.ToString("#,##0")₫
+                    </small>
+
+                    @* 3. Phần trăm giảm: Đỏ, in đậm, nằm ngay sau giá gốc *@
+                    <small class="text-danger ms-1 fw-bold" style="font-size: 0.85rem;">
+                        -@Model.GiamGia%
+                    </small>
+                </span>
+            }
+        </div>
+
+        @* Thông số kỹ thuật nhanh: Đổi icon sang màu xanh dương (text-primary) *@
+        <div class="bg-light rounded p-2 mb-3" style="font-size: 0.75rem; color: #555;">
+            <ul class="list-unstyled mb-0">
+                <li><i class="fas fa-microchip me-1 text-primary opacity-75"></i> Loại máy: @Model.LoaiMay</li>
+                <li><i class="fas fa-arrows-alt-h me-1 text-primary opacity-75"></i> Độ rộng: @Model.DoRongDay</li>
+                <li><i class="fas fa-gem me-1 text-primary opacity-75"></i> Mặt kính: @Model.ChatLieuKinh</li>
+            </ul>
+        </div>
+
+        @* Đánh giá & So sánh - Bản cập nhật chuẩn TGDĐ *@
+        <div class="mt-auto d-flex justify-content-between align-items-center" style="font-size: 0.8rem;">
+            <div class="text-warning">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <i class="fas fa-star @(i <= Model.DiemDanhGia ? "" : "text-muted opacity-25")"></i>
+                }
+                @* Thêm dấu chấm và chữ "Đã bán" để chuyên nghiệp hơn *@
+                <span class="text-muted ms-1">@Model.DiemDanhGia • Đã bán @Model.SoLuongBan</span>
+            </div>
+
+            @* Link so sánh: Thêm hiệu ứng hover nhẹ *@
+            <a href="#" class="text-primary text-decoration-none small fw-bold tgdd-compare">
+                <i class="fas fa-plus-circle me-1"></i>So sánh
+            </a>
+        </div>
+    </div>
+    @* 4. Nút hành động nhanh: Đổi thành btn-primary (Xanh dương đặc) để nổi bật *@
+    @* <div class="card-footer bg-transparent border-0 pb-3">
+        <a asp-controller="Cart" asp-action="Add" asp-route-id="@Model.MaHh"
+           class="btn btn-primary w-100 rounded-pill py-2 btn-sm-buy shadow-sm">
+            <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
+        </a>
+    </div> *@
+    <div class="card-footer bg-transparent border-0 pb-3">
+        @* Thêm class btn-sm-buy để dễ dàng quản lý màu sắc riêng *@
+        <a asp-controller="Cart" asp-action="Add" asp-route-id="@Model.MaHh"
+           class="btn btn-primary w-100 rounded-pill py-2 btn-sm-buy shadow-sm">
+            <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
+        </a>
+    </div>
+</div>
