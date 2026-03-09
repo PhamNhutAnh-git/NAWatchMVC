@@ -1,0 +1,66 @@
+﻿@model IEnumerable<NAWatchMVC.ViewModels.HangHoaVM>
+<style>
+    /* Nút xanh dương đồng bộ web, hover xanh đen */
+    .btn-nawatch-related {
+        background-color: #1E88E5 !important; /* Xanh dương chủ đạo */
+        color: white !important;
+        border: none !important;
+        transition: 0.3s;
+    }
+
+        .btn-nawatch-related:hover {
+            background-color: #0D47A1 !important; /* Xanh dương đen (Dark Blue) */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+    /* Hiệu ứng cho Card để nhìn chuyên nghiệp hơn */
+    .product-item:hover {
+        transform: translateY(-5px);
+        transition: 0.3s;
+    }
+</style>
+<div class="row g-4">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 product-item text-center">
+                @* 1. Hình ảnh & Badge giảm giá *@
+                <div class="position-relative overflow-hidden p-3">
+                    <img src="~/anhall/@item.Hinh" class="card-img-top" alt="@item.TenHh"
+                         style="height: 200px; object-fit: contain;" onerror="this.src='/img/no-image.jpg'">
+
+                    @if (item.GiamGia > 0)
+                    {
+                        <div class="badge bg-danger position-absolute top-0 start-0 m-3 fs-6">
+                            -@item.GiamGia%
+                        </div>
+                    }
+                </div>
+
+                @* 2. Thông tin tên và giá *@
+                <div class="card-body d-flex flex-column pt-0">
+                    <h6 class="card-title fw-bold text-truncate mb-2">@item.TenHh</h6>
+
+                    <div class="mt-auto mb-3">
+                        @* Giá bán chính (Màu đỏ giống image_3b1b37.png) *@
+                        <div class="text-danger fw-bold fs-5">@item.GiaBan.ToString("#,##0")₫</div>
+
+                        @* Giá gốc (Nếu có giảm giá thì mới hiện) *@
+                        @if (item.GiamGia > 0)
+                        {
+                            <small class="text-decoration-line-through text-muted">
+                                @item.DonGia.ToString("#,##0")₫
+                            </small>
+                        }
+                    </div>
+
+                    @* 3. Nút xem chi tiết màu xanh dương *@
+                    <a asp-controller="HangHoa" asp-action="Detail" asp-route-id="@item.MaHh"
+                       class="btn btn-nawatch-related rounded-pill fw-bold w-100 py-2">
+                        <i class="fas fa-eye me-1"></i> Xem chi tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

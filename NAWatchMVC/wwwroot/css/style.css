@@ -1,4 +1,13 @@
-﻿
+﻿/* Định nghĩa biến màu chủ đạo ở đầu để dễ quản lý */
+:root {
+    --bs-primary: #1E88E5; /* Màu xanh dương chủ đạo */
+    --bs-secondary: #0D47A1; /* Màu xanh dương đậm cho Hover */
+    --bs-white: #ffffff;
+    --bs-dark: #0A2540;
+    --bs-light: #F8F9FA;
+}
+
+
 /*** Spinner Start ***/
 #spinner {
     opacity: 0;
@@ -229,13 +238,7 @@
     margin-left: 20px;
 }
 
-/*.page-header {
-    position: relative;
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(../img/cart-page-header-img.jpg);
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
-}*/
+
 /* Tùy chỉnh ảnh nền Header cho NAWatch */
 .page-header {
     /* 1. Nhựt Anh dùng linear-gradient để phủ một lớp màu xanh trong suốt lên ảnh, giúp chữ trắng nổi bật hơn */
@@ -246,6 +249,7 @@
     /* 2. Đẩy khoảng cách để né Navbar fixed-top của Nhựt Anh */
     margin-top: 155px !important;
 }
+
 @media (min-width: 992px) {
     .hero-header,
     .page-header {
@@ -516,17 +520,7 @@
     line-height: 35px;
 }
 /*** Footer End ***/
-
-:root {
-    /* Màu chủ đạo – xanh dương */
-    --bs-primary: #1E88E5;
-    /* Màu đậm – navy */
-    --bs-dark: #0A2540;
-    /* Màu nhấn / phụ */
-    --bs-secondary: #ffb524;
-    /* Nền */
-    --bs-light: #F8F9FA;
-}
+/*================================================================= nơi bắt đầu custom*/
 /* Style cho thẻ sản phẩm chuẩn TGDĐ */
 .tgdd-product-card {
     transition: all 0.3s ease;
@@ -631,7 +625,7 @@
         transform: translateY(-1px);
         box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
     }
-   /* hiệu ứng của icon*/
+/* hiệu ứng của icon*/
 /* Màu xanh chủ đạo của NAWatch */
 .text-brand-blue {
     color: #1E88E5 !important;
@@ -654,3 +648,31 @@
         .btn-nav-icon:hover i {
             color: white !important;
         }
+
+/* Container chứa các thẻ sản phẩm */
+.recently-viewed-slider {
+    display: flex;
+    overflow-x: auto; /* Cho phép cuộn ngang */
+    scroll-snap-type: x mandatory; /* Hiệu ứng hít vào khung */
+    scroll-behavior: smooth;
+    gap: 10px;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+}
+
+    /* Ẩn thanh cuộn mặc định để nhìn cho sạch */
+    .recently-viewed-slider::-webkit-scrollbar {
+        height: 5px;
+    }
+
+    .recently-viewed-slider::-webkit-scrollbar-thumb {
+        background: var(--bs-primary);
+        border-radius: 10px;
+    }
+
+/* Mỗi thẻ sản phẩm sẽ chiếm trọn chiều ngang Sidebar */
+.viewed-item-card {
+    min-width: 100%;
+    scroll-snap-align: start; /* Điểm dừng khi kéo */
+    flex-shrink: 0;
+}

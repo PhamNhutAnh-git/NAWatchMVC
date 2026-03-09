@@ -35,30 +35,41 @@
                 <i class="fas fa-filter me-2"></i>Bộ lọc
             </button>
             @* 2. Nút Sắp xếp: Thêm logic 'selected' để giữ trạng thái hiển thị *@
+            @* --- Định nghĩa Helper để gộp tham số URL (Đặt ngay trên thẻ select) --- *@
+            @{
+                string BuildSortUrl(string sortValue)
+                {
+                    // Lấy tất cả các tham số hiện tại đang có trên URL (query, ncc, mucGia...)
+                    var routeData = Context.Request.Query.ToDictionary(k => k.Key, v => v.Value.ToString());
+
+                    // Cập nhật giá trị sắp xếp mới vào bộ tham số
+                    routeData["sort"] = sortValue;
+
+                    // Trả về URL mới chứa cả bộ lọc cũ lẫn kiểu sắp xếp mới
+                    return Url.Action("Index", "HangHoa", routeData);
+                }
+            }
             <select class="form-select rounded-pill border-primary shadow-sm text-dark"
                     style="width: auto; border-color: #1E88E5 !important;"
                     onchange="location = this.value;">
 
-                @* Kiểm tra nếu sort trống hoặc null thì chọn Mới nhất *@
-                <option value="@Url.Action("Index", new { sort = "" })"
-                        selected="@(string.IsNullOrEmpty(Context.Request.Query["sort"]))">
+                @* Dùng hàm BuildSortUrl để giữ lại các bộ lọc đang có *@
+                <option value="@BuildSortUrl("")" selected="@(string.IsNullOrEmpty(Context.Request.Query["sort"]))">
                     Sắp xếp: Mới nhất
                 </option>
 
-                @* Kiểm tra nếu sort là price_asc *@
-                <option value="@Url.Action("Index", new { sort = "price_asc" })"
-                        selected="@(Context.Request.Query["sort"] == "price_asc")">
+                <option value="@BuildSortUrl("price_asc")" selected="@(Context.Request.Query["sort"] == "price_asc")">
                     Giá thấp đến cao
                 </option>
 
-                @* Kiểm tra nếu sort là price_desc *@
-                <option value="@Url.Action("Index", new { sort = "price_desc" })"
-                        selected="@(Context.Request.Query["sort"] == "price_desc")">
+                <option value="@BuildSortUrl("price_desc")" selected="@(Context.Request.Query["sort"] == "price_desc")">
                     Giá cao đến thấp
                 </option>
             </select>
             @* 3. THANH TÌM KIẾM: Thu ngắn lại và đổi viền xanh *@
             <form asp-action="Index" method="get" class="d-flex position-relative ms-lg-1">
+                @* THÊM DÒNG dưới: Để giữ giá trị sắp xếp khi khách tìm kiếm tại đây *@
+                <input type="hidden" name="sort" value="@Context.Request.Query["sort"]" />
                 @* Giảm width từ 250px xuống còn 180px để thanh tìm kiếm ngắn lại *@
                 <input name="query"
                        class="form-control rounded-pill border-primary shadow-sm px-4"
@@ -83,9 +94,7 @@
                     @if (Context.Request.Query.Count > 0 && !(Context.Request.Query.Count == 1 && Context.Request.Query.ContainsKey("sort")))
                     {
                         @* 1. Nút Xóa tất cả: Kích thước bằng nút Bộ lọc (px-4, rounded-pill) *@
-                        @* <a asp-action="Index" class="btn btn-danger rounded-pill px-4 shadow-sm d-flex align-items-center">
-                Xóa bộ lọc <i class="fas fa-times-circle ms-2"></i>
-                </a> *@
+
                         <a asp-action="Index" class="btn btn-danger rounded-pill px-4 d-flex align-items-center shadow-sm" style="height: 40px;">
                             Xóa bộ lọc <i class="fas fa-times-circle ms-2"></i>
                         </a>
@@ -102,9 +111,9 @@
                             @* Lọc theo Hãng sản xuất *@
                             @if (!string.IsNullOrEmpty(Context.Request.Query["ncc"]))
                             {
-                                <a class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal" style="height: 40px; cursor: default;">
+                                <span class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal" style="height: 40px; cursor: default;">
                                     Hãng: <b>@Context.Request.Query["ncc"]</b>
-                                </a>
+                                </span>
                             }
 
                             @* Lọc theo Loại máy *@
@@ -129,15 +138,15 @@
                                 @* Lưu giá trị từ URL vào biến để xử lý hiển thị *@
                                 var hienThiGia = Context.Request.Query["mucGia"].ToString() switch
                                 {
-                                    "duoi-2tr" => "Dưới 2 triệu",
-                                    "2tr-5tr" => "2 - 5 triệu",
-                                    "tren-10tr" => "Trên 10 triệu",
+                                    "duoi-2tr" => " Dưới 2 triệu",
+                                    "2tr-5tr" => " 2 - 5 triệu",
+                                    "tren-10tr" => " x1Trên 10 triệu",
                                     _ => Context.Request.Query["mucGia"].ToString()
                                 };
-
-                                <span class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal btn-filter-size"
+                                @* btn - filter - size dùng để tạo btn fill size *@
+                                <span class="btn btn-light border rounded-pill px-4 d-flex align-items-center shadow-sm fw-normal "
                                       style="cursor: default; background-color: white;">
-                                    Giá: <b class="ms-1 text-primary">@hienThiGia</b>
+                                    Giá: @* <b class="ms-1 text-primary">@hienThiGia</b> chữ xanh dương cho btn *@ <b>@hienThiGia</b>
                                 </span>
                             }
                             @* --- Lọc theo Đối tượng sử dụng (ID chuyển sang Tên) --- *@
@@ -175,7 +184,8 @@
         <div class="modal-content border-0 shadow-lg">
             @* Form sử dụng phương thức GET để truyền tham số lên URL *@
             <form asp-controller="HangHoa" asp-action="Index" method="get">
-
+                @* 1. THÊM DÒNG dưới: Để giữ giá trị sắp xếp hiện tại khi bấm "Xem kết quả" lọc *@
+                <input type="hidden" name="sort" value="@Context.Request.Query["sort"]" />
                 @* Header của Modal *@
                 <div class="modal-header text-white" style="background-color: #1E88E5;">
                     <h5 class="modal-title fw-bold" id="filterModalLabel">Tìm đồng hồ phù hợp</h5>

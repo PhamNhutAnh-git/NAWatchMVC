@@ -35,21 +35,21 @@
             <h6 class="card-title mb-2 tgdd-product-title">@Model.TenHh</h6>
         </a>
 
-        @* Giá tiền: Hiển thị chuẩn phong cách TGDĐ *@
+        @* Giá tiền: Hiển thị chuẩn phong cách TGDĐ với logic GiaBan mới *@
         <div class="mb-2 d-flex align-items-center flex-wrap">
-            @* 1. Giá bán hiện tại: Đỏ đậm, nổi bật nhất *@
-            <strong class="text-danger fs-5 fw-bold">@Model.DonGia.ToString("#,##0")₫</strong>
+            @* 1. Giá bán thực tế: Hiển thị GiaBan (đã tính khấu trừ % giảm) *@
+            <strong class="text-danger fs-5 fw-bold">@Model.GiaBan.ToString("#,##0")₫</strong>
 
             @if (Model.GiamGia > 0)
             {
-                @* Nhóm giá gốc và % giảm nằm cạnh nhau trên cùng một dòng *@
+                @* Nhóm giá gốc và % giảm nằm cạnh nhau *@
                 <span class="ms-2 d-inline-flex align-items-center">
-                    @* 2. Giá gốc: Màu xám, gạch ngang, cỡ chữ nhỏ hơn (0.85rem) *@
+                    @* 2. Giá niêm yết (Giá gốc): Dùng DonGia để gạch ngang *@
                     <small class="text-muted text-decoration-line-through" style="font-size: 0.85rem;">
-                        @Model.GiaGoc.ToString("#,##0")₫
+                        @Model.DonGia.ToString("#,##0")₫
                     </small>
 
-                    @* 3. Phần trăm giảm: Đỏ, in đậm, nằm ngay sau giá gốc *@
+                    @* 3. Phần trăm giảm: Giữ nguyên từ thuộc tính GiamGia *@
                     <small class="text-danger ms-1 fw-bold" style="font-size: 0.85rem;">
                         -@Model.GiamGia%
                     </small>
@@ -84,12 +84,7 @@
         </div>
     </div>
     @* 4. Nút hành động nhanh: Đổi thành btn-primary (Xanh dương đặc) để nổi bật *@
-    @* <div class="card-footer bg-transparent border-0 pb-3">
-        <a asp-controller="Cart" asp-action="Add" asp-route-id="@Model.MaHh"
-           class="btn btn-primary w-100 rounded-pill py-2 btn-sm-buy shadow-sm">
-            <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
-        </a>
-    </div> *@
+
     <div class="card-footer bg-transparent border-0 pb-3">
         @* Thêm class btn-sm-buy để dễ dàng quản lý màu sắc riêng *@
         <a asp-controller="Cart" asp-action="Add" asp-route-id="@Model.MaHh"

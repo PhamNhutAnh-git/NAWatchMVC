@@ -58,6 +58,7 @@ public partial class HangHoa
     public string? XuatXu { get; set; }
 
     public double? DiemDanhGia { get; set; }
+    public int? ThoiGianPin { get; set; } // Dùng int? vì trong DB có thể để Null
 
     public virtual ICollection<ChiTietGioHang> ChiTietGioHangs { get; set; } = new List<ChiTietGioHang>();
 

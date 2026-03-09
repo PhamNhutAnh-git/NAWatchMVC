@@ -1,0 +1,259 @@
+﻿@model NAWatchMVC.ViewModels.ChiTietHangHoaVM
+@{
+    ViewData["Title"] = "Chi tiết " + Model.TenHh;
+}
+
+<style>
+    /* 1. Khung chứa ảnh chuẩn TGDĐ */
+    .product-image-box {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        border-radius: 10px;
+        background: #fff;
+    }
+    .product-image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Giữ nguyên tỷ lệ đồng hồ không bị méo */
+        transition: 0.5s;
+    }
+    .product-image-box:hover img { transform: scale(1.05); }
+
+    /* 2. Hộp Khuyến mãi (Voucher) phong cách TGDĐ */
+    .promo-box {
+        border: 1px solid #ff9800;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .promo-header {
+        background: #ff9800;
+        color: white;
+        padding: 8px 15px;
+        font-weight: bold;
+    }
+    .promo-content { padding: 10px; font-size: 0.9rem; }
+    .promo-item { margin-bottom: 8px; display: flex; align-items: flex-start; }
+    .promo-item i { color: #4caf50; margin-top: 4px; margin-right: 8px; }
+
+    /* 3. Bảng thông số kỹ thuật gọn gàng */
+    .spec-table th { width: 40%; background-color: #f8f9fa; font-weight: 600; }
+    /* 4. Màu xanh dương chủ đạo của NAWatch */
+    .btn-outline-nawatch {
+        color: #1E88E5 !important;
+        border-color: #1E88E5 !important;
+        background-color: #ffffff !important;
+        transition: 0.3s;
+    }
+
+     .btn-outline-nawatch:hover {
+        background-color: #1E88E5 !important;
+        color: #ffffff !important;
+     }
+</style>
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Chi tiết sản phẩm</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-controller="HangHoa" asp-action="Index">Cửa hàng</a></li>
+        <li class="breadcrumb-item active text-white">@Model.TenHh</li>
+    </ol>
+</div>
+<div class="container-fluid ">
+    <div class="container py-5">
+        <div class="row g-4 mb-5">
+            @* --- CỘT TRÁI & GIỮA: HÌNH ẢNH & THÔNG TIN CHÍNH --- *@
+            <div class="col-lg-8 col-xl-9">
+                <div class="row g-4 align-items-stretch">@* align-items-stretch giúp 2 cột cao bằng nhau *@
+                    @* 1. Hình ảnh sản phẩm *@
+                    <div class="col-lg-6">
+                        <div class="border rounded product-image-box shadow-sm h-100">
+                            <img src="~/anhall/@Model.Hinh" class="img-fluid" alt="@Model.TenHh" onerror="this.src='/img/no-image.jpg'">
+                        </div>
+                    </div>
+
+                    @* 2. Thông tin giá và nút mua - Đã căn giữa và tăng kích thước *@
+                    <div class="col-lg-6 d-flex flex-column justify-content-center px-lg-4">
+                        <h1 class="fw-bold mb-3 text-uppercase display-6">@Model.TenHh</h1>
+
+                        <div class="d-flex align-items-center mb-4 fs-5">
+                            <div class="text-warning me-3">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="@(i <= Model.DiemDanhGia ? "fas" : "far") fa-star"></i>
+                                }
+                            </div>
+                            <span class="text-muted border-end pe-3 me-3">@Model.SoLanXem lượt xem</span>
+                            <span class="text-muted">@Model.SoLuongBan đã bán</span>
+                        </div>
+
+                        @* Giá bán to rõ hơn *@
+                        <div class="mb-4 d-flex flex-column align-items-center">
+                            <h1 class="fw-bold text-danger mb-1 display-5">@Model.GiaBan.ToString("#,##0")₫</h1>
+                            @if (Model.GiamGia > 0)
+                            {
+                                <div class="d-flex align-items-center">
+                                    <span class="text-decoration-line-through text-muted fs-4">@Model.DonGia.ToString("#,##0")₫</span>
+                                    <span class="badge bg-danger ms-3 fs-5">-@Model.GiamGia%</span>
+                                </div>
+                            }
+                        </div>
+
+                        <p class="mb-4 d-flex flex-row justify-content-center align-items-center fs-5"><strong>Trạng thái:</strong> <span class="text-success">Hiện còn: @Model.SoLuong</span></p>
+
+                        @* Form đặt hàng với 2 nút bấm xếp chồng *@
+                        <form asp-action="AddToCart" asp-controller="Cart" method="post" class="w-100">
+                            <input type="hidden" name="id" value="@Model.MaHh" />
+
+                            @* Dòng 1: Số lượng và Nút Mua ngay *@
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="input-group quantity me-3" style="width: 130px; height: 55px;">
+                                    <button type="button" class="btn btn-minus border bg-light px-3">-</button>
+                                    <input type="text" class="form-control text-center border-1 fw-bold" name="quantity" value="1">
+                                    <button type="button" class="btn btn-plus border bg-light px-3">+</button>
+                                </div>
+                                <button type="submit" class="btn btn-danger btn-lg rounded-pill flex-grow-1 fw-bold shadow-sm" style="height: 55px; font-size: 1.2rem;">
+                                    MUA NGAY 1
+                                </button>
+                            </div>
+
+                            @* Dòng 2: Nút Thêm vào giỏ hàng (Nền trắng, viền xanh, chữ xanh) *@
+                            <button type="button" class="btn btn-outline-nawatch btn-lg rounded-pill w-100 fw-bold ajax-add-to-cart shadow-sm"
+                                    data-id="@Model.MaHh" style="height: 60px; border-width: 2px; font-size: 1.2rem;">
+                                <i class="fas fa-cart-plus me-2"></i> THÊM VÀO GIỎ HÀNG
+                            </button>
+                        </form>
+                    </div>
+
+                    @* 3. Tabs Mô tả & Thông số chi tiết *@
+                    <div class="col-lg-12 mt-4">
+                        <nav>
+                            <div class="nav nav-tabs mb-3">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#nav-specs">Thông số kỹ thuật</button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#nav-about">Mô tả sản phẩm</button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#nav-mission">Đánh giá</button>
+                            </div>
+                        </nav>
+                        <div class="tab-content">
+                            @* Tab Thông số kỹ thuật (Show 27 thuộc tính) *@
+                            <div class="tab-pane fade show active" id="nav-specs">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered spec-table shadow-sm">
+                                        <tbody>
+                                            @* --- NHÓM 1: THIẾT KẾ & MẶT SỐ --- *@
+                                            <tr class="table-light"><th colspan="2" class="text-primary"><i class="fas fa-drafting-compass me-2"></i> THIẾT KẾ & MẶT SỐ</th></tr>
+                                            <tr><th>Đối tượng sử dụng</th><td>@Model.GioiTinh</td></tr>
+                                            <tr><th>Đường kính mặt</th><td>@Model.DuongKinhMat</td></tr>
+                                            <tr><th>Chất liệu mặt kính</th><td>@Model.ChatLieuKinh</td></tr>
+                                            <tr><th>Chất liệu khung viền</th><td>@Model.ChatLieuKhungVien</td></tr>
+
+                                            @* --- NHÓM 2: DÂY ĐEO --- *@
+                                            <tr class="table-light"><th colspan="2" class="text-primary"><i class="fas fa-band-aid me-2"></i> DÂY ĐEO</th></tr>
+                                            <tr><th>Chất liệu dây</th><td>@Model.ChatLieuDay</td></tr>
+                                            <tr><th>Độ rộng dây</th><td>@Model.DoRongDay</td></tr>
+
+                                            @* --- NHÓM 3: BỘ MÁY & NĂNG LƯỢNG --- *@
+                                            <tr class="table-light"><th colspan="2" class="text-primary"><i class="fas fa-cogs me-2"></i> BỘ MÁY & NĂNG LƯỢNG</th></tr>
+                                            <tr><th>Loại máy</th><td>@Model.LoaiMay</td></tr>
+                                            <tr><th>Tên bộ máy</th><td>@Model.TenBoMay</td></tr>
+                                            <tr><th>Nguồn năng lượng</th><td>@Model.NguonNangLuong</td></tr>
+                                           @*  <tr><th>Thời gian sử dụng pin</th><td>@(Model.ThoiGianPin ?? "Đang cập nhật")</td></tr> *@
+                                            <tr><th>Thời gian sử dụng Pin</th>
+                                            <td>@(Model.ThoiGianPin > 0 ? Model.ThoiGianPin + " Năm" : "Không dùng Pin")</td>
+                                            
+                                            @* --- NHÓM 4: THÔNG TIN KHÁC --- *@
+                                            <tr class="table-light"><th colspan="2" class="text-primary"><i class="fas fa-info-circle me-2"></i> THÔNG TIN KHÁC</th></tr>
+                                            <tr><th>Kháng nước</th><td>@Model.ChongNuoc</td></tr>
+                                            <tr><th>Tiện ích</th><td>@Model.TienIch</td></tr>
+                                            <tr><th>Hãng</th><td>@Model.TenNcc</td></tr>
+                                            <tr><th>Thương hiệu của</th><td>@(Model.XuatXu ?? Model.XuatXu)</td></tr>
+                                            <tr><th>Sản xuất tại</th><td>@Model.XuatXu</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="nav-about">
+                                <div class="p-3 border rounded bg-white">
+                                    @Html.Raw(Model.MoTa)
+                                </div>
+                            </div>
+
+                            @* Giữ nguyên phần đánh giá cũ của bạn *@
+                            <div class="tab-pane fade" id="nav-mission">
+                                @* ... Code đánh giá của Nhựt Anh ... *@
+                                <p class="text-muted text-center py-4">Chưa có đánh giá nào.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* --- CỘT PHẢI: THAY TÌM KIẾM/DANH MỤC BẰNG VOUCHER --- *@
+            <div class="col-lg-4 col-xl-3">
+                <div class="sticky-top" style="top: 100px;">
+                    
+                    @* 1.ĐẶT SẢN PHẨM ĐÃ XEM Ở ĐÂY (TRÊN NỔI BẬT) --- *@
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2">SẢN PHẨM ĐÃ XEM</h6>
+                        @await Component.InvokeAsync("RecentlyViewed", new { limit = 3 })
+                    </div>
+
+                    @* 2.Khối Voucher/Khuyến mãi (Hardcoded) *@
+                    <div class="promo-box mb-4 shadow-sm bg-white">
+                        <div class="promo-header">
+                            <i class="fas fa-gift me-2"></i> KHUYẾN MÃI HẤP DẪN
+                        </div>
+                        <div class="promo-content">
+                            <div class="promo-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Giảm thêm 5% tối đa 200k khi thanh toán qua VNPay.</span>
+                            </div>
+                            <div class="promo-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Tặng voucher 100k cho đơn hàng tiếp theo.</span>
+                            </div>
+                            <div class="promo-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Thay Pin miễn phí trọn đời (áp dụng máy Quartz).</span>
+                            </div>
+                            <div class="promo-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Miễn phí giao hàng toàn quốc cho đơn từ 1 triệu.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                  
+                    @* 3.Khối chính sách bảo hành (Hardcoded - Đặc trưng TGDĐ) *@
+                    <div class="border rounded p-3 bg-light shadow-sm">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-shield-alt text-primary me-2"></i> CHÍNH SÁCH BẢO HÀNH</h6>
+                        <ul class="list-unstyled small mb-0">
+                            <li class="mb-2 border-bottom pb-2">✓ Bảo hành chính hãng 12 tháng.</li>
+                            <li class="mb-2 border-bottom pb-2">✓ 1 đổi 1 trong 30 ngày nếu lỗi NSX.</li>
+                            <li>✓ Cam kết 100% hàng thật, phát hiện giả đền gấp 10.</li>
+                        </ul>
+                    </div>
+                    
+                    @* 4.Khối sản phẩm nổi bậc *@
+                    @await Component.InvokeAsync("FeaturedProducts", new { limit = 5 })
+                    
+                </div>
+            </div>
+        </div>
+
+        @* --- PHẦN SẢN PHẨM LIÊN QUAN (GIỮ NGUYÊN) --- *@
+        <div class="container-fluid py-5 border-top mt-5">
+            <div class="container">
+                <h3 class="fw-bold mb-4 text-primary"><i class="fas fa-layer-group me-2"></i>Sản phẩm tương tự</h3>
+                <div class="row g-4">
+                    @await Component.InvokeAsync("RelatedProducts", new
+                        {
+                            maLoai = Model.MaLoai,
+                            maHhHienTai = Model.MaHh
+                        })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

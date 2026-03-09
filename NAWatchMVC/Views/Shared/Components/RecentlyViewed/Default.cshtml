@@ -1,0 +1,33 @@
+﻿@model IEnumerable<NAWatchMVC.ViewModels.HangHoaVM>
+
+@if (Model != null && Model.Any())
+{
+    <div class="recently-viewed-container bg-white p-3 border rounded shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0" style="font-size: 0.85rem; letter-spacing: 1px;">VỪA XEM</h6>
+            <span class="badge bg-light text-muted fw-normal">Kéo để xem <i class="fas fa-arrow-right ms-1"></i></span>
+        </div>
+
+        <div class="recently-viewed-slider">
+            @foreach (var item in Model)
+            {
+                <div class="viewed-item-card">
+                    <a asp-controller="HangHoa" asp-action="Detail" asp-route-id="@item.MaHh"
+                       class="text-decoration-none text-dark d-flex align-items-center border rounded p-2">
+                        <img src="~/anhall/@item.Hinh" style="width: 60px; height: 60px; object-fit: contain;" class="me-3">
+                        <div class="overflow-hidden">
+                            <div class="small fw-bold text-truncate" title="@item.TenHh">@item.TenHh</div>
+                            <div class="text-danger fw-bold small">@item.GiaBan.ToString("#,##0")₫</div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-2 border-top pt-2">
+            <a href="javascript:void(0)" onclick="clearHistory()" class="text-muted small text-decoration-none">
+                <i class="fas fa-trash-alt me-1"></i> Xóa lịch sử
+            </a>
+        </div>
+    </div>
+}
