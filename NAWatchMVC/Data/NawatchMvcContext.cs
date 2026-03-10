@@ -296,6 +296,9 @@ public partial class NawatchMvcContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.VaiTro).HasDefaultValue(0);
+            entity.Property(e => e.TenDangNhap)
+                .HasMaxLength(50)
+                .HasColumnName("TenDangNhap"); // Khai báo cho EF biết cột này mới xuất hiện
         });
 
         modelBuilder.Entity<Loai>(entity =>

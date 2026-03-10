@@ -1,0 +1,88 @@
+﻿@model IEnumerable<NAWatchMVC.Data.HoaDon> 
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Đơn Hàng Của Tôi</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item active text-white">Lịch sử mua hàng</li>
+    </ol>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive shadow-sm rounded-4 overflow-hidden">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #1E88E5;" class="text-white">
+                        <tr>
+                            <th class="py-3 ps-4">Mã đơn</th>
+                            <th class="py-3">Ngày đặt</th>
+                            <th class="py-3">Tổng tiền</th>
+                            <th class="py-3 text-center">Trạng thái</th>
+                            <th class="py-3 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold ps-4 text-primary">#@item.MaHd</td>
+                                @* 2. Fix lỗi Nullable DateTime ở đây bằng cách dùng .Value hoặc ?. *@
+                                <td>@(item.NgayDat.HasValue ? item.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "---")</td>
+                                <td class="fw-bold text-danger">
+                                    @(item.TongTien.HasValue ? item.TongTien.Value.ToString("#,##0") : "0") đ
+                                </td>
+                                
+                                @* 3. Dùng switch cho code nhìn sang chảnh hơn *@
+                                <td class="text-center">
+                                    @switch (item.MaTrangThai)
+                                    {
+                                        case 0:
+                                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Mới đặt</span>
+                                            break;
+                                        case 1:
+                                            <span class="badge bg-primary rounded-pill px-3 py-2">Đang giao</span>
+                                            break;
+                                        case 2:
+                                            <span class="badge bg-success rounded-pill px-3 py-2">Hoàn tất</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-danger rounded-pill px-3 py-2">Đã hủy</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a asp-action="ChiTietDonHang" asp-route-id="@item.MaHd" 
+                                       class="btn btn-sm btn-outline-primary rounded-pill px-4 shadow-sm">
+                                        Chi tiết <i class="fas fa-search-plus ms-1"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5 border rounded-4 bg-light shadow-sm">
+                <div class="mb-4">
+                    <i class="fas fa-box-open fa-6x text-muted opacity-50"></i>
+                </div>
+                <h3 class="fw-bold text-dark">Ní chưa sắm chiếc đồng hồ nào hết!</h3>
+                <p class="text-muted fs-5">Hãy để NAWatch giúp ní tìm ra "chân ái" cho cổ tay của mình nhé.</p>
+                <a asp-controller="HangHoa" asp-action="Index" 
+                   class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold shadow">
+                   KHÁM PHÁ CỬA HÀNG NGAY
+                </a>
+            </div>
+        }
+
+    </div>
+</div>

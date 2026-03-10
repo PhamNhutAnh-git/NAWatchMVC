@@ -1,0 +1,90 @@
+﻿@model NAWatchMVC.ViewModels.EditProfileVM
+@{
+    ViewData["Title"] = "Cập nhật hồ sơ";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Cập Nhật Hồ Sơ</h1>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="MaKh" />
+                    <input type="hidden" asp-for="HinhCu" />
+
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <img id="previewImg" src="~/Hinh/KhachHang/@Model.HinhCu"
+                                 class="rounded-circle border border-4 border-primary shadow-sm mb-3"
+                                 width="120" height="120" style="object-fit: cover;">
+                            <div class="mb-3">
+                                <label class="btn btn-outline-primary btn-sm rounded-pill">
+                                    <i class="fas fa-camera me-1"></i> Đổi ảnh đại diện
+                                    <input type="file" asp-for="FileHinh" class="d-none" onchange="previewFile(this)">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Họ và tên</label>
+                                <input asp-for="HoTen" class="form-control rounded-pill bg-light" />
+                                <span asp-validation-for="HoTen" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Số điện thoại</label>
+                                <input asp-for="DienThoai" class="form-control rounded-pill bg-light" />
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Email</label>
+                                <input asp-for="Email" class="form-control rounded-pill bg-light" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold d-block">Giới tính</label>
+                                <div class="form-check form-check-inline mt-2">
+                                    <input class="form-check-input" type="radio" asp-for="GioiTinh" value="true">
+                                    <label class="form-check-label">Nam</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" asp-for="GioiTinh" value="false">
+                                    <label class="form-check-label">Nữ</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Địa chỉ giao hàng</label>
+                                <textarea asp-for="DiaChi" class="form-control rounded-3 bg-light" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 d-flex justify-content-between">
+                            <a asp-action="Profile" class="btn btn-light rounded-pill px-4">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow" style="background-color: #1E88E5;">
+                                <i class="fas fa-save me-2"></i>LƯU THAY ĐỔI
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function previewFile(input) {
+            var file = $("input[type=file]").get(0).files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    $("#previewImg").attr("src", reader.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+}

@@ -1,0 +1,122 @@
+﻿@model NAWatchMVC.ViewModels.RegisterVM
+@{
+    ViewData["Title"] = "Đăng ký";
+    // Kiểm tra lại nếu project mới chỉ có _Layout thì sửa lại nhé
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Đăng Ký</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item active text-white">Đăng ký</li>
+    </ol>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="bg-light rounded p-5 shadow-sm border border-secondary" style="border-style: dashed !important;">
+
+                    <h2 class="text-center mb-4 text-primary fw-bold">Đăng Ký Tài Khoản Mới</h2>
+                    <p class="text-center mb-5">Hãy trở thành thành viên của <strong>NAWatch</strong> để nhận nhiều ưu đãi!</p>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="All" class="alert alert-danger"></div>
+                    }
+
+                    <form asp-action="DangKy" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-item">
+                                    <label class="form-label fw-bold">Tên đăng nhập <span class="text-danger">*</span></label>
+                                    @* Đổi từ MaKh thành TenDangNhap *@
+                                    <input asp-for="TenDangNhap" class="form-control border-secondary py-3 rounded-pill" placeholder="Ví dụ: nhutanh123">
+                                    <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-item">
+                                    <label class="form-label fw-bold">Mật khẩu <span class="text-danger">*</span></label>
+                                    <input asp-for="MatKhau" type="password" class="form-control border-secondary py-3 rounded-pill" placeholder="••••••••">
+                                    <span asp-validation-for="MatKhau" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-item">
+                                    <label class="form-label fw-bold">Họ và tên <span class="text-danger">*</span></label>
+                                    <input asp-for="HoTen" class="form-control border-secondary py-3 rounded-pill" placeholder="Nhập đầy đủ họ tên">
+                                    <span asp-validation-for="HoTen" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item">
+                                    <label class="form-label fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                                    <input asp-for="DienThoai" class="form-control border-secondary py-3 rounded-pill" placeholder="0xxxxxxxxx">
+                                    <span asp-validation-for="DienThoai" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-item">
+                                    <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                                    <input asp-for="Email" class="form-control border-secondary py-3 rounded-pill" placeholder="example@gmail.com">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Giới tính</label>
+                                <div class="d-flex mt-2">
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input" type="radio" asp-for="GioiTinh" value="true" checked>
+                                        <label class="form-check-label">Nam</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" asp-for="GioiTinh" value="false">
+                                        <label class="form-check-label">Nữ</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item">
+                                    <label class="form-label fw-bold">Ngày sinh</label>
+                                    <input asp-for="NgaySinh" class="form-control border-secondary py-3 rounded-pill">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-item">
+                                    <label class="form-label fw-bold">Địa chỉ</label>
+                                    <textarea asp-for="DiaChi" class="form-control border-secondary" rows="3" style="border-radius: 15px;" placeholder="Địa chỉ nhận hàng của ní..."></textarea>
+                                    <span asp-validation-for="DiaChi" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary text-white rounded-pill py-3 fw-bold fs-5 shadow-sm">ĐĂNG KÝ TÀI KHOẢN</button>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <span>Đã có tài khoản? </span>
+                            <a asp-action="DangNhap" class="text-primary fw-bold">Đăng nhập ngay</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

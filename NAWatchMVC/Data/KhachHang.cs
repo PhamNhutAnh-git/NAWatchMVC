@@ -28,7 +28,7 @@ public partial class KhachHang
     public int? VaiTro { get; set; }
 
     public string? RandomKey { get; set; }
-
+    public string TenDangNhap { get; set; } // Cột mới dùng để Login
     public virtual ICollection<DanhGium> DanhGia { get; set; } = new List<DanhGium>();
 
     public virtual ICollection<GioHang> GioHangs { get; set; } = new List<GioHang>();

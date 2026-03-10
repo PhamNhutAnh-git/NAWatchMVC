@@ -82,7 +82,7 @@
 
                             
                             @* ... Các mục khác làm tương tự nếu có Controller riêng ... *@
-                            <a href="#" class="nav-item nav-link">Liên Hệ</a>
+                            <a href="#" class="nav-item nav-link">Liên Hệ1</a>
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Tiện ích</a>
                                 <div class="dropdown-menu m-0 border-0 rounded-0 shadow-sm">
@@ -104,9 +104,40 @@
                                 <span class="position-absolute rounded-circle d-flex align-items-center justify-content-center text-white px-1"
                                       style="top: -5px; left: 15px; height: 20px; min-width: 20px; background-color: #1E88E5;">3</span>
                             </a>
-                            <a href="#" class="my-auto">
-                                <i class="fas fa-user fa-2x" style="color: #1E88E5;"></i>
-                            </a>
+                            @* nút user *@
+                            @* --- ĐOẠN CODE CẦN THAY THẾ CHO NÚT USER --- *@
+                            <div class="nav-item dropdown my-auto">
+                                <a href="#" class="nav-link dropdown-toggle p-0" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user fa-2x" style="color: #1E88E5;"></i>
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        <span class="ms-2 d-none d-xl-inline-block text-dark fw-bold">Chào, @User.Identity.Name!</span>
+                                    }
+                                </a>
+                                <div class="dropdown-menu m-0 border-0 rounded-0 shadow-sm" style="right: 0; left: auto;">
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        @* Nếu đã đăng nhập thì hiện thông tin cá nhân *@
+                                        <a asp-controller="KhachHang" asp-action="Profile" class="dropdown-item">Hồ sơ cá nhân</a>
+                                        <a asp-controller="KhachHang" asp-action="LichSuDonHang" class="dropdown-item">Lịch sử đơn hàng</a>
+
+                                        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                                        {
+                                            <div class="dropdown-divider"></div>
+                                            <a href="/Admin/HomeAdmin" class="dropdown-item text-primary">Trang quản trị</a>
+                                        }
+
+                                        <div class="dropdown-divider"></div>
+                                        <a asp-controller="KhachHang" asp-action="DangXuat" class="dropdown-item text-danger">Đăng xuất</a>
+                                    }
+                                    else
+                                    {
+                                        @* Nếu chưa đăng nhập thì hiện Login/Register *@
+                                        <a asp-controller="KhachHang" asp-action="DangNhap" class="dropdown-item">Đăng nhập</a>
+                                        <a asp-controller="KhachHang" asp-action="DangKy" class="dropdown-item">Đăng ký thành viên</a>
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </nav>
@@ -135,8 +166,48 @@
     <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- Template Javascript -->
+
     <script src="~/js/main.js"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)\
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Cấu hình kiểu Toast (nhỏ gọn ở góc) cho nó sang
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            // 2. Kiểm tra TempData từ Server gửi về
+        @if (TempData["Success"] != null)
+        {
+            <text>
+                        Toast.fire({
+                            icon: 'success',
+                        title: '@TempData["Success"]'
+                        });
+            </text>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <text>
+                        Toast.fire({
+                            icon: 'error',
+                        title: '@TempData["Error"]'
+                        });
+            </text>
+        }
+            });
+    </script>
 </body>
 
 </html>

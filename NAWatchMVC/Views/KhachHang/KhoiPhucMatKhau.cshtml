@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Đặt lại mật khẩu";
+    Layout = "_LayoutCustomer";
+}
+
+@* --- Header trang đồng bộ với các trang khác --- *@
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Khôi Phục Mật Khẩu</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item active text-white">Xác nhận OTP</li>
+    </ol>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-key fa-3x" style="color: #1E88E5;"></i>
+                        <h3 class="fw-bold mt-3">Đặt Lại Mật Khẩu</h3>
+                        <p class="text-muted">Mã OTP đã được gửi đến:<br><b class="text-dark">@ViewBag.Email</b></p>
+                    </div>
+
+                    <form asp-action="KhoiPhucMatKhau" method="post">
+                        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+                        <input type="hidden" name="email" value="@ViewBag.Email" />
+
+                        @* --- Nhập OTP --- *@
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Mã xác nhận (OTP)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                                <input type="text" name="otp" class="form-control border-start-0 bg-light"
+                                       required placeholder="Nhập 6 số..." maxlength="6" pattern="\d*">
+                            </div>
+                        </div>
+
+                        @* --- Nhập Mật Khẩu Mới --- *@
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Mật khẩu mới</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-shield-alt text-muted"></i></span>
+                                <input type="password" name="matKhauMoi" id="matKhauMoi" class="form-control border-start-0 bg-light"
+                                       required placeholder="Tối thiểu 6 ký tự...">
+                            </div>
+                        </div>
+
+                        @* --- NÊN THÊM: Xác nhận lại mật khẩu --- *@
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Xác nhận mật khẩu</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-check-double text-muted"></i></span>
+                                <input type="password" name="confirmMatKhau" class="form-control border-start-0 bg-light"
+                                       required placeholder="Nhập lại mật khẩu mới...">
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm" style="background-color: #1E88E5; border: none;">
+                                <i class="fas fa-save me-2"></i>CẬP NHẬT MẬT KHẨU
+                            </button>
+                            <a asp-action="DangNhap" class="btn btn-link text-decoration-none text-muted mt-2">
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại đăng nhập
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

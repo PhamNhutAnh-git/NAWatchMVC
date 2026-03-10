@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Quên mật khẩu";
+    Layout = "_LayoutCustomer";
+}
+
+@* --- Header trang đồng bộ với hệ thống --- *@
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Khôi Phục Tài Khoản</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item active text-white">Quên mật khẩu</li>
+    </ol>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        @* Icon ổ khóa mở để tạo cảm giác đang được giải cứu *@
+                        <div class="bg-light d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-unlock-alt fa-3x" style="color: #1E88E5;"></i>
+                        </div>
+                        <h3 class="fw-bold">Quên Mật Khẩu?</h3>
+                        <p class="text-muted px-3">Nhập email ní đã đăng ký, NAWatch sẽ gửi mã OTP để đặt lại mật khẩu mới nhé.</p>
+                    </div>
+
+                    <form asp-action="QuenMatKhau" method="post">
+                        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Email đăng ký</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" name="email" class="form-control border-start-0 bg-light"
+                                       required placeholder="example@gmail.com...">
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm" style="background-color: #1E88E5; border: none;">
+                                <i class="fas fa-paper-plane me-2"></i> GỬI MÃ XÁC NHẬN
+                            </button>
+                            <a asp-action="DangNhap" class="btn btn-link text-decoration-none text-muted mt-2">
+                                <i class="fas fa-chevron-left me-1 small"></i> Quay lại Đăng nhập
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                @* --- Footer nhỏ nhắc nhở hỗ trợ --- *@
+                <div class="card-footer bg-light border-0 py-3 text-center">
+                    <small class="text-muted">Gặp khó khăn? <a href="#" class="text-primary fw-bold">Chat với hỗ trợ</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

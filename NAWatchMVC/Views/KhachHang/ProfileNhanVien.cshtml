@@ -1,0 +1,89 @@
+﻿@model NAWatchMVC.Data.NhanVien 
+@{
+    ViewData["Title"] = "Hồ sơ nhân viên";
+    Layout = "_LayoutCustomer"; // Hoặc _LayoutAdmin tùy vào việc ní muốn hiện ở đâu
+}
+
+@* --- Header đồng bộ với dự án --- *@
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Hồ Sơ Nội Bộ</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item active text-white">Hồ sơ nhân sự</li>
+    </ol>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                @* --- Header với tông màu quản trị chuyên nghiệp --- *@
+                <div class="card-header text-white text-center py-5" style="background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);">
+                    <div class="mb-3">
+                        @* Thêm hiệu ứng viền cho Avatar *@
+                        <img src="~/img/avatar.jpg" class="rounded-circle border border-4 border-white shadow-sm" 
+                             width="130" height="130" style="object-fit: cover;">
+                    </div>
+                    <h2 class="mb-1 fw-bold text-white">@Model.HoTen</h2>
+                    <span class="badge rounded-pill bg-light text-primary px-3 py-2 fw-bold text-uppercase">
+                        <i class="fas fa-user-tag me-1"></i>
+                        @(Model.VaiTro == 0 ? "Quản Trị Viên (Admin)" : "Nhân Viên (Staff)")
+                    </span>
+                </div>
+
+                <div class="card-body p-5 bg-white">
+                    <h5 class="mb-4 text-primary fw-bold border-bottom pb-2">
+                        <i class="fas fa-user-check me-2"></i>Thông tin định danh
+                    </h5>
+
+                    <div class="row mb-4">
+                        <div class="col-md-5 text-secondary fw-bold small text-uppercase">Mã Số Nhân Viên:</div>
+                        <div class="col-md-7 fw-bold text-dark fs-5">@Model.MaNv</div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-5 text-secondary fw-bold small text-uppercase">Email Công Việc:</div>
+                        <div class="col-md-7 text-dark">@Model.Email</div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-5 text-secondary fw-bold small text-uppercase">Bảo Mật Tài Khoản:</div>
+                        <div class="col-md-7">
+                            <span class="text-muted fst-italic"><i class="fas fa-shield-alt me-1"></i>Mật khẩu đã được mã hóa</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-5 text-secondary fw-bold small text-uppercase">Trạng Thái Làm Việc:</div>
+                        <div class="col-md-7">
+                            @* Xử lý Nullable cho HieuLuc nếu cần *@
+                            @if (Model.HieuLuc == true) 
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill">
+                                    <i class="fas fa-check-circle me-1"></i> Đang hoạt động
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 rounded-pill">
+                                    <i class="fas fa-times-circle me-1"></i> Đã tạm khóa
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-5 d-grid">
+                        @* Cập nhật đường dẫn về Admin/HomeAdmin cho đúng dự án *@
+                        <a href="/Admin/HomeAdmin" class="btn btn-primary rounded-pill py-3 fw-bold shadow">
+                            <i class="fas fa-tachometer-alt me-2"></i> TRUY CẬP TRANG QUẢN TRỊ
+                        </a>
+                        <a asp-action="DangXuat" class="btn btn-link text-muted mt-2 text-decoration-none">
+                            <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất tài khoản
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

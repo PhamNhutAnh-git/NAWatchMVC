@@ -1,0 +1,115 @@
+﻿@model NAWatchMVC.Data.HoaDon
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.MaHd;
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Chi Tiết Đơn Hàng</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-action="LichSuDonHang">Lịch sử đơn hàng</a></li>
+        <li class="breadcrumb-item active text-white">Đơn hàng #@Model.MaHd</li>
+    </ol>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        @* --- PHẦN THÔNG TIN TỔNG QUAN --- *@
+        <div class="row g-4 mb-5">
+            <div class="col-lg-6">
+                <div class="p-4 rounded shadow-sm bg-light h-100 border-start border-primary border-5">
+                    <h4 class="text-primary mb-4"><i class="fas fa-info-circle me-2"></i>Thông tin đơn hàng</h4>
+                    <p><strong>Mã đơn hàng:</strong> <span class="text-primary fw-bold">#@Model.MaHd</span></p>
+                    <p><strong>Ngày đặt:</strong> @Model.NgayDat?.ToString("dd/MM/yyyy HH:mm")</p>
+                    <div class="d-flex align-items-center mb-3">
+                        <strong class="me-2">Trạng thái:</strong>
+                        @switch (Model.MaTrangThai)
+                        {
+                            case 0:
+                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Mới đặt</span>
+                                break;
+                            case 1:
+                                <span class="badge bg-primary px-3 py-2 rounded-pill">Đang giao</span>
+                                break;
+                            case 2:
+                                <span class="badge bg-success px-3 py-2 rounded-pill">Hoàn tất</span>
+                                break;
+                            default:
+                                <span class="badge bg-danger px-3 py-2 rounded-pill">Đã hủy</span>
+                                break;
+                        }
+                    </div>
+                    <p><strong>Ghi chú:</strong> <i>@(string.IsNullOrEmpty(Model.GhiChu) ? "Không có ghi chú" : Model.GhiChu)</i></p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="p-4 rounded shadow-sm bg-light h-100 border-start border-info border-5">
+                    <h4 class="text-info mb-4"><i class="fas fa-truck me-2"></i>Thông tin giao nhận</h4>
+                    <p><strong>Người nhận:</strong> @Model.HoTen</p>
+                    <p><strong>Số điện thoại:</strong> @Model.DienThoai</p>
+                    <p><strong>Địa chỉ:</strong> @Model.DiaChi</p>
+                    <p><strong>Hình thức thanh toán:</strong> <span class="badge bg-outline-dark border border-dark text-dark">@Model.CachThanhToan</span></p>
+                </div>
+            </div>
+        </div>
+
+        @* --- DANH SÁCH SẢN PHẨM --- *@
+        <h4 class="mb-4 text-dark fw-bold"><i class="fas fa-list me-2"></i>Danh sách sản phẩm đã chọn</h4>
+        <div class="table-responsive shadow-sm rounded-4 overflow-hidden">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color: #1E88E5;" class="text-white text-center">
+                    <tr>
+                        <th class="py-3">Hình ảnh</th>
+                        <th class="py-3 text-start">Tên đồng hồ</th>
+                        <th class="py-3">Giá lúc mua</th>
+                        <th class="py-3">Số lượng</th>
+                        <th class="py-3 text-end pe-4">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ChiTietHds)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                <img src="~/anhall/@item.MaHhNavigation.Hinh"
+                                     class="img-fluid rounded shadow-sm"
+                                     style="width: 70px; height: 70px; object-fit: cover;"
+                                     alt="@item.MaHhNavigation.TenHh">
+                            </td>
+                            <td>
+                                <a asp-controller="HangHoa" asp-action="Detail" asp-route-id="@item.MaHh" class="text-decoration-none fw-bold text-dark">
+                                    @item.MaHhNavigation.TenHh
+                                </a>
+                                <br />
+                                <small class="text-muted">Mã SP: @item.MaHh</small>
+                            </td>
+                            <td class="text-center">@item.DonGia.ToString("#,##0") đ</td>
+                            <td class="text-center">@item.SoLuong</td>
+                            <td class="text-end pe-4 fw-bold text-primary">
+                                @((item.DonGia * item.SoLuong).ToString("#,##0")) đ
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="bg-light border-top border-2">
+                    <tr>
+                        <td colspan="4" class="text-end py-4 fw-bold fs-5">TỔNG GIÁ TRỊ ĐƠN HÀNG:</td>
+                        <td class="text-end py-4 pe-4 fw-bold fs-4 text-danger">
+                            @(Model.TongTien.HasValue ? Model.TongTien.Value.ToString("#,##0") : "0") đ
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="mt-5 d-flex justify-content-between">
+            <a asp-action="LichSuDonHang" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold">
+                <i class="fas fa-chevron-left me-2"></i> Trở lại lịch sử đơn hàng
+            </a>
+            <button onclick="window.print()" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm">
+                <i class="fas fa-print me-2"></i> In hóa đơn
+            </button>
+        </div>
+    </div>
+</div>

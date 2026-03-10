@@ -1,27 +1,48 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NAWatchMVC.Data;
+using Microsoft.AspNetCore.Authentication.Cookies; // Thêm dòng này để dùng Cookie
+using Microsoft.AspNetCore.Identity; // Thêm dòng này để dùng PasswordHasher
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// --- ĐĂNG KÝ SERVICES (DI CONTAINER) ---
 builder.Services.AddControllersWithViews();
-//dang ki ket noi
-builder.Services.AddDbContext<NawatchMvcContext>(options => { options.UseSqlServer(builder.Configuration.GetConnectionString("NAWatchMVC")); });
-// 1. Đăng ký dịch vụ Session vào hệ thống
-builder.Services.AddDistributedMemoryCache(); // Cần thiết để lưu trữ Session vào bộ nhớ
+
+// 1. Đăng ký kết nối SQL Server
+builder.Services.AddDbContext<NawatchMvcContext>(options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("NAWatchMVC"));
+});
+
+// 2. Đăng ký Authentication bằng Cookie (BẮT BUỘC để Login chạy được)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/KhachHang/DangNhap"; // Đường dẫn nếu khách chưa login mà đòi vào trang cấm
+        options.AccessDeniedPath = "/";          // Đường dẫn nếu vào trang không đủ quyền
+        options.ExpireTimeSpan = TimeSpan.FromHours(1); // Cookie sống trong 1 tiếng
+    });
+
+// 3. Đăng ký Session
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Session sẽ hết hạn sau 30 phút
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+// 4. Đăng ký các Helper "xịn" của ní
+builder.Services.AddTransient<NAWatchMVC.Helpers.MyEmailSender>(); // Gửi mail OTP
+
+// 5. Đăng ký Password Hasher (BẮT BUỘC để fix lỗi controller không băm được pass)
+builder.Services.AddScoped<IPasswordHasher<KhachHang>, PasswordHasher<KhachHang>>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE) ---
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -29,9 +50,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-// 2. Kích hoạt Session cho ứng dụng (BẮT BUỘC đặt ở đây)
-app.UseSession();
 
+// THỨ TỰ BẮT BUỘC: Session -> Authentication -> Authorization
+app.UseSession();         // Phải nằm trước Auth
+app.UseAuthentication();  // Phải nằm trước Authorization
 app.UseAuthorization();
 
 app.MapControllerRoute(

@@ -1,0 +1,56 @@
+﻿@model NAWatchMVC.ViewModels.DoiMatKhauVM
+@{
+    ViewData["Title"] = "Đổi mật khẩu";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Bảo Mật Tài Khoản</h1>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-bold">Đổi Mật Khẩu</h3>
+                        <p class="text-muted small">Nên đặt mật khẩu khó đoán một chút để bảo vệ tài khoản nhé ní!</p>
+                    </div>
+
+                    <form asp-action="DoiMatKhau" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="MatKhauCu" class="form-label fw-bold"></label>
+                            <input asp-for="MatKhauCu" class="form-control rounded-pill bg-light" placeholder="Nhập mật khẩu hiện tại..." />
+                            <span asp-validation-for="MatKhauCu" class="text-danger small"></span>
+                        </div>
+
+                        <hr class="my-4 text-muted">
+
+                        <div class="mb-3">
+                            <label asp-for="MatKhauMoi" class="form-label fw-bold"></label>
+                            <input asp-for="MatKhauMoi" class="form-control rounded-pill bg-light" placeholder="Nhập mật khẩu mới..." />
+                            <span asp-validation-for="MatKhauMoi" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="XacNhanMatKhau" class="form-label fw-bold"></label>
+                            <input asp-for="XacNhanMatKhau" class="form-control rounded-pill bg-light" placeholder="Nhập lại mật khẩu mới..." />
+                            <span asp-validation-for="XacNhanMatKhau" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold shadow">
+                                <i class="fas fa-check-circle me-2"></i>XÁC NHẬN THAY ĐỔI
+                            </button>
+                            <a asp-action="Profile" class="btn btn-link text-muted text-decoration-none">Hủy bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
