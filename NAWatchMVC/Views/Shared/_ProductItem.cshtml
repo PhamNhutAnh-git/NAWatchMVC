@@ -87,9 +87,10 @@
 
     <div class="card-footer bg-transparent border-0 pb-3">
         @* Thêm class btn-sm-buy để dễ dàng quản lý màu sắc riêng *@
-        <a asp-controller="Cart" asp-action="Add" asp-route-id="@Model.MaHh"
-           class="btn btn-primary w-100 rounded-pill py-2 btn-sm-buy shadow-sm">
-            <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
+        <a class="btn btn-primary w-100 rounded-pill py-2 btn-sm-buy shadow-sm add-to-cart-js"
+           data-id="@Model.MaHh"
+           href="javascript:void(0);">
+            <i class="fa fa-shopping-bag me-2"></i> THÊM VÀO GIỎ
         </a>
     </div>
 </div>

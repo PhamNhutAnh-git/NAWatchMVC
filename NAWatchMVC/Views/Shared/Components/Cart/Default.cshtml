@@ -1,0 +1,8 @@
+﻿@model int
+<a asp-controller="Cart" asp-action="Index" class="position-relative me-4 my-auto">
+    <i class="fa fa-shopping-bag fa-2x" style="color: #1E88E5;"></i>
+    <span id="cart-badge-count" class="position-absolute rounded-circle d-flex align-items-center justify-content-center text-white px-1"
+          style="top: -5px; left: 15px; height: 20px; min-width: 20px; background-color: #1E88E5;">
+        @Model
+    </span>
+</a>

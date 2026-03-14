@@ -28,23 +28,34 @@ namespace NAWatchMVC.Helpers // 1. Đã đổi sang namespace của ní
         // Tạo URL để chuyển hướng khách sang trang thanh toán VNPAY
         public string CreateRequestUrl(string baseUrl, string vnp_HashSecret)
         {
+            // 1. Sắp xếp dữ liệu (SortedList đã làm sẵn)
+            // 2. Tạo chuỗi QueryString đã Encode
             StringBuilder data = new StringBuilder();
             foreach (KeyValuePair<string, string> kv in _requestData)
             {
                 if (!string.IsNullOrEmpty(kv.Value))
                 {
-                    data.Append(WebUtility.UrlEncode(kv.Key) + "=" + WebUtility.UrlEncode(kv.Value) + "&");
+                    // Sửa đoạn Append trong vòng lặp CreateRequestUrl
+                    string encodedValue = WebUtility.UrlEncode(kv.Value).Replace("+", "%20");
+
+                    // Thêm dòng này để chắc chắn các ký tự sau dấu % là viết HOA (VNPAY rất soi chỗ này)
+                    encodedValue = System.Text.RegularExpressions.Regex.Replace(encodedValue, @"%[a-f0-9]{2}", m => m.Value.ToUpper());
+
+                    data.Append(WebUtility.UrlEncode(kv.Key) + "=" + encodedValue + "&");
                 }
             }
+
             string queryString = data.ToString();
+            if (queryString.EndsWith("&"))
+            {
+                queryString = queryString.Remove(queryString.Length - 1);
+            }
 
-            // Xóa dấu & thừa ở cuối
-            if (queryString.Length > 0) queryString = queryString.Remove(queryString.Length - 1, 1);
-
+            // 3. Tính toán SecureHash dựa trên CHÍNH chuỗi queryString vừa tạo
             string vnp_SecureHash = Utils.HmacSHA512(vnp_HashSecret, queryString);
-            string finalUrl = baseUrl + "?" + queryString + "&vnp_SecureHash=" + vnp_SecureHash;
 
-            return finalUrl;
+            // 4. Tạo URL cuối cùng
+            return baseUrl + "?" + queryString + "&vnp_SecureHash=" + vnp_SecureHash;
         }
 
         // Kiểm tra chữ ký từ VNPAY gửi về để đảm bảo không bị hack dữ liệu
@@ -58,14 +69,15 @@ namespace NAWatchMVC.Helpers // 1. Đã đổi sang namespace của ní
         private string GetResponseDataRaw()
         {
             StringBuilder data = new StringBuilder();
-            if (_responseData.ContainsKey("vnp_SecureHashType")) _responseData.Remove("vnp_SecureHashType");
-            if (_responseData.ContainsKey("vnp_SecureHash")) _responseData.Remove("vnp_SecureHash");
+            // Loại bỏ các trường không dùng để băm
+            var hashKeys = _responseData.Keys.Where(k => k != "vnp_SecureHashType" && k != "vnp_SecureHash").ToList();
 
-            foreach (KeyValuePair<string, string> kv in _responseData)
+            foreach (string key in hashKeys)
             {
-                if (!string.IsNullOrEmpty(kv.Value))
+                if (!string.IsNullOrEmpty(_responseData[key]))
                 {
-                    data.Append(WebUtility.UrlEncode(kv.Key) + "=" + WebUtility.UrlEncode(kv.Value) + "&");
+                    // QUAN TRỌNG: Không dùng UrlEncode ở đây
+                    data.Append(key + "=" + _responseData[key] + "&");
                 }
             }
             if (data.Length > 0) data.Remove(data.Length - 1, 1);
@@ -90,12 +102,16 @@ namespace NAWatchMVC.Helpers // 1. Đã đổi sang namespace của ní
         public static string HmacSHA512(string key, string inputData)
         {
             var hash = new StringBuilder();
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
-            byte[] inputBytes = Encoding.UTF8.GetBytes(inputData);
+            var keyBytes = Encoding.UTF8.GetBytes(key);
+            var inputBytes = Encoding.UTF8.GetBytes(inputData);
             using (var hmac = new HMACSHA512(keyBytes))
             {
-                byte[] hashValue = hmac.ComputeHash(inputBytes);
-                foreach (var theByte in hashValue) hash.Append(theByte.ToString("x2"));
+                var hashValue = hmac.ComputeHash(inputBytes);
+                foreach (var theByte in hashValue)
+                {
+                    // BẮT BUỘC LÀ X VIẾT HOA
+                    hash.Append(theByte.ToString("X2"));
+                }
             }
             return hash.ToString();
         }

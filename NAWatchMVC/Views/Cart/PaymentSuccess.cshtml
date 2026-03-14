@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán thành công";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid py-5" style="padding-top: 150px; background-color: #f8f9fa;">
+    <div class="container text-center">
+        @* Card chúc mừng với hiệu ứng đổ bóng và viền xanh dương của NAWatch *@
+        <div class="card shadow-lg border-0 rounded-4 p-5 mx-auto border-top border-5 border-success" style="max-width: 650px;">
+            <div class="mb-4">
+                @* Icon check circle với hiệu ứng nhảy (bounce) *@
+                <i class="fas fa-check-circle text-success animate__animated animate__bounceIn" style="font-size: 100px;"></i>
+            </div>
+
+            <h1 class="display-6 fw-bold text-dark mb-3">Thanh Toán Thành Công!</h1>
+
+            <div class="alert alert-success border-0 bg-success bg-opacity-10 py-3 mb-4">
+                <p class="lead mb-0 text-success fw-bold">
+                    <i class="fas fa-shield-alt me-2"></i> Giao dịch qua VNPAY đã được xác thực an toàn.
+                </p>
+            </div>
+
+            <p class="text-muted mb-4 fs-5">
+                Cảm ơn ní đã tin tưởng và chọn đồng hồ tại <strong>NAWatch</strong>.<br>
+                Đơn hàng của ní đang được hệ thống xử lý và sẽ sớm gửi đến tay ní.
+            </p>
+
+            @* Phần tóm tắt hoặc hành động tiếp theo *@
+            <div class="bg-light rounded-3 p-3 mb-4 text-start">
+                <small class="text-muted d-block mb-1 font-italic">
+                    * Một email xác nhận đơn hàng đã được gửi đến địa chỉ email của ní.
+                </small>
+                <small class="text-muted d-block">
+                    * Ní có thể theo dõi trạng thái đơn hàng trong phần <strong>Hồ sơ cá nhân</strong>.
+                </small>
+            </div>
+
+            <div class="d-grid gap-3 col-10 mx-auto">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary rounded-pill py-3 fw-bold shadow hover-zoom" style="background-color: #1E88E5; border: none;">
+                    <i class="fas fa-shopping-cart me-2"></i> TIẾP TỤC MUA SẮM
+                </a>
+                <a asp-controller="KhachHang" asp-action="Profile" class="btn btn-outline-dark rounded-pill py-2 fw-bold">
+                    XEM LỊCH SỬ ĐƠN HÀNG
+                </a>
+            </div>
+
+            <div class="mt-5 border-top pt-3">
+                <p class="text-muted small">Hotline hỗ trợ 24/7: <strong class="text-primary">1900 xxxx</strong></p>
+            </div>
+        </div>
+    </div>
+</div>

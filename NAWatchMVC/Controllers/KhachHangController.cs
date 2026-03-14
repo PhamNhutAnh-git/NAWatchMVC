@@ -95,9 +95,8 @@ namespace NAWatchMVC.Controllers
             ViewBag.ReturnUrl = ReturnUrl;
             if (ModelState.IsValid)
             {
-                // ---------------------------------------------------------
+                
                 // 1. KIỂM TRA BẢNG NHÂN VIÊN (ADMIN/STAFF)
-                // ---------------------------------------------------------
                 // Nhân viên dùng MaNV hoặc Email để đăng nhập vào ô "TenDangNhap"
                 var nhanVien = await db.NhanViens.SingleOrDefaultAsync(nv =>
                     nv.MaNv == model.TenDangNhap || nv.Email == model.TenDangNhap);
@@ -129,11 +128,8 @@ namespace NAWatchMVC.Controllers
                             return Redirect("/Admin/HomeAdmin");
                         }
                     }
-                }
-
-                // ---------------------------------------------------------
+                } 
                 // 2. KIỂM TRA BẢNG KHÁCH HÀNG (CUSTOMER/VIP)
-                // ---------------------------------------------------------
                 // Khách hàng dùng TenDangNhap mới tạo để đăng nhập
                 var khachHang = await db.KhachHangs.SingleOrDefaultAsync(kh => kh.TenDangNhap == model.TenDangNhap);
 

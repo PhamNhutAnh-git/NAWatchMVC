@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán thất bại";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid py-5" style="padding-top: 150px; background-color: #f8f9fa;">
+    <div class="container text-center">
+        @* Thêm hiệu ứng Shadow và Border Top màu đỏ để nhấn mạnh lỗi *@
+        <div class="card shadow-lg border-0 rounded-4 p-5 mx-auto border-top border-5 border-danger" style="max-width: 600px;">
+            <div class="mb-4">
+                @* Sử dụng icon của FontAwesome *@
+                <i class="fas fa-times-circle text-danger animate__animated animate__shakeX" style="font-size: 100px;"></i>
+            </div>
+            <h2 class="fw-bold text-dark mb-3">Thanh Toán Thất Bại!</h2>
+
+            <div class="alert alert-light border-danger text-danger mb-4" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                @* Hiển thị thông báo lỗi chi tiết từ VNPAY truyền về *@
+                <strong>Thông báo:</strong> @(ViewBag.Message ?? "Giao dịch đã bị hủy hoặc gặp sự cố kỹ thuật.")
+            </div>
+
+            <p class="text-muted mb-4 fs-6">
+                Rất tiếc, quá trình thanh toán cho đơn hàng của ní không thành công.<br>
+                Đừng lo lắng, ní có thể thử lại bằng phương thức khác hoặc kiểm tra lại số dư tài khoản nhé.
+            </p>
+
+            <div class="d-flex justify-content-center gap-3">
+                @* Nút thử lại sẽ quay lại trang Checkout *@
+                <a asp-controller="Cart" asp-action="Checkout" class="btn btn-danger text-white rounded-pill px-5 py-3 fw-bold shadow-sm hover-zoom">
+                    <i class="fas fa-sync-alt me-2"></i> THỬ LẠI NGAY
+                </a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 py-3 fw-bold">
+                    VỀ TRANG CHỦ
+                </a>
+            </div>
+
+            <div class="mt-4 border-top pt-3">
+                <p class="small text-muted">Cần hỗ trợ? Gọi ngay Hotline: <strong class="text-primary">1900 xxxx</strong></p>
+            </div>
+        </div>
+    </div>
+</div>

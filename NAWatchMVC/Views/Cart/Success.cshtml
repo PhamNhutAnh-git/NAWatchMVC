@@ -1,0 +1,74 @@
+﻿@model NAWatchMVC.Data.HoaDon
+@{
+    ViewData["Title"] = "Đặt hàng thành công, Thanh toán khi nhận hàng";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid py-5" style="padding-top: 150px; background-color: #f8f9fa;">
+    <div class="container py-5 text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-lg rounded-4 p-5">
+                    @* Icon thành công với hiệu ứng động *@
+                    <div class="mb-4">
+                        <i class="fa fa-check-circle text-success animate__animated animate__zoomIn" style="font-size: 100px;"></i>
+                    </div>
+
+                    <h1 class="display-5 fw-bold text-dark mb-2">Đặt Hàng Thành Công!</h1>
+                    <p class="lead text-muted mb-4">
+                        Cảm ơn ní đã tin tưởng và mua sắm tại <strong>NAWatch</strong>.
+                        Đồng hồ xịn xò đang được đóng gói để gửi đến ní đây!
+                    </p>
+
+                    @* Bảng tóm tắt thông tin đơn hàng *@
+                    <div class="bg-light p-4 rounded-4 mb-4 text-start border">
+                        <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                            <i class="fas fa-file-invoice me-2"></i>Chi tiết đơn hàng
+                        </h5>
+
+                        <div class="row g-2">
+                            <div class="col-6 text-muted">Mã đơn hàng:</div>
+                            <div class="col-6 text-end fw-bold text-primary">#@Model.MaHd</div>
+
+                            <div class="col-6 text-muted">Ngày đặt hàng:</div>
+                            <div class="col-6 text-end">@Model.NgayDat?.ToString("dd/MM/yyyy HH:mm")</div>
+
+                            <div class="col-6 text-muted">Người nhận:</div>
+                            <div class="col-6 text-end">@Model.HoTen</div>
+
+                            <div class="col-6 text-muted">Số điện thoại:</div>
+                            <div class="col-6 text-end">@Model.DienThoai</div>
+
+                            <div class="col-6 text-muted">Địa chỉ giao:</div>
+                            <div class="col-6 text-end small">@Model.DiaChi</div>
+
+                            <div class="col-12 mt-3 border-top pt-2 d-flex justify-content-between">
+                                <span class="fw-bold fs-5">TỔNG THANH TOÁN:</span>
+                                <span class="fw-bold text-danger fs-5">
+                                    @(Model.TongTien.HasValue ? Model.TongTien.Value.ToString("#,##0") : "0") đ
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <div class="alert alert-info py-2 small border-0 mb-0">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Nhân viên sẽ gọi điện xác nhận trong vòng 15-30 phút tới.
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Nút hành động *@
+                    <div class="d-flex flex-column gap-3 col-10 mx-auto">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary rounded-pill py-3 fw-bold text-white shadow hover-zoom" style="background-color: #1E88E5; border: none;">
+                            <i class="fa fa-shopping-bag me-2"></i> TIẾP TỤC MUA SẮM
+                        </a>
+                        <a asp-controller="KhachHang" asp-action="DonHang" class="btn btn-outline-secondary rounded-pill py-2">
+                            XEM LỊCH SỬ ĐƠN HÀNG
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

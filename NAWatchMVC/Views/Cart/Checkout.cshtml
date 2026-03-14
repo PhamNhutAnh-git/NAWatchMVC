@@ -1,0 +1,130 @@
+﻿@model IEnumerable<NAWatchMVC.ViewModels.CartItemVM>
+@{
+    ViewData["Title"] = "Thanh toán";
+    Layout = "_LayoutCustomer";
+
+    // Lấy thông tin khách hàng từ ViewBag để điền sẵn vào form
+    var khachHang = ViewBag.ThongTinKhachHang as NAWatchMVC.Data.KhachHang;
+
+    // Tính tổng tiền đơn hàng (Sử dụng thuộc tính ThanhTien tự tính trong VM)
+    double tongTien = Model.Sum(p => p.ThanhTien);
+}
+
+<div class="container-fluid page-header py-5" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/Hinh/banner-watch.jpg'); background-size: cover;">
+    <h1 class="text-center text-white display-6">Thanh Toán Đơn Hàng</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Cart" asp-action="Index">Giỏ hàng</a></li>
+        <li class="breadcrumb-item active text-white">Thanh toán</li>
+    </ol>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <h1 class="mb-4 fw-bold text-primary">Thông Tin Giao Nhận</h1>
+
+        <form asp-action="Checkout" asp-controller="Cart" method="post">
+            <div class="row g-5">
+                @* --- CỘT TRÁI: THÔNG TIN KHÁCH HÀNG --- *@
+                <div class="col-md-12 col-lg-6 col-xl-7">
+                    <div class="form-item w-100 mb-3">
+                        <label class="form-label my-2 fw-bold">Họ và tên người nhận<sup>*</sup></label>
+                        <input type="text" class="form-control rounded-pill" name="hoten" value="@khachHang?.HoTen" placeholder="Ví dụ: Phạm Nhựt Anh" required>
+                    </div>
+
+                    <div class="form-item mb-3">
+                        <label class="form-label my-2 fw-bold">Địa chỉ nhận hàng <sup>*</sup></label>
+                        <input type="text" class="form-control rounded-pill" name="diachi" value="@khachHang?.DiaChi" placeholder="Số nhà, tên đường, phường/xã..." required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 col-lg-6">
+                            <div class="form-item mb-3">
+                                <label class="form-label my-2 fw-bold">Điện thoại liên hệ<sup>*</sup></label>
+                                <input type="tel" class="form-control rounded-pill" name="dienthoai" value="@khachHang?.DienThoai" placeholder="098..." required>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-6">
+                            <div class="form-item mb-3">
+                                <label class="form-label my-2 fw-bold">Email nhận thông báo<sup>*</sup></label>
+                                <input type="email" class="form-control rounded-pill" name="email" value="@khachHang?.Email" placeholder="email@example.com" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check my-3">
+                        <input class="form-check-input" type="checkbox" id="GhiChuKhac" name="GiaoGioHanhChinh" value="true">
+                        <label class="form-check-label" for="GhiChuKhac">Giao hàng trong giờ hành chính?</label>
+                    </div>
+
+                    <div class="form-item mt-3">
+                        <label class="form-label my-2 fw-bold">Ghi chú thêm</label>
+                        <textarea name="ghichu" class="form-control rounded-3" spellcheck="false" cols="30" rows="4" placeholder="Ví dụ: Giao sau 5h chiều..."></textarea>
+                    </div>
+                </div>
+
+                @* --- CỘT PHẢI: TÓM TẮT ĐƠN HÀNG --- *@
+                <div class="col-md-12 col-lg-6 col-xl-5">
+                    <div class="table-responsive rounded shadow-sm p-3 bg-light">
+                        <table class="table align-middle">
+                            <thead class="text-uppercase small fw-bold">
+                                <tr>
+                                    <th scope="col">Đồng hồ</th>
+                                    <th scope="col">Tên</th>
+                                    <th scope="col">Số lượng</th>
+                                    <th scope="col" class="text-end">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <th scope="row">
+                                            <img src="~/anhall/@item.Hinh" class="img-fluid rounded shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" alt="@item.TenHH">
+                                        </th>
+                                        <td class="small">@item.TenHH</td>
+                                        <td class="text-center">@item.SoLuong</td>
+                                        <td class="text-end fw-bold text-dark">@item.ThanhTien.ToString("#,##0") đ</td>
+                                    </tr>
+                                }
+                                <tr class="border-top">
+                                    <td colspan="3" class="py-3 text-end fw-bold">Tạm tính:</td>
+                                    <td class="py-3 text-end">@tongTien.ToString("#,##0") đ</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold text-success">Vận chuyển:</td>
+                                    <td class="text-end text-success">Miễn phí</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td colspan="3" class="py-3 text-end fw-bold text-uppercase fs-5">Tổng cộng:</td>
+                                    <td class="py-3 text-end fw-bold text-danger fs-5">@tongTien.ToString("#,##0") đ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @* --- PHƯƠNG THỨC THANH TOÁN --- *@
+                    <div class="mt-4 p-4 border rounded shadow-sm">
+                        <h5 class="fw-bold mb-3">Phương thức thanh toán</h5>
+
+                        <div class="form-check mb-3">
+                            <input type="radio" class="form-check-input" id="pay-cod" name="CachThanhToan" value="COD" checked>
+                            <label class="form-check-label fw-bold" for="pay-cod">Thanh toán khi nhận hàng (COD)</label>
+                            <p class="small text-muted ms-1">Bạn chọn thanh toán tiền mặt khi Shipper giao đồng hồ tới tận tay.</p>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input type="radio" class="form-check-input" id="pay-vnpay" name="CachThanhToan" value="VNPAY">
+                            <label class="form-check-label fw-bold" for="pay-vnpay">Cổng thanh toán VNPAY</label>
+                            <p class="small text-muted ms-1">Thanh toán nhanh qua QR-Code hoặc thẻ ngân hàng.</p>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 text-uppercase fw-bold rounded-pill shadow hover-zoom" style="background-color: #1E88E5; border: none;">
+                            Xác nhận đặt hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
