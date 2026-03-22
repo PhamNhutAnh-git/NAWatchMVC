@@ -101,25 +101,29 @@
 
                         <p class="mb-4 d-flex flex-row justify-content-center align-items-center fs-5"><strong>Trạng thái:</strong> <span class="text-success">Hiện còn: @Model.SoLuong</span></p>
 
-                        @* Form đặt hàng với 2 nút bấm xếp chồng *@
-                        <form asp-action="AddToCart" asp-controller="Cart" method="post" class="w-100">
+                        @* 1. Đảm bảo asp-action đúng tên hàm Hybrid ở Controller *@
+                        @* THÊM asp-route-id vào thẻ Form *@
+                        <form asp-action="AddToCart" asp-controller="Cart" asp-route-id="@Model.MaHh" method="post" class="w-100">
+                            @* Giữ nguyên input hidden này để đề phòng logic Controller lấy từ body *@
                             <input type="hidden" name="id" value="@Model.MaHh" />
 
-                            @* Dòng 1: Số lượng và Nút Mua ngay *@
                             <div class="d-flex align-items-center mb-3">
+                                @* Ô nhập số lượng *@
                                 <div class="input-group quantity me-3" style="width: 130px; height: 55px;">
                                     <button type="button" class="btn btn-minus border bg-light px-3">-</button>
                                     <input type="text" class="form-control text-center border-1 fw-bold" name="quantity" value="1">
                                     <button type="button" class="btn btn-plus border bg-light px-3">+</button>
                                 </div>
-                                <button type="submit" class="btn btn-danger btn-lg rounded-pill flex-grow-1 fw-bold shadow-sm" style="height: 55px; font-size: 1.2rem;">
-                                    MUA NGAY 1
+
+                                @* Nút MUA NGAY *@
+                                <button type="submit" class="btn btn-danger btn-lg rounded-pill flex-grow-1 fw-bold shadow-sm" style="height: 55px;">
+                                    MUA NGAY
                                 </button>
                             </div>
 
-                            @* Dòng 2: Nút Thêm vào giỏ hàng (Nền trắng, viền xanh, chữ xanh) *@
-                            <button type="button" class="btn btn-outline-nawatch btn-lg rounded-pill w-100 fw-bold ajax-add-to-cart shadow-sm"
-                                    data-id="@Model.MaHh" style="height: 60px; border-width: 2px; font-size: 1.2rem;">
+                            @* Nút THÊM VÀO GIỎ (Vẫn chạy AJAX như cũ) *@
+                            <button type="button" class="btn btn-outline-nawatch btn-lg rounded-pill w-100 fw-bold add-to-cart-js shadow-sm"
+                                    data-id="@Model.MaHh" style="height: 60px; border-width: 2px;">
                                 <i class="fas fa-cart-plus me-2"></i> THÊM VÀO GIỎ HÀNG
                             </button>
                         </form>

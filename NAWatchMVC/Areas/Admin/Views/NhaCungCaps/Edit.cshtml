@@ -1,0 +1,149 @@
+﻿@model NAWatchMVC.Data.NhaCungCap
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Nhà cung cấp";
+}
+
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-4">
+            <li class="breadcrumb-item"><a asp-controller="HomeAdmin" asp-action="Index" class="text-decoration-none text-muted">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Nhà cung cấp</a></li>
+            <li class="breadcrumb-item active text-primary" aria-current="page">Chỉnh sửa</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning-subtle p-2 rounded-circle me-3">
+                            <i class="fas fa-edit text-warning"></i>
+                        </div>
+                        <h5 class="m-0 font-weight-bold text-dark">Chỉnh sửa đối tác: <span class="text-primary">@Model.TenCongTy</span></h5>
+                    </div>
+                    <span class="badge bg-light text-dark border">ID: #@Model.MaNcc</span>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Edit" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        @* Giữ ID và tên Logo hiện tại *@
+                        <input type="hidden" asp-for="MaNcc" />
+                        <input type="hidden" asp-for="Logo" />
+
+                        <div class="row">
+                            <div class="col-md-7 border-end">
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label asp-for="TenCongTy" class="form-label fw-bold small text-muted text-uppercase">Tên Công Ty</label>
+                                        <input asp-for="TenCongTy" class="form-control border-2 bg-light bg-opacity-50" />
+                                        <span asp-validation-for="TenCongTy" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="NguoiLienLac" class="form-label fw-bold small text-muted text-uppercase">Người đại diện</label>
+                                        <input asp-for="NguoiLienLac" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="QuocGia" class="form-label fw-bold small text-muted text-uppercase">Quốc gia</label>
+                                        <input asp-for="QuocGia" class="form-control" />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="Email" class="form-label fw-bold small text-muted text-uppercase">Email</label>
+                                        <input asp-for="Email" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="DienThoai" class="form-label fw-bold small text-muted text-uppercase">Điện thoại</label>
+                                        <input asp-for="DienThoai" class="form-control" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="DiaChi" class="form-label fw-bold small text-muted text-uppercase">Địa chỉ</label>
+                                    <input asp-for="DiaChi" class="form-control" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="MoTa" class="form-label fw-bold small text-muted text-uppercase">Giới thiệu</label>
+                                    <textarea asp-for="MoTa" class="form-control" rows="4"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5 ps-md-4">
+                                <div class="p-4 border rounded-3 bg-light text-center h-100 d-flex flex-column justify-content-center">
+                                    <label class="form-label fw-bold small text-muted text-uppercase mb-3 d-block text-start">Logo hiện tại</label>
+
+                                    <div class="mb-4">
+                                        @if (!string.IsNullOrEmpty(Model.Logo))
+                                        {
+                                            <img id="imgPreview" src="~/anhncc/@Model.Logo"
+                                                 class="img-fluid rounded shadow-sm border border-4 border-white bg-white"
+                                                 style="max-height: 200px; object-fit: contain;" />
+                                        }
+                                        else
+                                        {
+                                            <img id="imgPreview" src="~/anhloai/loaikhac.png"
+                                                 class="img-fluid rounded shadow-sm border border-white"
+                                                 style="max-height: 200px;" />
+                                        }
+                                    </div>
+
+                                    <div class="text-start mt-auto">
+                                        <label class="form-label small fw-bold">Chọn Logo mới:</label>
+                                        <input type="file" name="fLogo" id="fLogo" class="form-control form-control-sm" accept="image/*" />
+                                        <small class="text-muted d-block mt-2">Giữ trống nếu không muốn thay đổi Logo.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-light border px-4 rounded-pill fw-bold">
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-warning px-5 rounded-pill fw-bold text-dark shadow-sm">
+                                <i class="fas fa-save me-1"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-warning-subtle { background-color: #fffbeb; }
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #f59e0b;
+            background-color: #fff !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Preview Logo khi ní chọn file mới
+        document.getElementById('fLogo').onchange = function (evt) {
+            const [file] = this.files
+            if (file) {
+                document.getElementById('imgPreview').src = URL.createObjectURL(file)
+            }
+        }
+    </script>
+}

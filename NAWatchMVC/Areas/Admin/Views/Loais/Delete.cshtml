@@ -1,0 +1,89 @@
+﻿@model NAWatchMVC.Data.Loai
+
+@{
+    ViewData["Title"] = "Xác nhận xóa Danh mục";
+}
+
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-4">
+            <li class="breadcrumb-item"><a asp-controller="HomeAdmin" asp-action="Index" class="text-decoration-none text-muted">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Danh mục</a></li>
+            <li class="breadcrumb-item active text-danger" aria-current="page">Xác nhận xóa</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="card-header bg-danger py-3 text-center text-white">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <h5 class="m-0 font-weight-bold text-uppercase">Xác nhận xóa vĩnh viễn</h5>
+                </div>
+
+                <div class="card-body p-4 text-center">
+                    <p class="text-muted mb-4">Ní có chắc chắn muốn xóa danh mục này? Hành động này <strong class="text-danger">không thể hoàn tác</strong>.</p>
+
+                    <div class="p-3 border rounded-3 bg-light mb-4 text-start">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center">
+                                @if (!string.IsNullOrEmpty(Model.Hinh))
+                                {
+                                    <img src="~/Hinh/Loai/@Model.Hinh" class="img-fluid rounded shadow-sm border border-2 border-white" style="max-height: 120px;" />
+                                }
+                                else
+                                {
+                                    <img src="~/Hinh/default_category.png" class="img-fluid rounded shadow-sm border" style="max-height: 120px;" />
+                                }
+                            </div>
+                            <div class="col-md-8 mt-3 mt-md-0">
+                                <h6 class="text-dark fw-bold mb-1">Tên danh mục:</h6>
+                                <p class="text-primary fs-5 mb-2">@Model.TenLoai</p>
+
+                                <h6 class="text-dark fw-bold mb-1 small">Alias:</h6>
+                                <p class="text-muted small mb-0">@Model.TenLoaiAlias</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.MoTa))
+                    {
+                        <div class="alert alert-secondary text-start py-2 px-3 small">
+                            <i class="fas fa-info-circle me-1"></i> <strong>Mô tả:</strong> @Model.MoTa
+                        </div>
+                    }
+
+                    <form asp-action="Delete" class="mt-4">
+                        <input type="hidden" asp-for="MaLoai" />
+
+                        <div class="d-flex justify-content-center gap-3">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill fw-bold border-2">
+                                <i class="fas fa-times me-1"></i> Không, Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-danger px-4 rounded-pill fw-bold shadow">
+                                <i class="fas fa-trash-alt me-1"></i> Có, Xóa Ngay!
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light py-2 text-center">
+                    <small class="text-muted">ID Danh mục: #@Model.MaLoai</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card-header.bg-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+    </style>
+}

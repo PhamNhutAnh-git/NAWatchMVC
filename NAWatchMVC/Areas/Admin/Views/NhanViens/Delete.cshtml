@@ -1,0 +1,99 @@
+﻿@model NAWatchMVC.Data.NhanVien
+
+@{
+    ViewData["Title"] = "Xác nhận vô hiệu hóa";
+}
+
+<div class="container-fluid py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-4 justify-content-center">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Nhân viên</a></li>
+            <li class="breadcrumb-item active text-indigo fw-bold">Xác nhận khóa tài khoản</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-gradient-warning py-4 text-center border-0">
+                    <div class="icon-box bg-white shadow-sm rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                        <i class="fas fa-user-shield text-warning fa-2x"></i>
+                    </div>
+                    <h5 class="m-0 fw-bold text-dark">XÁC NHẬN VÔ HIỆU HÓA</h5>
+                </div>
+
+                <div class="card-body p-4 p-lg-5">
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            <img src="https://ui-avatars.com/api/?name=@(System.Net.WebUtility.UrlEncode(Model.HoTen))&background=f1f5f9&color=6366f1&size=128&bold=true"
+                                 class="rounded-circle shadow-sm border border-4 border-white" width="100" />
+                            <span class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle" style="width: 18px; height: 18px;" title="Hiện đang hoạt động"></span>
+                        </div>
+                        <h4 class="fw-bold text-dark mt-3 mb-1">@Model.HoTen</h4>
+                        <span class="badge bg-light text-muted border px-3">Mã NV: #@Model.MaNv</span>
+                    </div>
+
+                    <div class="alert bg-warning-subtle border-start border-warning border-4 py-3 mb-4 rounded-3 shadow-sm">
+                        <div class="d-flex">
+                            <i class="fas fa-exclamation-circle text-warning fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">Lưu ý quan trọng!</h6>
+                                <p class="small text-dark mb-0 opacity-75">
+                                    Hành động này sẽ <strong>khóa quyền truy cập</strong> của nhân viên vào hệ thống. Mọi dữ liệu hóa đơn, sản phẩm họ từng làm vẫn sẽ được giữ lại.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="list-group list-group-flush mb-4 small rounded-3 border">
+                        <li class="list-group-item d-flex justify-content-between py-3">
+                            <span class="text-muted">Tài khoản Email</span>
+                            <span class="fw-bold text-dark">@Model.Email</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between py-3">
+                            <span class="text-muted">Vai trò hiện tại</span>
+                            <span class="badge @(Model.VaiTro == 1 ? "bg-danger-subtle text-danger" : "bg-primary-subtle text-primary") px-3">
+                                @(Model.VaiTro == 1 ? "Quản trị viên" : "Nhân viên")
+                            </span>
+                        </li>
+                    </ul>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="MaNv" />
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <a asp-action="Index" class="btn btn-light w-100 py-2 fw-bold rounded-pill border shadow-sm">
+                                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-warning w-100 py-2 fw-bold text-dark rounded-pill shadow">
+                                    <i class="fas fa-lock me-1"></i> Khóa tài khoản
+                                </button>
+                            </div>
+                        </div>
+                    </form> 
+                </div>
+
+                <div class="card-footer bg-light border-0 py-3 text-center">
+                    <small class="text-muted italic"><i class="fas fa-info-circle me-1"></i> Bạn có thể kích hoạt lại tài khoản này ở trang Chỉnh sửa.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        :root { --indigo: #4f46e5; }
+        .text-indigo { color: var(--indigo); }
+        .bg-gradient-warning { background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%); }
+        .bg-warning-subtle { background-color: #fffbeb !important; }
+        .bg-danger-subtle { background-color: #fef2f2 !important; }
+        .bg-primary-subtle { background-color: #e0e7ff !important; }
+        .shadow-lg { box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important; }
+        .rounded-4 { border-radius: 1rem !important; }
+        .italic { font-style: italic; }
+    </style>
+}

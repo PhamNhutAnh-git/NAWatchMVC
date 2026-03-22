@@ -103,7 +103,7 @@ namespace NAWatchMVC.Controllers
 
                 if (nhanVien != null)
                 {
-                    if (!(nhanVien.HieuLuc ?? true))
+                    if (!nhanVien.HieuLuc)
                     {
                         ModelState.AddModelError("loi", "Tài khoản nhân viên của ní đã bị khóa.");
                     }
@@ -117,8 +117,8 @@ namespace NAWatchMVC.Controllers
                                 new Claim(ClaimTypes.Email, nhanVien.Email),
                                 new Claim(ClaimTypes.Name, nhanVien.HoTen),
                                 new Claim("EmployeeId", nhanVien.MaNv.ToString()),
-                                // VaiTro 2: Giám đốc (Admin), 1: Nhân viên (Staff)
-                                new Claim(ClaimTypes.Role, nhanVien.VaiTro == 2 ? "Admin" : "Staff")
+                                // VaiTro 1: Giám đốc (Admin), 2: Nhân viên (Staff)
+                                new Claim(ClaimTypes.Role, nhanVien.VaiTro == 1 ? "Admin" : "Staff")
                             };
 
                             // Phân quyền
@@ -499,6 +499,11 @@ namespace NAWatchMVC.Controllers
             return RedirectToAction("Profile");
         }
 
+        [HttpGet]
+        public IActionResult TuChoi()
+        {
+            return View();
+        }
 
 
 

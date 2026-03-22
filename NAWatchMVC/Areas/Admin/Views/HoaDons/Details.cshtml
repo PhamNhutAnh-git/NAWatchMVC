@@ -1,0 +1,173 @@
+﻿@model NAWatchMVC.Data.HoaDon
+
+@{
+    ViewData["Title"] = "Chi tiết hóa đơn #" + Model.MaHd;
+}
+
+<div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small mb-1">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Đơn hàng</a></li>
+                    <li class="breadcrumb-item active">Chi tiết đơn #@Model.MaHd</li>
+                </ol>
+            </nav>
+            <h4 class="fw-bold m-0">Đơn hàng: <span class="text-primary">#@Model.MaHd</span></h4>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm shadow-sm px-3">
+                <i class="fas fa-print me-1"></i> In hóa đơn
+            </button>
+            <a asp-action="Edit" asp-route-id="@Model.MaHd" class="btn btn-primary btn-sm shadow-sm px-3">
+                <i class="fas fa-edit me-1"></i> Chỉnh sửa
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 fw-bold"><i class="fas fa-info-circle me-2 text-primary"></i>Thông tin vận chuyển</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <p class="text-muted small text-uppercase mb-1">Người nhận hàng</p>
+                            <h5 class="fw-bold">@Model.HoTen</h5>
+                            <p class="mb-0"><i class="fas fa-phone me-2 text-muted"></i>@Model.DienThoai</p>
+                            <p class="mb-0"><i class="fas fa-map-marker-alt me-2 text-muted"></i>@Model.DiaChi</p>
+                        </div>
+                        <div class="col-sm-6 mt-3 mt-sm-0 border-start-sm">
+                            <p class="text-muted small text-uppercase mb-1">Thời gian & Trạng thái</p>
+                            <p class="mb-1"><strong>Ngày đặt:</strong> @Model.NgayDat?.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p class="mb-1"><strong>Dự kiến giao:</strong> @(Model.NgayGiao?.ToString("dd/MM/yyyy") ?? "Chưa xác định")</p>
+                            <div class="mt-2">
+                                <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                                    <i class="fas fa-sync-alt fa-spin me-1"></i> @Model.MaTrangThaiNavigation?.TenTrangThai
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 border">
+                        <h6 class="fw-bold small mb-2 text-uppercase">Ghi chú từ khách hàng:</h6>
+                        <p class="mb-0 italic text-muted">@(string.IsNullOrEmpty(Model.GhiChu) ? "Không có ghi chú nào." : Model.GhiChu)</p>
+                    </div>
+                </div>
+            </div>
+
+            @* ĐÂY LÀ CHỖ ĐỂ HIỆN DANH SÁCH SẢN PHẨM (HoaDonChiTiet)
+            Ní sẽ thêm bảng chi tiết vào đây sau nhé!
+            *@
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between">
+                    <h6 class="m-0 fw-bold"><i class="fas fa-list me-2 text-primary"></i>Sản phẩm đã đặt</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Sản phẩm</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end">Đơn giá</th>
+                                    <th class="text-end pe-4">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.ChiTietHds != null && Model.ChiTietHds.Any())
+                                {
+                                    @foreach (var item in Model.ChiTietHds) // Nhớ đổi tên ChiTietHds cho đúng model
+                                    {
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    @* Nếu ní có lưu hình sp thì hiện ở đây *@
+                                                    <div class="fw-bold text-dark">@item.MaHhNavigation?.TenHh</div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">@item.SoLuong</td>
+                                            <td class="text-end">@item.DonGia.ToString("N0")đ</td>
+                                            <td class="text-end pe-4 fw-bold">
+                                                @((item.SoLuong * item.DonGia).ToString("N0"))đ
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            Đơn hàng này chưa có sản phẩm nào.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 border-top border-primary border-5 mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-4 text-uppercase small">Tóm tắt thanh toán</h6>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Hình thức thanh toán:</span>
+                        <span class="fw-bold">@Model.CachThanhToan</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Đơn vị vận chuyển:</span>
+                        <span class="badge bg-dark">@Model.CachVanChuyen</span>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phí vận chuyển:</span>
+                        <span>@Model.PhiVanChuyen?.ToString("N0")đ</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <h5 class="fw-bold mb-0">TỔNG TIỀN:</h5>
+                        <h4 class="fw-bold text-danger mb-0">@Model.TongTien?.ToString("N0")đ</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 bg-light">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white p-2 rounded-circle shadow-sm me-3 text-center" style="width: 45px; height: 45px;">
+                            <i class="fas fa-user-tie text-muted"></i>
+                        </div>
+                        <div>
+                            <p class="small text-muted mb-0">Nhân viên xử lý</p>
+                            <p class="fw-bold mb-0 text-dark">@Model.MaNvNavigation?.HoTen</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a asp-action="Index" class="btn btn-link w-100 text-muted text-decoration-none mt-3">
+                <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-primary-subtle { background-color: #e0f2fe !important; }
+        .italic { font-style: italic; }
+        @@media print {
+            #sidebar, .btn, nav, .nav-profile { display: none !important; }
+            .main-content { padding: 0 !important; margin: 0 !important; }
+            .card { border: none !important; box-shadow: none !important; }
+        }
+    </style>
+}

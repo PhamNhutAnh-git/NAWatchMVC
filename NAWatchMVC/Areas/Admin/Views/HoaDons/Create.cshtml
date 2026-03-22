@@ -1,0 +1,168 @@
+﻿@model NAWatchMVC.Data.HoaDon
+
+@{
+    ViewData["Title"] = "Tạo Đơn Hàng Mới";
+}
+
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-4">
+            <li class="breadcrumb-item"><a asp-controller="HomeAdmin" asp-action="Index" class="text-decoration-none text-muted">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Đơn hàng</a></li>
+            <li class="breadcrumb-item active text-primary" aria-current="page">Tạo mới</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
+                    <div class="bg-primary-subtle p-2 rounded-circle me-3">
+                        <i class="fas fa-file-invoice-dollar text-primary"></i>
+                    </div>
+                    <h5 class="m-0 font-weight-bold text-dark">Lập Hóa Đơn Mới</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="All" class="text-danger fw-bold"></div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row g-4">
+                            <div class="col-md-7 border-end">
+                                <h6 class="fw-bold text-uppercase small text-muted mb-4"><i class="fas fa-user-tag me-2"></i>Thông tin người nhận</h6>
+
+                                <div class="mb-3">
+                                    <label asp-for="MaKh" class="form-label fw-bold small">Chọn khách hàng (Hệ thống)</label>
+                                    <select asp-for="MaKh" class="form-select border-2 shadow-none" asp-items="ViewBag.MaKh">
+                                        <option value="">-- Chọn khách hàng thành viên --</option>
+                                    </select>
+                                    <small class="text-muted">Chọn nếu là khách cũ, bỏ qua nếu là khách vãn lai.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="HoTen" class="form-label fw-bold small">Họ và Tên người nhận <span class="text-danger">*</span></label>
+                                    <input asp-for="HoTen" class="form-control border-2" placeholder="VD: Nguyễn Văn A" />
+                                    <span asp-validation-for="HoTen" class="text-danger small"></span>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="DienThoai" class="form-label fw-bold small">Số điện thoại</label>
+                                        <input asp-for="DienThoai" class="form-control border-2" placeholder="090..." />
+                                        <span asp-validation-for="DienThoai" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="NgayGiao" class="form-label fw-bold small">Ngày dự kiến giao</label>
+                                        <input asp-for="NgayGiao" type="date" class="form-control border-2" />
+                                        <span asp-validation-for="NgayGiao" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="DiaChi" class="form-label fw-bold small">Địa chỉ giao hàng</label>
+                                    <textarea asp-for="DiaChi" class="form-control border-2" rows="3" placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+                                    <span asp-validation-for="DiaChi" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5 ps-md-4">
+                                <h6 class="fw-bold text-uppercase small text-muted mb-4"><i class="fas fa-truck me-2"></i>Vận chuyển & Trạng thái</h6>
+
+                                <div class="mb-3">
+                                    <label asp-for="CachVanChuyen" class="form-label fw-bold small">Đơn vị vận chuyển</label>
+                                    <select asp-for="CachVanChuyen" class="form-select border-2">
+                                        <option value="GHN">Giao Hàng Nhanh (GHN)</option>
+                                        <option value="GHTK">Giao Hàng Tiết Kiệm (GHTK)</option>
+                                        <option value="ViettelPost">Viettel Post</option>
+                                        <option value="TuGiao">Cửa hàng tự giao</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="MaTrangThai" class="form-label fw-bold small">Trạng thái đơn hàng</label>
+                                    <select asp-for="MaTrangThai" class="form-select border-2 border-primary" asp-items="ViewBag.MaTrangThai"></select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="MaNv" class="form-label fw-bold small">Nhân viên lập đơn</label>
+                                    <select asp-for="MaNv" class="form-select border-2 bg-light" asp-items="ViewBag.MaNv"></select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="GhiChu" class="form-label fw-bold small">Ghi chú nội bộ</label>
+                                    <textarea asp-for="GhiChu" class="form-control border-2" rows="4" placeholder="Ví dụ: Khách dặn giao giờ hành chính..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-light border px-4 rounded-pill fw-bold text-muted">
+                                <i class="fas fa-chevron-left me-1"></i> Danh sách đơn
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow">
+                                <i class="fas fa-check-circle me-1"></i> Xác Nhận Tạo Đơn
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-primary-subtle {
+            background-color: #e0f2fe;
+        }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: none;
+            border-color: #3b82f6;
+        }
+
+        textarea {
+            resize: none;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        $(document).ready(function () {
+            // Khi ô "Chọn khách hàng" thay đổi giá trị
+            $("#MaKh").change(function () {
+                var customerId = $(this).val();
+                
+                if (customerId) {
+                    // Gọi lên Server để lấy thông tin khách
+                    $.getJSON('@Url.Action("GetKhachHangInfo", "HoaDons")/' + customerId, function (data) {
+                        if (data) {
+                            // Tự động điền vào các ô nhập liệu
+                            $("#HoTen").val(data.hoTen);
+                            $("#DienThoai").val(data.dienThoai);
+                            $("#DiaChi").val(data.diaChi);
+                            
+                            // Thêm hiệu ứng nháy xanh cho Admin biết là đã điền xong
+                            $("#HoTen, #DienThoai, #DiaChi").addClass("is-valid");
+                            setTimeout(function() {
+                                $(".is-valid").removeClass("is-valid");
+                            }, 1000);
+                        }
+                    });
+                } else {
+                    // Nếu chọn "Khách vãng lai" (trống) thì xóa trắng để Admin tự gõ
+                    $("#HoTen, #DienThoai, #DiaChi").val("");
+                }
+            });
+        });
+    </script>
+
+}

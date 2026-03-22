@@ -1,0 +1,205 @@
+﻿@model IEnumerable<NAWatchMVC.Data.NhaCungCap>
+
+@{
+    ViewData["Title"] = "Quản lý Nhà cung cấp";
+}
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 font-weight-bold text-primary text-uppercase">
+            <i class="fas fa-building me-2"></i>Hệ thống đối tác
+        </h5>
+        <a asp-action="Create" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus-circle me-1"></i> Thêm đối tác mới
+        </a>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle datatable" id="dataTable" width="100%">
+                <thead class="table-light text-secondary">
+                    <tr>
+                        <th style="width: 100px;">Logo</th>
+                        <th>Thông tin công ty</th>
+                        <th>Liên hệ</th>
+                        <th style="width: 25%;">Giới thiệu</th>
+                        <th class="text-center">Thao tác</th>
+                        <th class="d-none">ID Ẩn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="supplier-logo-container border rounded bg-white shadow-sm">
+                                    @if (!string.IsNullOrEmpty(item.Logo))
+                                    {
+                                        <img src="~/anhncc/@item.Logo" class="supplier-logo" alt="@item.TenCongTy" />
+                                    }
+                                    else
+                                    {
+                                        <img src="~/anhloai/loaikhac.png" class="supplier-logo" alt="No Logo" />
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark fs-6">@item.TenCongTy</div>
+                                <span class="badge bg-info-subtle text-info border border-info-subtle small mt-1">
+                                    <i class="fas fa-globe-asia me-1"></i>@item.QuocGia
+                                </span>
+                                <div class="text-muted small mt-1"><i class="fas fa-map-marker-alt me-1"></i>@item.DiaChi</div>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <div class="mb-1"><i class="fas fa-user-tie me-2 text-muted"></i>@item.NguoiLienLac</div>
+                                    <div class="mb-1 text-primary"><i class="fas fa-envelope me-2 text-muted"></i>@item.Email</div>
+                                    <div><i class="fas fa-phone me-2 text-muted"></i>@item.DienThoai</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small text-muted text-truncate-3">
+                                    @item.MoTa
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group shadow-sm">
+                                    <a asp-action="Edit" asp-route-id="@item.MaNcc" class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-edit"></i></a>
+                                    <a asp-action="Details" asp-route-id="@item.MaNcc" class="btn btn-sm btn-outline-info" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                                    <a asp-action="Delete" asp-route-id="@item.MaNcc" class="btn btn-sm btn-outline-danger" title="Xóa"><i class="fas fa-trash-alt"></i></a>
+                                </div>
+                            </td>
+                            <td class="d-none">@item.MaNcc</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* 1. Kích thước Logo và hiệu ứng Hover soi ảnh */
+        .supplier-logo-container {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: 0.3s;
+            cursor: zoom-in;
+        }
+
+        .supplier-logo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .supplier-logo-container:hover {
+            transform: scale(2.5);
+            transform-origin: left center;
+            z-index: 999;
+            position: relative;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            border-color: #4e73df !important;
+        }
+
+        /* 2. Dọn dẹp giao diện DataTable */
+        table.dataTable thead th::before,
+        table.dataTable thead th::after {
+            display: none !important;
+        }
+
+        table.dataTable thead th {
+            cursor: default !important;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        /* 3. Canh chỉnh lề lối Vietsub */
+        .dataTables_filter label, .dataTables_length label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #5a5c69;
+        }
+
+        .dataTables_filter input {
+            border-radius: 20px;
+            border: 1px solid #d1d3e2;
+            padding-left: 10px;
+        }
+
+        .dataTables_paginate {
+            margin-top: 15px !important;
+        }
+
+        /* 4. Thẩm mỹ văn bản */
+        .text-truncate-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 3.5rem;
+        }
+
+        .bg-info-subtle {
+            background-color: #e0f2fe !important;
+        }
+
+        .table-responsive {
+            overflow: visible !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khởi tạo DataTable đồng bộ với các trang khác
+            var table = $('.datatable').DataTable({
+                "ordering": true,
+                "order": [[5, "desc"]], // Mặc định sắp xếp theo MaNcc (cột 5) mới nhất lên đầu
+                "language": {
+                    "sLengthMenu": "Xem _MENU_ mục",
+                    "sSearch": "Tìm kiếm:",
+                    "sInfo": "Đang xem _START_ đến _END_ / _TOTAL_ đối tác",
+                    "oPaginate": {
+                        "sFirst": "Đầu",
+                        "sPrevious": "Trước",
+                        "sNext": "Tiếp",
+                        "sLast": "Cuối"
+                    },
+                    "sZeroRecords": "Không tìm thấy đối tác nào",
+                    "sInfoEmpty": "Chưa có dữ liệu đối tác"
+                },
+                // Dom layout: Length(l) - FilterPlace - Search(f)
+                "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'<'#filterPlace'>><'col-sm-12 col-md-4'f>>" +
+                       "<'row'<'col-sm-12'tr>>" +
+                       "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-center'p>>"
+            });
+
+            // Chèn nút Lọc nhanh vào giữa
+            var filterHtml = `
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-outline-primary dropdown-toggle rounded-pill btn-sm px-3 shadow-sm" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-sort me-1"></i> Thứ tự đối tác
+                    </button>
+                    <div class="dropdown-menu p-2 shadow border-0">
+                        <button class="dropdown-item small" onclick="applySort('desc')"><i class="fas fa-calendar-plus me-2 text-danger"></i>Mới thêm</button>
+                        <button class="dropdown-item small" onclick="applySort('asc')"><i class="fas fa-calendar-minus me-2 text-secondary"></i>Cũ nhất</button>
+                    </div>
+                </div>
+            `;
+            $('#filterPlace').html(filterHtml);
+        });
+
+        // Hàm sắp xếp
+        function applySort(dir) {
+            var table = $('.datatable').DataTable();
+            table.order([5, dir]).draw();
+        }
+    </script>
+}

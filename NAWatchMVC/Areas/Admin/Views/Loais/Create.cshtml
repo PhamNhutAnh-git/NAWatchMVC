@@ -1,0 +1,108 @@
+﻿@model NAWatchMVC.Data.Loai
+
+@{
+    ViewData["Title"] = "Thêm Danh mục";
+}
+
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-2">
+            <li class="breadcrumb-item"><a asp-controller="HomeAdmin" asp-action="Index" class="text-decoration-none text-muted">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Danh mục</a></li>
+            <li class="breadcrumb-item active text-primary" aria-current="page">Thêm mới</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary-subtle p-2 rounded-circle me-3">
+                            <i class="fas fa-folder-plus text-primary"></i>
+                        </div>
+                        <h5 class="m-0 font-weight-bold text-dark">Tạo Danh Mục Sản Phẩm</h5>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 pt-0">
+                    <form asp-action="Create" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label asp-for="TenLoai" class="form-label fw-semibold small text-muted">Tên Danh Mục</label>
+                                    <input asp-for="TenLoai" class="form-control form-control-lg border-2 bg-light bg-opacity-50"
+                                           placeholder="Ví dụ: Đồng hồ Nam, Đồng hồ Cơ..." />
+                                    <span asp-validation-for="TenLoai" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="TenLoaiAlias" class="form-label fw-semibold small text-muted">Tên Alias (Slug URL)</label>
+                                    <input asp-for="TenLoaiAlias" class="form-control border-2 bg-light bg-opacity-50"
+                                           placeholder="dong-ho-nam" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="MoTa" class="form-label fw-semibold small text-muted">Mô tả danh mục</label>
+                                    <textarea asp-for="MoTa" class="form-control border-2 bg-light bg-opacity-50"
+                                              rows="4" placeholder="Mô tả ngắn gọn về danh mục này..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 text-center">
+                                <label class="form-label fw-semibold small text-muted d-block text-start">Hình đại diện</label>
+                                <div class="image-upload-wrap p-2 border border-2 border-dashed rounded-3 bg-light">
+                                    <img id="imgPreview" src="~/Hinh/default_category.png"
+                                         class="img-fluid rounded mb-2 shadow-sm"
+                                         style="max-height: 150px; object-fit: contain;" />
+                                    <input type="file" name="fHinh" id="fHinh" class="form-control form-control-sm mt-2" accept="image/*" />
+                                </div>
+                                <small class="text-muted mt-2 d-block">Tỉ lệ khuyên dùng 1:1</small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-light border px-4 rounded-pill small fw-bold">
+                                <i class="fas fa-chevron-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow">
+                                <i class="fas fa-check-circle me-1"></i> Lưu Danh Mục
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-primary-subtle { background-color: #e0f2fe; }
+        .border-dashed { border-style: dashed !important; }
+        .form-control:focus {
+            box-shadow: none;
+            border-color: var(--sidebar-active);
+            background-color: #fff !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Preview ảnh khi chọn file
+        document.getElementById('fHinh').onchange = function (evt) {
+            const [file] = this.files
+            if (file) {
+                document.getElementById('imgPreview').src = URL.createObjectURL(file)
+            }
+        }
+    </script>
+}

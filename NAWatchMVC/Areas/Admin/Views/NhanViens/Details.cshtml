@@ -1,0 +1,141 @@
+﻿@model NAWatchMVC.Data.NhanVien
+
+@{
+    ViewData["Title"] = "Hồ sơ nhân viên";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small mb-1">
+                    <li class="breadcrumb-item"><a asp-controller="HomeAdmin" asp-action="Index" class="text-decoration-none text-muted">Admin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Nhân viên</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Hồ sơ: @Model.MaNv</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0 text-gray-800 fw-bold">Chi tiết nhân sự</h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model?.MaNv" class="btn btn-primary shadow-sm rounded-pill px-4">
+                <i class="fas fa-edit me-1"></i> Chỉnh sửa
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary shadow-sm rounded-pill px-4">
+                <i class="fas fa-list me-1"></i> Danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 text-center h-100 py-4">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name=@Model.HoTen&background=3b82f6&color=fff&size=256"
+                             class="rounded-circle shadow-sm border border-4 border-white" width="150" height="150" />
+                    </div>
+                    <h4 class="fw-bold text-dark mb-1">@Model.HoTen</h4>
+                    <p class="text-muted small mb-3">Mã nhân viên: #@Model.MaNv</p>
+
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        @if (Model.VaiTro == 1)
+                        {
+                            <span class="badge bg-danger rounded-pill px-3">Quản trị viên (Admin)</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info rounded-pill px-3">Nhân viên (Staff)</span>
+                        }
+
+                        @if (Model.HieuLuc == true)
+                        {
+                            <span class="badge bg-success rounded-pill px-3">Đang hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary rounded-pill px-3">Đã khóa</span>
+                        }
+                    </div>
+
+                    <hr class="my-4 mx-3 opacity-10">
+
+                    <div class="text-start px-3">
+                        <label class="small text-muted text-uppercase fw-bold mb-1">Quyền hạn hệ thống:</label>
+                        <p class="small"><i class="fas fa-shield-alt text-warning me-2"></i>Có quyền truy cập khu vực Admin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h6 class="m-0 font-weight-bold text-dark text-uppercase">
+                        <i class="fas fa-user-circle me-2 text-primary"></i>Thông tin tài khoản
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-sm-4 fw-bold text-muted small text-uppercase">Họ và Tên:</div>
+                        <div class="col-sm-8 text-dark fs-5">@Model.HoTen</div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-4 fw-bold text-muted small text-uppercase">Email công việc:</div>
+                        <div class="col-sm-8">
+                            <a href="mailto:@Model.Email" class="text-decoration-none">
+                                <i class="fas fa-envelope me-2 text-muted"></i>@Model.Email
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-4 fw-bold text-muted small text-uppercase">Mật khẩu:</div>
+                        <div class="col-sm-8">
+                            <span class="text-muted fst-italic">******** (Để bảo mật, mật khẩu không hiển thị công khai)</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-4 fw-bold text-muted small text-uppercase">Vai trò:</div>
+                        <div class="col-sm-8">
+                            @if (Model.VaiTro == 1)
+                            {
+                                <div class="text-danger fw-bold"><i class="fas fa-user-shield me-2"></i>Administrator</div>
+                            }
+                            else
+                            {
+                                <div class="text-info fw-bold"><i class="fas fa-user me-2"></i>Staff Member</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-0">
+                        <div class="col-sm-4 fw-bold text-muted small text-uppercase">Hiệu lực tài khoản:</div>
+                        <div class="col-sm-8">
+                            @if (Model.HieuLuc == true)
+                            {
+                                <div class="text-success fw-bold"><i class="fas fa-check-circle me-2"></i>Đang trong thời gian công tác</div>
+                            }
+                            else
+                            {
+                                <div class="text-secondary fw-bold"><i class="fas fa-times-circle me-2"></i>Tài khoản hiện đang bị tạm khóa</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-3 text-center">
+                    <small class="text-muted">Hồ sơ được quản lý bởi hệ thống NAWatch Admin</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .breadcrumb-item + .breadcrumb-item::before { content: "›"; font-size: 1.2rem; vertical-align: middle; }
+        .bg-light { background-color: #f8fafc !important; }
+        .badge { font-weight: 500; font-size: 0.75rem; }
+    </style>
+}

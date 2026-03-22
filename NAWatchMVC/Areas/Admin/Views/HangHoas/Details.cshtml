@@ -1,0 +1,163 @@
+﻿@model NAWatchMVC.Data.HangHoa
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 bg-transparent p-0">
+                    <li class="breadcrumb-item small"><a asp-action="Index">Sản phẩm</a></li>
+                    <li class="breadcrumb-item active small" aria-current="page">Chi tiết</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0 text-gray-800 fw-bold">@Model.TenHh</h1>
+        </div>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.MaHh" class="btn btn-primary shadow-sm px-4 rounded-pill">
+                <i class="fas fa-edit me-1"></i> Chỉnh sửa
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary shadow-sm ms-2 px-4 rounded-pill">
+                <i class="fas fa-list me-1"></i> Danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-body text-center p-4">
+                    <div class="bg-light rounded p-3 mb-3">
+                        <img src="~/anhall/@(Model.Hinh ?? "default.jpg")"
+                             class="img-fluid rounded shadow-sm"
+                             style="max-height: 400px; object-fit: contain;"
+                             alt="@Model.TenHh" />
+                    </div>
+
+                    <h3 class="text-danger fw-bold mb-1">@Model.DonGia?.ToString("#,##0")₫</h3>
+                    @if (Model.GiamGia > 0)
+                    {
+                        <div class="badge bg-danger rounded-pill px-3 py-2 mb-3">
+                            <i class="fas fa-tag me-1"></i> Đang giảm @Model.GiamGia%
+                        </div>
+                    }
+
+                    <div class="row g-2 mt-2">
+                        <div class="col-6">
+                            <div class="p-2 border rounded bg-white">
+                                <div class="small text-muted text-uppercase" style="font-size: 0.65rem;">Tồn kho</div>
+                                <div class="h5 mb-0 fw-bold text-dark">@Model.SoLuong</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border rounded bg-white">
+                                <div class="small text-muted text-uppercase" style="font-size: 0.65rem;">Đã bán</div>
+                                <div class="h5 mb-0 fw-bold text-success">@Model.SoLuongBan</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header py-3 bg-white border-bottom">
+                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-chart-line me-2 text-info"></i>Chỉ số hệ thống</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Lượt xem:</span>
+                        <span class="fw-bold">@Model.SoLanXem lượt</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Đánh giá:</span>
+                        <span class="text-warning fw-bold">@Model.DiemDanhGia <i class="fas fa-star"></i></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-0">
+                        <span class="text-muted">Ngày tạo:</span>
+                        <span class="fw-bold">@(Model.NgaySx?.ToString("dd/MM/yyyy") ?? "N/A")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header py-3 bg-white border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-align-left me-2"></i>Mô tả sản phẩm</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-secondary" style="line-height: 1.6; text-align: justify;">
+                        @(string.IsNullOrEmpty(Model.MoTa) ? "Chưa có mô tả cho sản phẩm này." : Model.MoTa)
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header py-3 bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold">Thông số kỹ thuật chi tiết</h6>
+                    <span class="badge bg-secondary">Alias: @Model.TenAlias</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 border-0">
+                            <tbody>
+                                <tr class="bg-light"><td colspan="2" class="fw-bold py-2 px-3 text-primary" style="font-size: 0.8rem;"> PHÂN LOẠI & NGUỒN GỐC</td></tr>
+                                <tr><th class="ps-4" style="width: 35%;">Danh mục</th><td>@Model.MaLoaiNavigation?.TenLoai</td></tr>
+                                <tr><th class="ps-4">Thương hiệu (NCC)</th><td>@Model.MaNccNavigation?.TenCongTy</td></tr>
+                                <tr><th class="ps-4">Xuất xứ</th><td>@Model.XuatXu</td></tr>
+                                <tr><th class="ps-4">Bộ sưu tập</th><td>@Model.BoSuuTap</td></tr>
+
+                                <tr class="bg-light"><td colspan="2" class="fw-bold py-2 px-3 text-primary" style="font-size: 0.8rem;"> BỘ MÁY & NĂNG LƯỢNG</td></tr>
+                                <tr><th class="ps-4">Loại máy</th><td>@Model.LoaiMay</td></tr>
+                                <tr><th class="ps-4">Tên bộ máy</th><td>@Model.TenBoMay</td></tr>
+                                <tr><th class="ps-4">Nguồn năng lượng</th><td>@Model.NguonNangLuong</td></tr>
+                                <tr><th class="ps-4">Thời gian Pin</th><td>@(Model.ThoiGianPin.HasValue ? Model.ThoiGianPin + " tháng" : "N/A")</td></tr>
+
+                                <tr class="bg-light"><td colspan="2" class="fw-bold py-2 px-3 text-primary" style="font-size: 0.8rem;"> THIẾT KẾ & CHẤT LIỆU</td></tr>
+                                <tr><th class="ps-4">Giới tính</th><td>@Model.GioiTinh</td></tr>
+                                <tr><th class="ps-4">Đường kính mặt</th><td>@Model.DuongKinhMat mm</td></tr>
+                                <tr><th class="ps-4">Chất liệu kính</th><td>@Model.ChatLieuKinh</td></tr>
+                                <tr><th class="ps-4">Khung viền</th><td>@Model.ChatLieuKhungVien</td></tr>
+                                <tr><th class="ps-4">Chất liệu dây</th><td>@Model.ChatLieuDay</td></tr>
+                                <tr><th class="ps-4">Độ rộng dây</th><td>@Model.DoRongDay mm</td></tr>
+
+                                <tr class="bg-light"><td colspan="2" class="fw-bold py-2 px-3 text-primary" style="font-size: 0.8rem;"> TÍNH NĂNG & TIỆN ÍCH</td></tr>
+                                <tr><th class="ps-4">Chống nước</th><td>@Model.ChongNuoc ATM</td></tr>
+                                <tr><th class="ps-4">Tiện ích</th><td><span class="text-info">@Model.TienIch</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .table th {
+            font-size: 0.85rem;
+            color: #4e73df;
+            font-weight: 600;
+            vertical-align: middle;
+            border-left: 3px solid transparent;
+        }
+
+        .table tr:hover th {
+            border-left: 3px solid #4e73df;
+            background-color: #f8f9fa;
+        }
+
+        .table td {
+            font-size: 0.9rem;
+            color: #5a5c69;
+            vertical-align: middle;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "›";
+        }
+    </style>
+}

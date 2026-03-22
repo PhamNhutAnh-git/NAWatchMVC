@@ -35,5 +35,29 @@ namespace NAWatchMVC.Helpers // 1. Đổi sang namespace của ní
             }
             return sb.ToString();
         }
+
+        // 3 hàm tạo uploat hình
+        public static string UploadHinh(IFormFile fHinh, string folder)
+        {
+            try
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(fHinh.FileName);
+
+                // Ní sửa chỗ này nè: Thay "Hinh" bằng "anhall" nếu ní để nó ngay trong wwwroot
+                // Hoặc dùng tham số 'folder' để linh hoạt
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folder, fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    fHinh.CopyTo(stream);
+                }
+
+                return fileName;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
     }
 }

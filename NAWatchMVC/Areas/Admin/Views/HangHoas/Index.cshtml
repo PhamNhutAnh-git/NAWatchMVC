@@ -1,0 +1,253 @@
+﻿@model IEnumerable<NAWatchMVC.Data.HangHoa>
+
+@{
+    ViewData["Title"] = "Quản lý Hàng hóa";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+        <h5 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-watch me-2"></i>DANH SÁCH ĐỒNG HỒ
+        </h5>
+        <a asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Thêm sản phẩm mới
+        </a>
+    </div>
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-hover datatable" id="dataTable" width="100%" cellspacing="0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;">Hình</th>
+                        <th>Thông tin sản phẩm</th>
+                        <th>Phân loại</th>
+                        <th class="text-end">Giá bán</th>
+                        <th class="text-center">Kho</th>
+                        <th class="text-center">Thao tác</th>
+                        <th class="d-none">ID Ẩn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                           @*  <td class="d-none">@item.MaHh</td> *@
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.Hinh))
+                                {
+                                    <img src="~/anhall/@item.Hinh" class="img-thumbnail shadow-sm product-img" alt="@item.TenHh" />
+                                }
+                                else
+                                {
+                                    <img src="~/Hinh/HangHoa/default.jpg" class="img-thumbnail shadow-sm product-img" />
+                                }
+                            </td>
+                            <td>
+                                <strong class="text-dark">@item.TenHh</strong> <br />
+                                <small class="text-muted">Alias: @item.TenAlias</small> <br />
+                                <small class="badge bg-light text-dark border">@item.XuatXu</small>
+                                <small class="badge bg-light text-dark border">@item.LoaiMay</small>
+                            </td>
+                            <td>
+                                <span class="text-primary">@item.MaLoaiNavigation?.TenLoai</span> <br />
+                                <small class="text-secondary">NCC: @item.MaNccNavigation?.TenCongTy</small>
+                            </td>
+                            <td class="text-end">
+                                <div class="fw-bold text-danger">@item.DonGia?.ToString("#,##0")₫</div>
+                                @if (item.GiamGia > 0)
+                                {
+                                    <small class="text-decoration-line-through text-muted">@((item.DonGia * (1 + item.GiamGia / 100))?.ToString("#,##0"))₫</small>
+                                    <span class="badge bg-danger">@item.GiamGia%</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="fw-bold">@item.SoLuong</div>
+                                <small class="text-success">Đã bán: @item.SoLuongBan</small>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a asp-action="Edit" asp-route-id="@item.MaHh" class="btn btn-sm btn-outline-primary" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.MaHh" class="btn btn-sm btn-outline-info" title="Chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.MaHh" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="d-none">@item.MaHh</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Canh giữa phân trang */
+        .dataTables_paginate {
+            margin-top: 15px !important;
+        }
+
+        /* Làm sạch header - xóa mũi tên sort */
+        table.dataTable thead th {
+            background-image: none !important;
+            cursor: default !important;
+        }
+
+        /* Đưa ô search và entries về đúng vị trí */
+        .dataTables_filter label, .dataTables_length label {
+            font-weight: bold;
+            color: #5a5c69;
+            font-size: 0.85rem;
+        }
+
+        .dataTables_filter input {
+            border-radius: 20px;
+            padding-left: 15px;
+            border: 1px solid #d1d3e2;
+        }
+
+        /* Hiệu ứng ảnh như cũ */
+        .product-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover; /* Giúp hình không bị móp méo khi kéo to */
+            border-radius: 6px;
+            transition: 0.3s;
+            cursor: zoom-in;
+            border: 1px solid #e3e6f0; /* Thêm cái viền nhẹ cho sang */
+        }
+
+            .product-img:hover {
+                transform: scale(2.5);
+                transform-origin: left center;
+                z-index: 999;
+                position: relative;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            }
+
+        .table-responsive {
+            overflow: visible !important;
+        }
+        /* xóa mũi tên sort */
+        /* Giấu mũi tên sắp xếp của DataTable */
+        table.dataTable thead th::before,
+        table.dataTable thead th::after {
+            display: none !important;
+        }
+
+        table.dataTable thead th {
+            cursor: default !important;
+        }
+    </style>
+}
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 1. Khởi tạo DataTable
+            var table = $('.datatable').DataTable({
+                "ordering": true, // Bật lại để mình dùng code sắp xếp Mới/Cũ
+                "order": [[0, "desc"]], // Vừa load trang là hiện Mới nhất lên đầu luôn
+                "language": {
+                    "sLengthMenu": "Xem _MENU_ mục",
+                    "sSearch": "Tìm kiếm:",
+                    "sInfo": "Đang xem _START_ đến _END_ / _TOTAL_ mục",
+                    "oPaginate": { "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối" }
+                },
+                "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'<'#filterPlace'>><'col-sm-12 col-md-4'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-center'p>>"
+            });
+
+            // 2. Giao diện Bộ Lọc mới (Mới nhất, Cũ nhất, Hãng SX, Hết hàng)
+            var filterHtml = `
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-primary dropdown-toggle rounded-pill btn-sm" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                                <i class="fas fa-sliders-h me-1"></i> Bộ lọc chuyên sâu
+                            </button>
+                            <div class="dropdown-menu p-3 shadow-lg border-0 text-start" style="width: 300px;">
+                                <h6 class="fw-bold mb-3 text-primary border-bottom pb-2">Điều kiện lọc</h6>
+
+                                <div class="mb-2">
+                                    <label class="small fw-bold text-muted">Thứ tự hiển thị</label>
+                                    <select class="form-select form-select-sm" id="sortTime">
+                                        <option value="desc">Mới nhất (Mặc định)</option>
+                                        <option value="asc">Cũ nhất</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="small fw-bold text-muted">Hãng sản xuất</label>
+                                    <select class="form-select form-select-sm" id="filterNcc">
+                                        <option value="">-- Tất cả hãng --</option>
+        @foreach (var item in ViewBag.MaNcc)
+        {
+            <option value="@item.Text">@item.Text</option>
+        }
+                                    </select>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="small fw-bold text-muted">Danh mục</label>
+                                    <select class="form-select form-select-sm" id="filterLoai">
+                                        <option value="">-- Tất cả loại --</option>
+        @foreach (var item in ViewBag.MaLoai)
+        {
+            <option value="@item.Text">@item.Text</option>
+        }
+                                    </select>
+                                </div>
+
+                                <div class="mb-3 mt-2">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="filterHetHang">
+                                        <label class="form-check-input-label small fw-bold text-danger" for="filterHetHang">Chỉ hiện hàng đã hết</label>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-sm rounded-pill" onclick="applyCombinedFilter()">Áp dụng lọc</button>
+                                    <button class="btn btn-light btn-sm rounded-pill border" onclick="window.location.reload()">Xóa tất cả</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            $('#filterPlace').html(filterHtml);
+        });
+
+        function applyCombinedFilter() {
+            var table = $('.datatable').DataTable();
+
+            var sortDir = $('#sortTime').val();
+            var ncc = $('#filterNcc').val();
+            var loai = $('#filterLoai').val();
+            var isHetHang = $('#filterHetHang').is(':checked');
+
+            // 1. Sắp xếp Mới nhất/Cũ nhất (Dựa trên cột ID - Cột 0)
+            table.order([6, sortDir]);
+
+            // 2. Lọc Hãng SX (Cột 2 - nằm trong info phụ) & Danh mục (Cột 2 - Tiêu đề chính)
+            // Vì Hãng SX nằm ở dòng dưới của cột 2, search vẫn sẽ ra
+            table.column(2).search(loai + " " + ncc);
+
+            // 3. Lọc Hết hàng (Cột 4 - Kho)
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                var soLuong = parseInt(data[4]) || 0; // Cột 4 là Kho
+                if (isHetHang) {
+                    return soLuong === 0; // Nếu tick "Hết hàng" thì chỉ hiện thằng = 0
+                }
+                return true; // Nếu không tick thì hiện hết
+            });
+
+            table.draw();
+            $.fn.dataTable.ext.search.pop();
+            $('#filterDropdown').dropdown('hide');
+        }
+    </script>
+}

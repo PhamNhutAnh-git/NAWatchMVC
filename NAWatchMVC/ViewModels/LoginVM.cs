@@ -5,13 +5,13 @@ namespace NAWatchMVC.ViewModels // 1. Đã đổi Namespace cho đúng project N
     public class LoginVM
     {
         [Display(Name = "Tên đăng nhập")]
-        [Required(ErrorMessage = "Ní quên nhập tên đăng nhập kìa!")]
+        [Required(ErrorMessage = "Đừng quên nhập tên đăng nhập nhé!")]
         [MaxLength(20, ErrorMessage = "Tối đa 20 kí tự thôi nhé.")]
         // 2. Đổi từ UserName thành TenDangNhap cho khớp với DB và Controller
         public string TenDangNhap { get; set; }
 
         [Display(Name = "Mật khẩu")]
-        [Required(ErrorMessage = "Mật khẩu đâu ní ơi?")]
+        [Required(ErrorMessage = "Mật khẩu chưa nhập bạn ơi?")]
         [DataType(DataType.Password)]
         // 3. Đổi thành MatKhau để đồng bộ với RegisterVM
         public string MatKhau { get; set; }

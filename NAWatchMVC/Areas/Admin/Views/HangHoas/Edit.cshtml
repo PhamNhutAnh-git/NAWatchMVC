@@ -1,0 +1,198 @@
+﻿@model NAWatchMVC.Data.HangHoa
+
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-primary fw-bold">CHỈNH SỬA: <span class="text-dark">@Model.TenHh</span></h1>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary shadow-sm px-3 rounded-pill">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <form asp-action="Edit" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="text-danger fw-bold"></div>
+
+        <input type="hidden" asp-for="MaHh" />
+        <input type="hidden" asp-for="Hinh" />
+        <input type="hidden" asp-for="SoLanXem" />
+        <input type="hidden" asp-for="DiemDanhGia" />
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header py-3 bg-white border-bottom">
+                        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-edit me-2"></i>Thông tin định danh</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TenHh" class="form-label small fw-bold">TÊN SẢN PHẨM</label>
+                                <input asp-for="TenHh" class="form-control border-2" />
+                                <span asp-validation-for="TenHh" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TenAlias" class="form-label small fw-bold">ALIAS (URL)</label>
+                                <input asp-for="TenAlias" class="form-control border-2" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="MaLoai" class="form-label small fw-bold">DANH MỤC</label>
+                                <select asp-for="MaLoai" class="form-select border-2" asp-items="ViewBag.MaLoai"></select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="MaNcc" class="form-label small fw-bold">NHÀ CUNG CẤP</label>
+                                <select asp-for="MaNcc" class="form-select border-2" asp-items="ViewBag.MaNcc"></select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="NgaySx" class="form-label small fw-bold">NGÀY ĐĂNG/SX</label>
+                                <input asp-for="NgaySx" class="form-control border-2" type="date" />
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <label asp-for="MoTa" class="form-label small fw-bold">MÔ TẢ SẢN PHẨM</label>
+                            <textarea asp-for="MoTa" class="form-control border-2" rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header py-3 bg-white border-bottom">
+                        <h6 class="m-0 font-weight-bold text-info"><i class="fas fa-cog me-2"></i>Thông số kỹ thuật chi tiết</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-3 g-3">
+                            <div class="col">
+                                <label asp-for="GioiTinh" class="form-label small fw-bold text-muted">Giới tính</label>
+                                <select asp-for="GioiTinh" class="form-select">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Unisex">Unisex</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label asp-for="LoaiMay" class="form-label small fw-bold text-muted">Loại máy</label>
+                                <input asp-for="LoaiMay" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="TenBoMay" class="form-label small fw-bold text-muted">Tên bộ máy</label>
+                                <input asp-for="TenBoMay" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="NguonNangLuong" class="form-label small fw-bold text-muted">Nguồn năng lượng</label>
+                                <input asp-for="NguonNangLuong" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ThoiGianPin" class="form-label small fw-bold text-muted">Thời gian Pin (Tháng)</label>
+                                <input asp-for="ThoiGianPin" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ChongNuoc" class="form-label small fw-bold text-muted">Chống nước</label>
+                                <input asp-for="ChongNuoc" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="DuongKinhMat" class="form-label small fw-bold text-muted">Đường kính mặt</label>
+                                <input asp-for="DuongKinhMat" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ChatLieuKinh" class="form-label small fw-bold text-muted">Chất liệu kính</label>
+                                <input asp-for="ChatLieuKinh" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ChatLieuKhungVien" class="form-label small fw-bold text-muted">Chất liệu khung viền</label>
+                                <input asp-for="ChatLieuKhungVien" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ChatLieuDay" class="form-label small fw-bold text-muted">Chất liệu dây</label>
+                                <input asp-for="ChatLieuDay" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="DoRongDay" class="form-label small fw-bold text-muted">Độ rộng dây</label>
+                                <input asp-for="DoRongDay" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="BoSuuTap" class="form-label small fw-bold text-muted">Bộ sưu tập</label>
+                                <input asp-for="BoSuuTap" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="XuatXu" class="form-label small fw-bold text-muted">Xuất xứ</label>
+                                <input asp-for="XuatXu" class="form-control" />
+                            </div>
+                            <div class="col-md-8">
+                                <label asp-for="TienIch" class="form-label small fw-bold text-muted">Tiện ích kèm theo</label>
+                                <input asp-for="TienIch" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4 border-0 border-left-success">
+                    <div class="card-header py-3 bg-white border-bottom">
+                        <h6 class="m-0 font-weight-bold text-success text-center text-uppercase small">Hình ảnh sản phẩm</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <label class="form-label small fw-bold d-block text-start mb-2">Ảnh hiện tại</label>
+                        <img id="imgPreview" src="~/anhall/@Model.Hinh"
+                             class="img-fluid rounded border shadow-sm mb-3"
+                             style="max-height: 250px; width: 100%; object-fit: contain;" />
+
+                        <div class="input-group">
+                            <input type="file" name="fHinh" id="fHinh" class="form-control" accept="image/*" />
+                        </div>
+                        <small class="text-muted d-block mt-2 italic">Chọn file mới nếu muốn thay đổi ảnh</small>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4 border-0 border-left-warning">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="DonGia" class="form-label small fw-bold">GIÁ NIÊM YẾT (VNĐ)</label>
+                            <input asp-for="DonGia" class="form-control text-danger fw-bold fs-5 border-2" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="GiamGia" class="form-label small fw-bold">GIẢM GIÁ (%)</label>
+                            <input asp-for="GiamGia" class="form-control text-success fw-bold border-2" />
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label asp-for="SoLuong" class="form-label small fw-bold">TỒN KHO</label>
+                                <input asp-for="SoLuong" class="form-control border-2" />
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label asp-for="SoLuongBan" class="form-label small fw-bold">ĐÃ BÁN</label>
+                                <input asp-for="SoLuongBan" class="form-control bg-light border-2 text-muted" readonly />
+                                <small class="text-muted" style="font-size: 0.6rem;">(Số liệu hệ thống)</small>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow">
+                            <i class="fas fa-save me-1"></i> LƯU THAY ĐỔI
+                        </button>
+                        <a asp-action="Index" class="btn btn-link w-100 mt-2 text-muted text-decoration-none small">Hủy bỏ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Preview ảnh ngay lập tức khi Admin chọn file mới
+        document.getElementById('fHinh').onchange = function (evt) {
+            const [file] = this.files
+            if (file) {
+                document.getElementById('imgPreview').src = URL.createObjectURL(file)
+            }
+        }
+    </script>
+}

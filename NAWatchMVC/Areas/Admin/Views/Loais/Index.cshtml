@@ -1,0 +1,209 @@
+﻿@model IEnumerable<NAWatchMVC.Data.Loai>
+
+@{
+    ViewData["Title"] = "Quản lý Danh mục";
+}
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 font-weight-bold text-primary text-uppercase">
+            <i class="fas fa-tags me-2"></i>Danh mục sản phẩm
+        </h5>
+        <a asp-action="Create" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus-circle me-1"></i> Thêm danh mục mới
+        </a>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle datatable" id="dataTable" width="100%">
+                <thead class="table-light text-secondary">
+                    <tr>
+                        <th style="width: 120px;">Hình ảnh</th>
+                        <th>Tên danh mục</th>
+                        <th>Alias (URL)</th>
+                        <th style="width: 35%;">Mô tả</th>
+                        <th class="text-center">Thao tác</th>
+                        <th class="d-none">ID Ẩn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="category-img-container border rounded shadow-sm bg-white">
+                                    @if (!string.IsNullOrEmpty(item.Hinh))
+                                    {
+                                        <img src="~/anhloai/@item.Hinh" class="category-img" alt="@item.TenLoai" />
+                                    }
+                                    else
+                                    {
+                                        <img src="~/anhloai/loaikhac.png" class="category-img" alt="No Image" />
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark h6 mb-0">@item.TenLoai</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-primary border border-primary-subtle px-2 py-1 alias-badge">
+                                    /@item.TenLoaiAlias
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small text-muted text-truncate-2">
+                                    @item.MoTa
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group shadow-sm">
+                                    <a asp-action="Edit" asp-route-id="@item.MaLoai" class="btn btn-sm btn-outline-primary" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.MaLoai" class="btn btn-sm btn-outline-info" title="Chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.MaLoai" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="d-none">@item.MaLoai</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* 1. Kích thước hình và hiệu ứng Hover soi ảnh */
+        .category-img-container {
+            width: 80px; /* Tăng kích thước lên cho dễ nhìn */
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: 0.3s;
+            cursor: zoom-in;
+        }
+
+        .category-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .category-img-container:hover {
+            transform: scale(2.2); /* Phóng to khung khi hover */
+            transform-origin: left center;
+            z-index: 999;
+            position: relative;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 2. Dọn dẹp DataTable (Xóa mũi tên sắp xếp) */
+        table.dataTable thead th::before,
+        table.dataTable thead th::after {
+            display: none !important;
+        }
+
+        table.dataTable thead th {
+            cursor: default !important;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* 3. Canh chỉnh lề lối */
+        .dataTables_filter label, .dataTables_length label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #4e73df;
+        }
+
+        .dataTables_filter input {
+            border-radius: 20px;
+            border: 1px solid #d1d3e2;
+            padding-left: 10px;
+        }
+
+        .dataTables_paginate {
+            margin-top: 15px !important;
+        }
+
+        /* 4. Thẩm mỹ văn bản */
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        .alias-badge {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.75rem;
+        }
+
+        .table-responsive {
+            overflow: visible !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 1. Khởi tạo DataTable
+            var table = $('.datatable').DataTable({
+                "ordering": true,
+                "order": [[5, "desc"]], // Mặc định vừa vào là hiện Mới nhất (cột 5)
+                "language": {
+                    "sLengthMenu": "Xem _MENU_ mục",
+                    "sSearch": "Tìm kiếm:",
+                    "sInfo": "Đang xem _START_ đến _END_ / _TOTAL_ mục",
+                    "oPaginate": { "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối" },
+                    "sZeroRecords": "Không tìm thấy danh mục nào",
+                    "sInfoEmpty": "Không có dữ liệu"
+                },
+                // Layout: l - length, f - search, t - table, p - pagination, i - info
+                "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'<'#filterPlace'>><'col-sm-12 col-md-4'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-center'p>>"
+            });
+
+            // 2. Chèn Nút Lọc Mới Nhất / Cũ Nhất
+            var filterHtml = `
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-outline-primary dropdown-toggle rounded-pill btn-sm shadow-sm px-3" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-sort-amount-down me-1"></i> Thứ tự hiển thị
+                            </button>
+                            <div class="dropdown-menu p-3 shadow-lg border-0 text-start" style="width: 200px;">
+                                <h6 class="fw-bold mb-3 text-primary border-bottom pb-2 small">Sắp xếp theo</h6>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-light btn-sm text-start" onclick="applySort('desc')">
+                                        <i class="fas fa-arrow-down me-2 text-danger"></i>Mới nhất
+                                    </button>
+                                    <button class="btn btn-light btn-sm text-start" onclick="applySort('asc')">
+                                        <i class="fas fa-arrow-up me-2 text-success"></i>Cũ nhất
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            $('#filterPlace').html(filterHtml);
+        });
+
+        // Hàm xử lý sắp xếp nhanh
+        function applySort(dir) {
+            var table = $('.datatable').DataTable();
+            // Cột ID ẩn nằm ở index 5
+            table.order([5, dir]).draw();
+        }
+    </script>
+}

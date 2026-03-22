@@ -27,6 +27,7 @@
 
     <!-- Template Stylesheet -->
     <link href="~/css/style.css" rel="stylesheet">
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
@@ -203,10 +204,14 @@
                 e.preventDefault();
 
                 var id = $(this).data("id"); // Lấy ID từ thuộc tính data-id
-
+                // CHỖ MỚI NÈ: Tìm xem trên trang có ô input nào tên là 'quantity' không
+                // Nếu ở Detail, nó sẽ lấy giá trị khách chọn. Nếu ở List, nó sẽ lấy mặc định là 1.
+                var quantity = $("input[name='quantity']").val() || 1;
                 $.ajax({
                     url: "/Cart/Add/" + id,
                     type: "POST",
+                    data: { quantity: quantity }, // Gửi kèm số lượng lên server
+                    headers: { "X-Requested-With": "XMLHttpRequest" }, // Để Controller nhận biết isAjax
                     success: function (res) {
                         if (res.success) {
                             // Gọi hàm cập nhật icon túi xách
@@ -215,7 +220,7 @@
                             // Hiện thông báo thành công
                             Toast.fire({
                                 icon: 'success',
-                                title: 'Đã hốt chiếc ' + res.tenHH + ' vào giỏ!'
+                                title: 'Đã thêm chiếc ' + res.tenHH + ' vào giỏ!'
                             });
                         }
                         else if (res.error) {

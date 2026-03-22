@@ -1,0 +1,96 @@
+﻿@model NAWatchMVC.Data.KhachHang
+
+@{
+    ViewData["Title"] = "Vô hiệu hóa khách hàng";
+}
+
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-4">
+            <li class="breadcrumb-item"><a asp-controller="HomeAdmin" asp-action="Index" class="text-decoration-none text-muted">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Khách hàng</a></li>
+            <li class="breadcrumb-item active text-danger" aria-current="page">Xác nhận khóa</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="card-header bg-warning py-3 text-center text-dark">
+                    <i class="fas fa-user-slash fa-2x mb-2"></i>
+                    <h5 class="m-0 font-weight-bold text-uppercase">Vô hiệu hóa tài khoản khách</h5>
+                </div>
+
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <div class="d-inline-block p-1 border-2 border-dashed border-warning rounded-circle mb-3">
+                            <img src="https://ui-avatars.com/api/?name=@Model.HoTen&background=fef3c7&color=d97706&size=128"
+                                 class="rounded-circle shadow-sm" width="100" height="100" />
+                        </div>
+                        <h4 class="fw-bold text-dark mb-1">@Model.HoTen</h4>
+                        <p class="text-muted small">Username: <strong>@Model.TenDangNhap</strong></p>
+                    </div>
+
+                    <div class="alert alert-warning py-2 small border-0 shadow-sm text-start">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Lưu ý:</strong> Tài khoản này sẽ bị <b>tạm dừng quyền mua hàng</b>. Dữ liệu đơn hàng cũ vẫn được giữ lại để đối soát doanh thu.
+                    </div>
+
+                    <div class="p-3 border rounded-3 bg-light text-start mb-4">
+                        <div class="row mb-2">
+                            <div class="col-5 fw-bold text-muted small text-uppercase">Email:</div>
+                            <div class="col-7 text-dark small">@Model.Email</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 fw-bold text-muted small text-uppercase">Điện thoại:</div>
+                            <div class="col-7 text-dark small">@Model.DienThoai</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 fw-bold text-muted small text-uppercase">Giới tính:</div>
+                            <div class="col-7 text-dark small">@(Model.GioiTinh == true ? "Nam" : "Nữ")</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 fw-bold text-muted small text-uppercase">Trạng thái hiện tại:</div>
+                            <div class="col-7">
+                                @if (Model.HieuLuc == true)
+                                {
+                                    <span class="text-success small fw-bold">Đang hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger small fw-bold">Đã bị khóa</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="MaKh" />
+
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill fw-bold border-2">
+                                <i class="fas fa-times me-1"></i> Không, Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-warning px-4 rounded-pill fw-bold text-dark shadow">
+                                <i class="fas fa-lock me-1"></i> Xác nhận khóa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light py-2 text-center text-muted small fst-italic">
+                    Mã khách hàng: #@Model.MaKh
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card-header.bg-warning {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        .border-dashed { border-style: dashed !important; }
+    </style>
+}

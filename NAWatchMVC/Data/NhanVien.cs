@@ -15,7 +15,7 @@ public partial class NhanVien
 
     public int? VaiTro { get; set; }
 
-    public bool? HieuLuc { get; set; }
+    public bool HieuLuc { get; set; }
 
     public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
 

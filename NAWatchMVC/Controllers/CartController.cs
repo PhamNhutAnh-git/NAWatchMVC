@@ -72,7 +72,7 @@ namespace NAWatchMVC.Controllers
         [Route("Cart/Add/{id}")] // Thêm dòng này để khớp với URL: /Cart/Add/117
         public IActionResult AddToCart(int id, int quantity = 1)
         {
-            // 0. Lấy thông tin hàng hóa để kiểm tra Tồn kho
+            // 1. Lấy thông tin hàng hóa để kiểm tra Tồn kho
             var hangHoa = db.HangHoas.Find(id);
             if (hangHoa == null) return NotFound();
             // 2. TÍNH GIÁ BÁN THỰC TẾ (QUAN TRỌNG)
@@ -85,7 +85,7 @@ namespace NAWatchMVC.Controllers
                 donGiaThucTe = donGiaThucTe * (1 - (hangHoa.GiamGia ?? 0) / 100.0);
             }
             // -------------------------------------
-            // 0. --- [FIX LỖI] KIỂM TRA TỒN KHO ---
+            // --- [FIX LỖI] KIỂM TRA TỒN KHO ---
             if (hangHoa.SoLuong <= 0)
             {
                 return Json(new { error = true, message = "Sản phẩm này đã hết hàng." });
@@ -157,26 +157,41 @@ namespace NAWatchMVC.Controllers
                 }
                 HttpContext.Session.Set(CART_KEY, myCart);
             }
-            // --- PHẦN MỚI: TRẢ VỀ JSON (Để AJAX nhận được) ---
-            // Tính tổng số lượng mới
-            int tongSoLuong = 0;
-            if (User.Identity.IsAuthenticated)
+            // --- ĐOẠN CUỐI HÀM ADDTOCART: PHÂN LUỒNG XỬ LÝ ---
+            // 1. Kiểm tra loại yêu cầu (AJAX hay Normal Post)
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            // 2. Nếu là AJAX (Dành cho nút "Thêm vào giỏ hàng")
+            if (isAjax)
             {
-                var gioHang = db.GioHangs.Include(gh => gh.ChiTietGioHangs).FirstOrDefault(gh => gh.MaKh == maKH);
-                if (gioHang != null) tongSoLuong = gioHang.ChiTietGioHangs.Sum(c => c.SoLuong ?? 0);
+                // --- PHẦN TÍNH TỔNG SỐ LƯỢNG (GIỮ NGUYÊN BIẾN CỦA NÍ) ---
+                int tongSoLuong = 0;
+                if (User.Identity.IsAuthenticated)
+                {
+                    // maKH ní đã lấy ở đoạn trên của hàm
+                    var gioHang = db.GioHangs.Include(gh => gh.ChiTietGioHangs).FirstOrDefault(gh => gh.MaKh == maKH);
+                    if (gioHang != null)
+                    {
+                        tongSoLuong = gioHang.ChiTietGioHangs.Sum(c => c.SoLuong ?? 0);
+                    }
+                }
+                else
+                {
+                    tongSoLuong = Cart.Sum(c => c.SoLuong);
+                }
+                // --- BƯỚC CUỐI: TRẢ VỀ JSON CHO AJAX ---
+                // Sử dụng hangHoa.TenHh hoặc tenSP tùy ní đặt tên ở trên nhé
+                return Ok(new
+                {
+                    success = true,
+                    soLuong = tongSoLuong,
+                    tenHH = hangHoa.TenHh
+                });
             }
-            else
-            {
-                tongSoLuong = Cart.Sum(c => c.SoLuong);
-            }
-
-            // Trả về JSON chứa Số lượng và Tên sản phẩm (để hiện thông báo)
-            var tenSP = db.HangHoas.Find(id)?.TenHh ?? "Sản phẩm";
-            // --- BƯỚC CUỐI: TRẢ VỀ JSON CHO AJAX ---
-            // success: true để JavaScript biết là thành công
-            // soLuong: để cập nhật con số trên icon giỏ hàng
-            // tenHH: để hiện thông báo SweetAlert cho xịn
-            return Ok(new { success = true, soLuong = tongSoLuong, tenHH = hangHoa.TenHh });
+            // --- XỬ LÝ RIÊNG CHO MUA NGAY ---
+            // Lưu ID và Số lượng món vừa nhấn "Mua ngay" vào Session để Checkout biết đường mà lọc
+            HttpContext.Session.SetInt32("BuyNow_Id", id);
+            HttpContext.Session.SetInt32("BuyNow_Quantity", quantity);
+            return RedirectToAction("Checkout", "Cart");
         }
 
         // 3. XÓA SẢN PHẨM
@@ -273,43 +288,74 @@ namespace NAWatchMVC.Controllers
         [HttpGet]
         public IActionResult Checkout()
         {
-            // --- CHẶN ADMIN MUA HÀNG ---
+            // 1. CHẶN ADMIN MUA HÀNG (Giữ nguyên logic của ní)
             if (User.IsInRole("Admin") || User.IsInRole("Staff"))
             {
                 return View("AdminCantShop");
             }
-            // ----------------------------
-            // Kiểm tra giỏ hàng (lấy từ DB hoặc Session)
-            List<CartItemVM> result = new List<CartItemVM>();
 
+            // 2. LẤY THÔNG TIN KHÁCH HÀNG (Nếu đã đăng nhập)
             if (User.Identity.IsAuthenticated)
             {
                 var maKH = User.FindFirst("CustomerId")?.Value;
-
-                // Lấy thông tin khách hàng để điền vào form
                 var khachHang = db.KhachHangs.SingleOrDefault(kh => kh.MaKh == maKH);
                 if (khachHang != null) ViewBag.ThongTinKhachHang = khachHang;
+            }
 
-                var gioHang = db.GioHangs.Include(gh => gh.ChiTietGioHangs).ThenInclude(ct => ct.MaHhNavigation).FirstOrDefault(gh => gh.MaKh == maKH);
-                if (gioHang != null)
+            // 3. KHỞI TẠO DANH SÁCH KẾT QUẢ
+            List<CartItemVM> result = new List<CartItemVM>();
+
+            // --- BƯỚC QUAN TRỌNG: KIỂM TRA MUA NGAY TRƯỚC ---
+            var buyNowId = HttpContext.Session.GetInt32("BuyNow_Id");
+            var buyNowQty = HttpContext.Session.GetInt32("BuyNow_Quantity") ?? 1;
+
+            if (buyNowId.HasValue)
+            {
+                // TRƯỜNG HỢP 1: MUA NGAY -> Chỉ lấy đúng 1 món này
+                var hangHoa = db.HangHoas.Find(buyNowId.Value);
+                if (hangHoa != null)
                 {
-                    result = gioHang.ChiTietGioHangs.Select(item => new CartItemVM
+                    result.Add(new CartItemVM
                     {
-                        MaHH = item.MaHh,
-                        TenHH = item.MaHhNavigation.TenHh,
-                        Hinh = item.MaHhNavigation.Hinh ?? "",
-                        DonGia = item.MaHhNavigation.DonGia ?? 0,
-                        SoLuong = item.SoLuong ?? 1,
-                        // THÊM DÒNG NÀY VÀO NÈ "NÍ"
-                       GiamGia = item.MaHhNavigation.GiamGia ?? 0
-                    }).ToList();
+                        MaHH = hangHoa.MaHh,
+                        TenHH = hangHoa.TenHh,
+                        Hinh = hangHoa.Hinh ?? "",
+                        DonGia = hangHoa.DonGia ?? 0,
+                        GiamGia = (int)(hangHoa.GiamGia ?? 0),
+                        SoLuong = buyNowQty
+                    });
                 }
+                // Lưu ý: Đừng xóa Session vội ở đây để đề phòng khách F5 trang
             }
             else
             {
-                result = Cart;
+                // TRƯỜNG HỢP 2: THANH TOÁN CẢ GIỎ HÀNG (Logic cũ của ní)
+                if (User.Identity.IsAuthenticated)
+                {
+                    var maKH = User.FindFirst("CustomerId")?.Value;
+                    var gioHang = db.GioHangs.Include(gh => gh.ChiTietGioHangs)
+                                             .ThenInclude(ct => ct.MaHhNavigation)
+                                             .FirstOrDefault(gh => gh.MaKh == maKH);
+                    if (gioHang != null)
+                    {
+                        result = gioHang.ChiTietGioHangs.Select(item => new CartItemVM
+                        {
+                            MaHH = item.MaHh,
+                            TenHH = item.MaHhNavigation.TenHh,
+                            Hinh = item.MaHhNavigation.Hinh ?? "",
+                            DonGia = item.MaHhNavigation.DonGia ?? 0,
+                            SoLuong = item.SoLuong ?? 1,
+                            GiamGia = item.MaHhNavigation.GiamGia ?? 0
+                        }).ToList();
+                    }
+                }
+                else
+                {
+                    result = Cart; // Lấy từ Session khách vãng lai
+                }
             }
 
+            // 4. KIỂM TRA RỖNG
             if (result.Count == 0) return RedirectToAction("Index");
 
             return View(result);
@@ -365,15 +411,37 @@ namespace NAWatchMVC.Controllers
             }
             // B. Lấy giỏ hàng (Từ DB hoặc Session)
             List<CartItemVM> myCart = new List<CartItemVM>();
-            if (User.Identity.IsAuthenticated)
+            var buyNowId = HttpContext.Session.GetInt32("BuyNow_Id");
+            var buyNowQty = HttpContext.Session.GetInt32("BuyNow_Quantity") ?? 1;
+
+            if (buyNowId.HasValue)
             {
-                var gioHang = db.GioHangs.Include(gh => gh.ChiTietGioHangs).FirstOrDefault(gh => gh.MaKh == khachHang.MaKh);
-                if (gioHang != null)
-                    myCart = gioHang.ChiTietGioHangs.Select(ct => new CartItemVM { MaHH = ct.MaHh, DonGia = db.HangHoas.Find(ct.MaHh).DonGia ?? 0, SoLuong = ct.SoLuong ?? 1 }).ToList();
+                // TRƯỜNG HỢP 1: MUA NGAY -> Chỉ hốt 1 món này thôi
+                var hh = db.HangHoas.Find(buyNowId.Value);
+                if (hh != null)
+                {
+                    myCart.Add(new CartItemVM
+                    {
+                        MaHH = hh.MaHh,
+                        DonGia = hh.DonGia ?? 0,
+                        SoLuong = buyNowQty,
+                        GiamGia = (int)(hh.GiamGia ?? 0)
+                    });
+                }
             }
             else
             {
-                myCart = Cart;
+                // TRƯỜNG HỢP 2: THANH TOÁN CẢ GIỎ (Giữ nguyên logic cũ của ní)
+                if (User.Identity.IsAuthenticated)
+                {
+                    var gioHang = db.GioHangs.Include(gh => gh.ChiTietGioHangs).FirstOrDefault(gh => gh.MaKh == khachHang.MaKh);
+                    if (gioHang != null)
+                        myCart = gioHang.ChiTietGioHangs.Select(ct => new CartItemVM { MaHH = ct.MaHh, DonGia = db.HangHoas.Find(ct.MaHh).DonGia ?? 0, SoLuong = ct.SoLuong ?? 1 }).ToList();
+                }
+                else
+                {
+                    myCart = Cart;
+                }
             }
 
             // C. Tạo hóa đơn
@@ -401,60 +469,76 @@ namespace NAWatchMVC.Controllers
                 // 2. Lưu chi tiết và tính tổng tiền thực tế
                 double tongTienThucTe = 0;
                 // Lưu Chi tiết & Trừ kho
-                foreach (var item in myCart)
-                {
-                    // Lấy thông tin mới nhất từ DB để đảm bảo giá và tồn kho chính xác lúc nhấn nút
-                    var hh = db.HangHoas.Find(item.MaHH);
-                    if (hh == null) continue;
-
-                    // TÍNH GIÁ BÁN THỰC TẾ (Vì GiamGia là số nguyên nên phải chia 100.0)
-                    double giaGoc = (double)(hh.DonGia ?? 0);
-                    int phanTramGiam = (int)(hh.GiamGia ?? 0);
-                    double giaBan = giaGoc * (1 - phanTramGiam / 100.0); // Công thức: $GiaGoc \times (1 - \frac{GiamGia}{100})$
-
-                    // Tạo bản ghi Chi tiết hóa đơn để "Chốt giá"
-                    var chiTiet = new ChiTietHd
+                    foreach (var item in myCart)
                     {
-                        MaHd = hoadon.MaHd,
-                        MaHh = item.MaHH,
-                        DonGia = giaBan,         // LƯU GIÁ ĐÃ GIẢM: Để sau này sản phẩm có đổi giá thì hóa đơn cũ không bị đổi theo
-                        SoLuong = item.SoLuong,
-                        GiamGia = phanTramGiam   // Lưu % giảm tại thời điểm mua để làm bằng chứng đối soát
-                    };
-                    db.ChiTietHds.Add(chiTiet);
+                        // Lấy thông tin mới nhất từ DB để đảm bảo giá và tồn kho chính xác lúc nhấn nút
+                        var hh = db.HangHoas.Find(item.MaHH);
+                        if (hh == null) continue;
 
-                    // Cộng dồn vào tổng tiền thực tế của cả hóa đơn
-                    tongTienThucTe += (giaBan * item.SoLuong);
+                        // TÍNH GIÁ BÁN THỰC TẾ (Vì GiamGia là số nguyên nên phải chia 100.0)
+                        double giaGoc = (double)(hh.DonGia ?? 0);
+                        int phanTramGiam = (int)(hh.GiamGia ?? 0);
+                        double giaBan = giaGoc * (1 - phanTramGiam / 100.0); // Công thức: $GiaGoc \times (1 - \frac{GiamGia}{100})$
 
-                    // TRỪ KHO (Cập nhật số lượng còn lại trong bảng HangHoa)
-                    if (hh.SoLuong >= item.SoLuong)
-                    {
-                        hh.SoLuong -= item.SoLuong;
+                        // Tạo bản ghi Chi tiết hóa đơn để "Chốt giá"
+                        var chiTiet = new ChiTietHd
+                        {
+                            MaHd = hoadon.MaHd,
+                            MaHh = item.MaHH,
+                            DonGia = giaBan,         // LƯU GIÁ ĐÃ GIẢM: Để sau này sản phẩm có đổi giá thì hóa đơn cũ không bị đổi theo
+                            SoLuong = item.SoLuong,
+                            GiamGia = phanTramGiam   // Lưu % giảm tại thời điểm mua để làm bằng chứng đối soát
+                        };
+                        db.ChiTietHds.Add(chiTiet);
+
+                        // Cộng dồn vào tổng tiền thực tế của cả hóa đơn
+                        tongTienThucTe += (giaBan * item.SoLuong);
+
+                        // TRỪ KHO (Cập nhật số lượng còn lại trong bảng HangHoa)
+                        if (hh.SoLuong >= item.SoLuong)
+                        {
+                            hh.SoLuong -= item.SoLuong;
+                        }
+                        else
+                        {
+                            // Nếu lúc khách nhấn nút mà kho vừa hết, ní có thể xử lý báo lỗi ở đây
+                            hh.SoLuong = 0;
+                        }
+                        // === THÊM DÒNG NÀY VÀO ĐỂ TĂNG SỐ LƯỢNG BÁN ===
+                        // Dùng ?? 0 để đề phòng trường hợp cột SoLuongBan trong DB đang bị NULL
+                        hh.SoLuongBan = (hh.SoLuongBan ?? 0) + item.SoLuong;
+
+                        // Đánh dấu là đối tượng HangHoa này đã thay đổi để EF Core biết đường mà UPDATE
+                        db.Entry(hh).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                     }
-                    else
-                    {
-                        // Nếu lúc khách nhấn nút mà kho vừa hết, ní có thể xử lý báo lỗi ở đây
-                        hh.SoLuong = 0;
-                    }
-                }
             // Bước C: Cập nhật lại Tổng tiền cho Hóa đơn
                 hoadon.TongTien = tongTienThucTe;
                 db.Update(hoadon);
                 await db.SaveChangesAsync(); // Lưu lần cuối
-            // D. Xóa giỏ hàng (Đã đặt xong thì xóa giỏ)
-                if (User.Identity.IsAuthenticated)
+                                             // D. Xóa giỏ hàng (Đã đặt xong thì xóa giỏ)
+                if (buyNowId.HasValue)
                 {
-                    var gioHang = db.GioHangs.FirstOrDefault(gh => gh.MaKh == khachHang.MaKh);
-                    if (gioHang != null)
-                    {
-                        var chiTiets = db.ChiTietGioHangs.Where(ct => ct.MaGh == gioHang.MaGh);
-                        db.ChiTietGioHangs.RemoveRange(chiTiets);
-                        await db.SaveChangesAsync();
-                    }
+                    // Nếu là Mua ngay: CHỈ xóa cờ Mua ngay, giữ nguyên giỏ hàng trong DB/Session
+                    HttpContext.Session.Remove("BuyNow_Id");
+                    HttpContext.Session.Remove("BuyNow_Quantity");
                 }
                 else
                 {
-                    HttpContext.Session.Remove("MYCART");
+                    // Nếu là thanh toán cả giỏ: Xóa sạch sành sanh
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        var gioHang = db.GioHangs.FirstOrDefault(gh => gh.MaKh == khachHang.MaKh);
+                        if (gioHang != null)
+                        {
+                            var chiTiets = db.ChiTietGioHangs.Where(ct => ct.MaGh == gioHang.MaGh);
+                            db.ChiTietGioHangs.RemoveRange(chiTiets);
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                    else
+                    {
+                        HttpContext.Session.Remove("MYCART");
+                    }
                 }
                 // E. PHÂN LUỒNG THANH TOÁN (VNPAY vs COD)
                 if (CachThanhToan == "VNPAY")

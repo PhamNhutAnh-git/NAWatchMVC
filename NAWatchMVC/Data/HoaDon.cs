@@ -7,7 +7,7 @@ public partial class HoaDon
 {
     public int MaHd { get; set; }
 
-    public string MaKh { get; set; } = null!;
+    public string ?MaKh { get; set; } = null!;
 
     public DateTime? NgayDat { get; set; }
 
@@ -15,7 +15,7 @@ public partial class HoaDon
 
     public string? HoTen { get; set; }
 
-    public string DiaChi { get; set; } = null!;
+    public string ?DiaChi { get; set; } = null!;
 
     public string? DienThoai { get; set; }
 
@@ -35,9 +35,9 @@ public partial class HoaDon
 
     public virtual ICollection<ChiTietHd> ChiTietHds { get; set; } = new List<ChiTietHd>();
 
-    public virtual KhachHang MaKhNavigation { get; set; } = null!;
+    public virtual KhachHang? MaKhNavigation { get; set; } = null!;
 
     public virtual NhanVien? MaNvNavigation { get; set; }
 
-    public virtual TrangThai MaTrangThaiNavigation { get; set; } = null!;
+    public virtual TrangThai? MaTrangThaiNavigation { get; set; } = null!;
 }

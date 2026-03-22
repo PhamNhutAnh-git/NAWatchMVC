@@ -1,0 +1,160 @@
+﻿@model NAWatchMVC.Data.NhanVien
+
+@{
+    ViewData["Title"] = "Thêm mới Nhân viên";
+}
+
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-4">
+            <li class="breadcrumb-item"><a asp-controller="HomeAdmin" asp-action="Index" class="text-decoration-none text-muted">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Nhân viên</a></li>
+            <li class="breadcrumb-item active text-primary" aria-current="page">Tạo tài khoản</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
+                    <div class="bg-primary-subtle p-2 rounded-circle me-3">
+                        <i class="fas fa-user-plus text-primary"></i>
+                    </div>
+                    <h5 class="m-0 font-weight-bold text-dark">Thêm Thành Viên Ban Quản Trị</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Create" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MaNv" class="form-label fw-bold small text-muted text-uppercase">Mã Nhân Viên (User ID)</label>
+                                        <input asp-for="MaNv" class="form-control border-2" placeholder="Ví dụ: nhutanh_admin" />
+                                        <span asp-validation-for="MaNv" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="HoTen" class="form-label fw-bold small text-muted text-uppercase">Họ và Tên</label>
+                                        <input asp-for="HoTen" class="form-control border-2" placeholder="Nhập tên đầy đủ..." />
+                                        <span asp-validation-for="HoTen" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label asp-for="Email" class="form-label fw-bold small text-muted text-uppercase">Email công việc</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="fas fa-envelope text-muted"></i></span>
+                                            <input asp-for="Email" type="email" class="form-control" placeholder="nhutanh@nawatch.com" />
+                                        </div>
+                                        <span asp-validation-for="Email" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label asp-for="MatKhau" class="form-label fw-bold small text-muted text-uppercase">Mật khẩu đăng nhập</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="fas fa-lock text-muted"></i></span>
+                                            <input asp-for="MatKhau" type="password" class="form-control" id="passwordInput" placeholder="Tối thiểu 6 ký tự..." />
+                                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <span asp-validation-for="MatKhau" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info py-2 small border-0 bg-info-subtle mt-2">
+                                    <i class="fas fa-shield-alt me-1"></i> Ghi chú: Nhân viên mới sẽ có quyền quản trị mặc định. Ní nhớ đổi quyền sau khi tạo nhé.
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 text-center">
+                                <label class="form-label fw-bold small text-muted text-uppercase mb-3 d-block text-start">Ảnh đại diện</label>
+                                <div class="avatar-upload-container border-2 border-dashed rounded-circle p-1 d-inline-block shadow-sm">
+                                    <img id="imgPreview" src="https://ui-avatars.com/api/?name=New+Staff&background=3b82f6&color=fff&size=200"
+                                         class="rounded-circle" width="180" height="180" style="object-fit: cover;" />
+                                </div>
+                                <div class="mt-3 px-3 text-start">
+                                    <input type="file" name="fAvatar" id="fAvatar" class="form-control form-control-sm" accept="image/*" />
+                                    <small class="text-muted mt-2 d-block">Khuyên dùng ảnh chân dung, vuông (1:1).</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-light border px-4 rounded-pill fw-bold">
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow">
+                                <i class="fas fa-user-check me-1"></i> Khởi Tạo Tài Khoản
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-primary-subtle {
+            background-color: #e0f2fe;
+        }
+
+        .bg-info-subtle {
+            background-color: #ecfeff;
+            color: #0891b2;
+        }
+
+        .avatar-upload-container {
+            border: 2px dashed #cbd5e1;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .avatar-upload-container:hover {
+                border-color: var(--sidebar-active);
+                background: #f8fafc;
+            }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: var(--sidebar-active);
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Preview Avatar
+        document.getElementById('fAvatar').onchange = function (evt) {
+            const [file] = this.files
+            if (file) {
+                document.getElementById('imgPreview').src = URL.createObjectURL(file)
+            }
+        }
+
+        // Hiện/Ẩn mật khẩu cho ní nhập cho chuẩn
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const pwdInput = document.getElementById('passwordInput');
+            const icon = this.querySelector('i');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                pwdInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    </script>
+}

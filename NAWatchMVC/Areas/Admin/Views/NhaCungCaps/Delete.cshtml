@@ -1,0 +1,105 @@
+﻿@model NAWatchMVC.Data.NhaCungCap
+
+@{
+    ViewData["Title"] = "Xác nhận xóa Nhà cung cấp";
+}
+
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-4">
+            <li class="breadcrumb-item"><a asp-controller="HomeAdmin" asp-action="Index" class="text-decoration-none text-muted">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Nhà cung cấp</a></li>
+            <li class="breadcrumb-item active text-danger" aria-current="page">Xác nhận xóa</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="card-header bg-danger py-3 text-center text-white">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <h5 class="m-0 font-weight-bold text-uppercase">Cảnh báo: Xóa Nhà Cung Cấp</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="alert alert-warning text-center small mb-4">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Hành động này sẽ xóa vĩnh viễn dữ liệu của <strong>@Model.TenCongTy</strong>.
+                        Vui lòng kiểm tra kỹ các hàng hóa liên quan trước khi thực hiện.
+                    </div>
+
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center border-end">
+                            <div class="p-2 border rounded-3 bg-light d-inline-block mb-2 shadow-sm">
+                                @if (!string.IsNullOrEmpty(Model.Logo))
+                                {
+                                    <img src="~/anhncc/@Model.Logo" class="img-fluid rounded" style="max-height: 150px; object-fit: contain;" />
+                                }
+                                else
+                                {
+                                    <img src="~/anhloai/loaikhac.png" class="img-fluid rounded" style="max-height: 150px;" />
+                                }
+                            </div>
+                            <div class="fw-bold text-dark mt-2">Mã NCC: #@Model.MaNcc</div>
+                            <span class="badge bg-dark px-3 rounded-pill mt-1">@Model.QuocGia</span>
+                        </div>
+
+                        <div class="col-md-8 ps-md-4">
+                            <h4 class="text-primary fw-bold mb-3">@Model.TenCongTy</h4>
+
+                            <div class="mb-2">
+                                <i class="fas fa-user-tie me-2 text-muted"></i>
+                                <span class="fw-bold">Người liên lạc:</span> @Model.NguoiLienLac
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-envelope me-2 text-muted"></i>
+                                <span class="fw-bold">Email:</span> @Model.Email
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-phone me-2 text-muted"></i>
+                                <span class="fw-bold">Điện thoại:</span> @Model.DienThoai
+                            </div>
+                            <div class="mb-0">
+                                <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                                <span class="fw-bold">Địa chỉ:</span> @Model.DiaChi
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.MoTa))
+                    {
+                        <div class="mt-4 p-3 bg-light rounded-3 small text-muted italic">
+                            <i class="fas fa-quote-left me-2 opacity-50"></i>@Model.MoTa
+                        </div>
+                    }
+
+                    <form asp-action="Delete" class="mt-5 text-center">
+                        <input type="hidden" asp-for="MaNcc" />
+
+                        <div class="d-flex justify-content-center gap-3">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill fw-bold border-2">
+                                <i class="fas fa-times me-1"></i> Không, Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-danger px-4 rounded-pill fw-bold shadow">
+                                <i class="fas fa-trash-alt me-1"></i> Có, Xóa Ngay!
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light py-2 text-center">
+                    <small class="text-muted">Lưu ý: Nếu có lỗi xảy ra, có thể do nhà cung cấp này đang có sản phẩm trong kho.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card-header.bg-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);
+        }
+        .italic { font-style: italic; }
+    </style>
+}

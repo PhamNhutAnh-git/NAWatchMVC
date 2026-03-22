@@ -1,0 +1,191 @@
+﻿@model NAWatchMVC.Data.HangHoa
+
+@{
+    ViewData["Title"] = "Thêm mới sản phẩm";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-primary fw-bold">THÊM ĐỒNG HỒ MỚI</h1>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary shadow-sm px-3 rounded-pill">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header py-3 bg-white">
+                        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-info-circle me-2"></i>Thông tin định danh</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TenHh" class="form-label small fw-bold text-uppercase">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input asp-for="TenHh" id="TenHh" class="form-control border-2" placeholder="Ví dụ: Casio Edifice EFR-552..." />
+                                <span asp-validation-for="TenHh" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TenAlias" class="form-label small fw-bold text-uppercase">Tên Alias (URL)</label>
+                                <input asp-for="TenAlias" id="TenAlias" class="form-control border-2" placeholder="casio-edifice-efr-552" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MaLoai" class="form-label small fw-bold text-uppercase">Danh mục</label>
+                                <select asp-for="MaLoai" class="form-select border-2" asp-items="ViewBag.MaLoai"></select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MaNcc" class="form-label small fw-bold text-uppercase">Thương hiệu / NCC</label>
+                                <select asp-for="MaNcc" class="form-select border-2" asp-items="ViewBag.MaNcc"></select>
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <label asp-for="MoTa" class="form-label small fw-bold text-uppercase">Mô tả sản phẩm</label>
+                            <textarea asp-for="MoTa" class="form-control border-2" rows="4" placeholder="Nhập giới thiệu ngắn về sản phẩm..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header py-3 bg-white">
+                        <h6 class="m-0 font-weight-bold text-info"><i class="fas fa-microchip me-2"></i>Thông số kỹ thuật chi tiết</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-3 g-3">
+                            <div class="col">
+                                <label asp-for="GioiTinh" class="form-label small fw-bold">Giới tính</label>
+                                <select asp-for="GioiTinh" class="form-select">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Unisex">Unisex</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label asp-for="LoaiMay" class="form-label small fw-bold">Loại máy</label>
+                                <input asp-for="LoaiMay" class="form-control" placeholder="Quartz / Automatic" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="TenBoMay" class="form-label small fw-bold">Tên bộ máy</label>
+                                <input asp-for="TenBoMay" class="form-control" placeholder="Miyota / ETA..." />
+                            </div>
+                            <div class="col">
+                                <label asp-for="NguonNangLuong" class="form-label small fw-bold">Nguồn năng lượng</label>
+                                <input asp-for="NguonNangLuong" class="form-control" placeholder="Pin / Ánh sáng / Cơ" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ThoiGianPin" class="form-label small fw-bold">Thời gian Pin (Tháng)</label>
+                                <input asp-for="ThoiGianPin" type="number" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ChongNuoc" class="form-label small fw-bold">Chống nước (ATM)</label>
+                                <input asp-for="ChongNuoc" class="form-control" placeholder="5 ATM / 50m" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="DuongKinhMat" class="form-label small fw-bold">Đường kính mặt (mm)</label>
+                                <input asp-for="DuongKinhMat" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ChatLieuKinh" class="form-label small fw-bold">Chất liệu kính</label>
+                                <input asp-for="ChatLieuKinh" class="form-control" placeholder="Saphire / Mineral" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ChatLieuKhungVien" class="form-label small fw-bold">Chất liệu khung viền</label>
+                                <input asp-for="ChatLieuKhungVien" class="form-control" placeholder="Thép không gỉ 316L" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="ChatLieuDay" class="form-label small fw-bold">Chất liệu dây</label>
+                                <input asp-for="ChatLieuDay" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="DoRongDay" class="form-label small fw-bold">Độ rộng dây (mm)</label>
+                                <input asp-for="DoRongDay" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="BoSuuTap" class="form-label small fw-bold">Bộ sưu tập</label>
+                                <input asp-for="BoSuuTap" class="form-control" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="XuatXu" class="form-label small fw-bold">Xuất xứ</label>
+                                <input asp-for="XuatXu" class="form-control" />
+                            </div>
+                            <div class="col-md-8">
+                                <label asp-for="TienIch" class="form-label small fw-bold">Tiện ích kèm theo</label>
+                                <input asp-for="TienIch" class="form-control" placeholder="Lịch ngày, Dạ quang, Chronograph..." />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header py-3 bg-white text-center">
+                        <h6 class="m-0 font-weight-bold text-dark text-uppercase small">Ảnh đại diện</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <img id="imgPreview" src="~/anhall/default.jpg" class="img-fluid rounded shadow-sm mb-3 border" style="max-height: 250px; object-fit: cover;" />
+                        <input type="file" name="fHinh" id="fHinh" class="form-control form-control-sm border-2" accept="image/*" />
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4 border-0 border-top-success" style="border-top-width: 4px !important;">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="DonGia" class="form-label small fw-bold text-uppercase">Giá niêm yết</label>
+                            <div class="input-group">
+                                <input asp-for="DonGia" class="form-control border-2 fw-bold text-danger fs-5" type="number" />
+                                <span class="input-group-text bg-white fw-bold">₫</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label asp-for="GiamGia" class="form-label small fw-bold text-uppercase">Khuyến mãi %</label>
+                                <input asp-for="GiamGia" class="form-control border-2" type="number" value="0" />
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label asp-for="SoLuong" class="form-label small fw-bold text-uppercase">Số lượng kho</label>
+                                <input asp-for="SoLuong" class="form-control border-2" type="number" value="10" />
+                            </div>
+                        </div>
+                        <hr>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow">
+                            <i class="fas fa-save me-1"></i> LƯU SẢN PHẨM
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Preview ảnh
+        document.getElementById('fHinh').onchange = function (evt) {
+            const [file] = this.files
+            if (file) {
+                document.getElementById('imgPreview').src = URL.createObjectURL(file)
+            }
+        }
+
+        // Tự động tạo Alias (Nếu ní muốn dùng hàm JS để hỗ trợ gõ nhanh)
+        document.getElementById('TenHh').addEventListener('keyup', function () {
+            let title = this.value;
+            let slug = title.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[đĐ]/g, 'd')
+                .replace(/([^a-z0-9\s-]|(?<=\s)-|-(?=\s))/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+            document.getElementById('TenAlias').value = slug;
+        });
+    </script>
+}
