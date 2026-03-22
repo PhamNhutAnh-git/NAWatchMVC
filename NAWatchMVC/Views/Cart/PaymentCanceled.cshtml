@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán bị hủy";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card shadow-sm border-0 p-5 rounded-4">
+                <div class="mb-4">
+                    <i class="fas fa-exclamation-circle text-warning" style="font-size: 5rem;"></i>
+                </div>
+                <h2 class="fw-bold text-dark">Thanh toán không hoàn tất</h2>
+                <p class="text-muted fs-5">
+                    Ní vừa hủy quá trình thanh toán qua VNPay hoặc có lỗi xảy ra.
+                    Đừng lo, sản phẩm vẫn còn đó!
+                </p>
+                <div class="alert alert-light border small text-start mb-4">
+                    <strong>Lưu ý từ NAWatch:</strong>
+                    <ul class="mb-0">
+                        <li>Đơn hàng cũ đã được hệ thống tự động hủy để trả lại hàng vào kho.</li>
+                        <li>Ní có thể vào giỏ hàng để tiến hành đặt lại đơn mới.</li>
+                        <li>Ní có thể chọn phương thức <b>Ship COD</b> để mua hàng nhanh hơn nhé!</li>
+                    </ul>
+                </div>
+                <div class="d-grid gap-2 d-md-block">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">Quay lại trang chủ</a>
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-primary px-4 rounded-pill shadow-sm">Về giỏ hàng</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

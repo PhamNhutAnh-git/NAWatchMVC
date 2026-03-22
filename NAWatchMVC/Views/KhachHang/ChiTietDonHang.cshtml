@@ -107,9 +107,72 @@
             <a asp-action="LichSuDonHang" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold">
                 <i class="fas fa-chevron-left me-2"></i> Trở lại lịch sử đơn hàng
             </a>
+
+            @if (Model.MaTrangThai == 0)
+            {
+                <button onclick="confirmCancel(@Model.MaHd)" class="btn btn-danger rounded-pill px-5 fw-bold shadow">
+                    <i class="fas fa-times-circle me-2"></i> HỦY ĐƠN HÀNG NÀY
+                </button>
+            }
+            else
+            {
+                @* Các trạng thái khác: Hiện nhãn và dòng nhắc nhở *@
+                <div class="d-flex flex-column align-items-center">
+                    <span class="badge @(Model.MaTrangThai == 1 ? "bg-info text-dark" : "bg-primary") rounded-pill px-4 py-2 mb-2 fs-6">
+                    @switch (Model.MaTrangThai)
+                    {
+                        case 1:
+                            <span class="badge bg-info text-dark rounded-pill px-4 py-2 mb-1 fs-6">ĐÃ THANH TOÁN</span>
+                            <small class="text-muted"><i class="fas fa-lock me-1"></i> Đã thanh toán, không thể tự hủy</small>
+                            break;
+                        case 2:
+                            <span class="badge bg-primary rounded-pill px-4 py-2 mb-1 fs-6">ĐANG GIAO HÀNG</span>
+                            <small class="text-muted"><i class="fas fa-truck me-1"></i> Hàng đang đi, không thể hủy</small>
+                            break;
+                        case 3:
+                            <span class="badge bg-success rounded-pill px-4 py-2 fs-6">ĐƠN HÀNG HOÀN TẤT</span>
+                            <small class="text-muted d-block mt-1">Cảm ơn ní đã ủng hộ NAWatch!</small>
+                            break;
+                        case 4:
+                            <span class="badge bg-danger rounded-pill px-4 py-2 fs-6">ĐƠN HÀNG ĐÃ HỦY</span>
+                            <small class="text-muted d-block mt-1">Đơn hàng này đã kết thúc</small>
+                            break;
+                        case 5:
+                            <span class="badge bg-secondary rounded-pill px-4 py-2 fs-6">ĐÃ HOÀN TIỀN</span>
+                            <small class="text-muted d-block mt-1">Tiền đã được trả lại cho ní</small>
+                            break;
+                    }
+                    </span>
+                    <a asp-controller="Contact" asp-action="Index"
+                       class="btn btn-sm btn-link text-decoration-none fw-bold text-primary">
+                        <i class="fab fa-whatsapp me-1"></i> Cần hỗ trợ? Nhắn Zalo cho tui ngay!
+                    </a>
+                </div>
+            }
+
             <button onclick="window.print()" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm">
                 <i class="fas fa-print me-2"></i> In hóa đơn
             </button>
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmCancel(id) {
+        Swal.fire({
+            title: 'Ní chắc chưa?',
+            text: "Hủy đơn này là hàng trả về kho cho người khác mua đó nha!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ừ, Hủy đơn!',
+            cancelButtonText: 'Thôi, để đó đi'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Gọi đến hàm Hủy đơn mà anh em mình đã viết ở CartController
+                window.location.href = '/Cart/CancelOrder/' + id;
+            }
+        })
+    }
+</script>

@@ -65,17 +65,6 @@ namespace NAWatchMVC.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create([Bind("MaHh,TenHh,TenAlias,MaLoai,MaNcc,DonGia,GiamGia,Hinh,NgaySx,SoLanXem,MoTa,SoLuongBan,SoLuong,GioiTinh,DuongKinhMat,ChatLieuDay,DoRongDay,ChatLieuKhungVien,ChatLieuKinh,TenBoMay,ChongNuoc,TienIch,NguonNangLuong,LoaiMay,BoSuuTap,XuatXu,DiemDanhGia,ThoiGianPin")] HangHoa hangHoa)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(hangHoa);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["MaLoai"] = new SelectList(_context.Loais, "MaLoai", "MaLoai", hangHoa.MaLoai);
-        //    ViewData["MaNcc"] = new SelectList(_context.NhaCungCaps, "MaNcc", "MaNcc", hangHoa.MaNcc);
-        //    return View(hangHoa);
-        //}
         public async Task<IActionResult> Create([Bind("MaHh,TenHh,TenAlias,MaLoai,MaNcc,DonGia,GiamGia,MoTa,SoLuong,GioiTinh,DuongKinhMat,ChatLieuDay,DoRongDay,ChatLieuKhungVien,ChatLieuKinh,TenBoMay,ChongNuoc,TienIch,NguonNangLuong,LoaiMay,BoSuuTap,XuatXu,ThoiGianPin")] HangHoa hangHoa, IFormFile fHinh)
         {
             // 1. "MIỄN TỬ KIM BÀI": Bỏ qua kiểm tra các trường không có trên Form

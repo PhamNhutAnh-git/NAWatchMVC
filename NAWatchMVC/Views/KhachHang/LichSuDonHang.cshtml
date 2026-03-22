@@ -3,7 +3,7 @@
     ViewData["Title"] = "Lịch sử đơn hàng";
     Layout = "_LayoutCustomer";
 }
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="container-fluid page-header py-5">
     <h1 class="text-center text-white display-6">Đơn Hàng Của Tôi</h1>
     <ol class="breadcrumb justify-content-center mb-0">
@@ -12,77 +12,145 @@
     </ol>
 </div>
 
-<div class="container-fluid py-5">
-    <div class="container py-5">
-
+<div class="container-fluid pt-3 pb-5">
+    <div class="container">
+        @* TRẢ LẠI CHỮ DANH SÁCH ĐƠN HÀNG ĐÂY NÍ ƠI *@
+        <h3 class="text-center fw-bold text-primary mb-3 text-uppercase">Danh Sách Đơn Hàng Của Ní</h3>
         @if (Model != null && Model.Any())
         {
-            <div class="table-responsive shadow-sm rounded-4 overflow-hidden">
-                <table class="table table-hover align-middle mb-0">
-                    <thead style="background-color: #1E88E5;" class="text-white">
+            @* ÉP CỨNG MÀU XANH DƯƠNG CHO THEAD *@
+            <div class="table-responsive shadow-lg rounded-4 overflow-hidden">
+                <table class="table table-hover align-middle mb-0 bg-white text-center">
+                    <thead style="background-color: #1E88E5 !important;" class="text-white border-0">
                         <tr>
-                            <th class="py-3 ps-4">Mã đơn</th>
+                            <th class="py-3">Mã đơn</th>
                             <th class="py-3">Ngày đặt</th>
                             <th class="py-3">Tổng tiền</th>
-                            <th class="py-3 text-center">Trạng thái</th>
-                            <th class="py-3 text-center">Thao tác</th>
+                            <th class="py-3">Trạng thái</th>
+                            <th class="py-3">Xem</th>
+                            <th class="py-3">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td class="fw-bold ps-4 text-primary">#@item.MaHd</td>
-                                @* 2. Fix lỗi Nullable DateTime ở đây bằng cách dùng .Value hoặc ?. *@
-                                <td>@(item.NgayDat.HasValue ? item.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "---")</td>
-                                <td class="fw-bold text-danger">
-                                    @(item.TongTien.HasValue ? item.TongTien.Value.ToString("#,##0") : "0") đ
-                                </td>
-                                
-                                @* 3. Dùng switch cho code nhìn sang chảnh hơn *@
+                                <td class="fw-bold">#@item.MaHd</td>
+                                <td>@item.NgayDat?.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="fw-bold text-danger">@item.TongTien?.ToString("#,##0") đ</td>
                                 <td class="text-center">
-                                    @switch (item.MaTrangThai)
+                                    @if (item.MaTrangThai == 0)
                                     {
-                                        case 0:
-                                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Mới đặt</span>
-                                            break;
-                                        case 1:
-                                            <span class="badge bg-primary rounded-pill px-3 py-2">Đang giao</span>
-                                            break;
-                                        case 2:
-                                            <span class="badge bg-success rounded-pill px-3 py-2">Hoàn tất</span>
-                                            break;
-                                        default:
-                                            <span class="badge bg-danger rounded-pill px-3 py-2">Đã hủy</span>
-                                            break;
+                                        @* Đơn mới đặt: Cho phép khách tự hủy *@
+                                        <button onclick="confirmCancel(@item.MaHd)" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-sm">Hủy đơn</button>
+                                    }
+                                    else if (item.MaTrangThai == 1)
+                                    {
+                                        @* Đơn đã thanh toán VNPay: Dẫn về trang Contact để nhắn Zalo *@
+                                        <a asp-controller="Contact" asp-action="Index"
+                                           class="btn btn-sm btn-info text-dark rounded-pill px-3 shadow-sm"
+                                           title="Bấm để liên hệ Zalo hủy đơn và hoàn tiền">
+                                            <i class="fas fa-headset me-1"></i> Liên hệ hủy
+                                        </a>
+                                    }
+                                    else if (item.MaTrangThai == 2)
+                                    {
+                                        @* Đang giao: Dẫn về trang Contact để hỏi thăm shipper *@
+                                        <a asp-controller="Contact" asp-action="Index"
+                                           class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+                                            <i class="fas fa-truck me-1"></i> Hỗ trợ giao
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        @* Các trạng thái khác (Hoàn tất, Đã hủy) *@
+                                        <span class="text-muted small">---</span>
                                     }
                                 </td>
-                                <td class="text-center">
-                                    <a asp-action="ChiTietDonHang" asp-route-id="@item.MaHd" 
-                                       class="btn btn-sm btn-outline-primary rounded-pill px-4 shadow-sm">
-                                        Chi tiết <i class="fas fa-search-plus ms-1"></i>
+                                <td>
+                                    <a asp-action="ChiTietDonHang" asp-route-id="@item.MaHd" class="btn btn-sm btn-outline-primary rounded-circle">
+                                        <i class="fas fa-eye"></i>
                                     </a>
+                                </td>
+                                <td>
+                                    @if (item.MaTrangThai == 0)
+                                    {
+                                        <button onclick="confirmCancel(@item.MaHd)" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-sm">Hủy đơn</button>
+                                    }
+                                    else if (item.MaTrangThai == 1)
+                                    {
+                                        <a asp-controller="Home" asp-action="Contact" class="btn btn-sm btn-outline-info rounded-pill px-3">Liên hệ</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">---</span>
+                                    }
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
-        }
-        else
-        {
-            <div class="text-center py-5 border rounded-4 bg-light shadow-sm">
-                <div class="mb-4">
-                    <i class="fas fa-box-open fa-6x text-muted opacity-50"></i>
-                </div>
-                <h3 class="fw-bold text-dark">Ní chưa sắm chiếc đồng hồ nào hết!</h3>
-                <p class="text-muted fs-5">Hãy để NAWatch giúp ní tìm ra "chân ái" cho cổ tay của mình nhé.</p>
-                <a asp-controller="HangHoa" asp-action="Index" 
-                   class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold shadow">
-                   KHÁM PHÁ CỬA HÀNG NGAY
-                </a>
+
+            <div class="mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center d-flex flex-row list-unstyled">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "") mx-1">
+                                <a class="page-link rounded shadow-sm border-0"
+                                   style="@(i == ViewBag.CurrentPage ? "background-color: #1E88E5; color: white;" : "color: #1E88E5;")"
+                                   asp-action="LichSuDonHang" asp-route-page="@i">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
             </div>
         }
-
     </div>
 </div>
+
+<style>
+    .badge {
+        font-weight: 500;
+        font-size: 0.85rem;
+        min-width: 100px;
+    }
+
+    .btn-sm {
+        font-size: 0.8rem;
+    }
+</style>
+<script>
+    // 1. Thông báo khi Hủy thành công (Lấy từ TempData)
+    @if (TempData["Message"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'success',
+                title: 'Thông báo!',
+                text: '@Html.Raw(TempData["Message"])', // Thêm Html.Raw ở đây ní nhé
+                timer: 3000,
+                showConfirmButton: false
+                });
+        </text>
+    }
+
+        // 2. Hàm xác nhận Hủy đơn
+        function confirmCancel(id) {
+            Swal.fire({
+                title: 'Ní chắc chưa?',
+                text: "Hủy rồi là hàng bay về kho lại đó nha!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ừ, Hủy đi!',
+                cancelButtonText: 'Thôi, bấm nhầm'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/Cart/CancelOrder/' + id;
+                }
+            })
+        }
+</script>

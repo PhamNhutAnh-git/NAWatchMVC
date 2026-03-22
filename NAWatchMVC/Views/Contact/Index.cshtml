@@ -1,0 +1,95 @@
+﻿@{
+    ViewData["Title"] = "Liên hệ NAWatch";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid page-header py-2 mb-4" style="background-color: #1E88E5;">
+    <h1 class="text-center text-white display-6 mb-0">Liên Hệ Tổng Đài</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white-50">Trang chủ</a></li>
+        <li class="breadcrumb-item active text-white">Liên hệ</li>
+    </ol>
+</div>
+
+<div class="container-fluid py-3">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
+                    <div class="card-body p-4">
+                        <h3 class="fw-bold text-primary mb-4 text-center">NAWatch Support</h3>
+
+                        <div class="d-flex align-items-center mb-4 p-3 bg-light rounded-3">
+                            <i class="fas fa-headset fa-2x text-primary me-3"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Tổng đài hỗ trợ</h6>
+                                <p class="mb-0 text-muted">@ViewBag.Hotline (24/7)</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-4 p-3 bg-light rounded-3">
+                            <i class="fas fa-map-marker-alt fa-2x text-primary me-3"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Văn phòng tại</h6>
+                                <p class="mb-0 text-muted">Long Xuyên, An Giang</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center py-4 border-top">
+                            <p class="text-muted small mb-3">Ní cần hủy đơn VNPay hoặc hỗ trợ bảo hành?</p>
+                            <a href="https://zalo.me/0373418869" target="_blank"
+                               class="btn btn-primary btn-lg rounded-pill px-5 py-3 shadow-lg pulse-zalo"
+                               style="background-color: #0068ff; border: none;">
+                                <i class="fab fa-whatsapp me-2 fs-4"></i> CHÁT ZALO: 0373 418 869
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg rounded-4 p-4">
+                    <h4 class="fw-bold mb-4">Gửi yêu cầu hỗ trợ</h4>
+                    <form>
+                        <div class="mb-3">
+                            <input type="text" class="form-control border-0 bg-light py-3 rounded-3" placeholder="Tên của ní">
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control border-0 bg-light py-3 rounded-3" placeholder="Email liên hệ">
+                        </div>
+                        <div class="mb-4">
+                            <textarea class="form-control border-0 bg-light rounded-3" rows="4" placeholder="Ní đang gặp vấn đề gì nè?"></textarea>
+                        </div>
+                        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm" type="submit" style="background-color: #1E88E5;">
+                            GỬI YÊU CẦU NGAY
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hiệu ứng nhấp nháy cho nút Zalo */
+    .pulse-zalo {
+        animation: pulse-blue 2s infinite;
+    }
+
+    @@keyframes pulse-blue {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(0, 104, 255, 0.7);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 15px rgba(0, 104, 255, 0);
+        }
+
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(0, 104, 255, 0);
+        }
+    }
+</style>

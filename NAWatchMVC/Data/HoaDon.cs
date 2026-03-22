@@ -28,7 +28,7 @@ public partial class HoaDon
     public int MaTrangThai { get; set; }
 
     public string? MaNv { get; set; }
-
+    public bool DaThanhToan { get; set; } = false;
     public string? GhiChu { get; set; }
 
     public double? TongTien { get; set; }

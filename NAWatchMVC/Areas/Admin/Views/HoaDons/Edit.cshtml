@@ -4,119 +4,141 @@
     ViewData["Title"] = "Cập nhật đơn hàng #" + Model.MaHd;
 }
 
-<div class="container-fluid">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container-fluid py-4">
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb small mb-4">
-            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Đơn hàng</a></li>
-            <li class="breadcrumb-item active text-primary" aria-current="page">Chỉnh sửa đơn #@Model.MaHd</li>
+        <ol class="breadcrumb bg-transparent p-0 mb-4">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Quản lý đơn hàng</a></li>
+            <li class="breadcrumb-item active fw-bold text-primary">Chỉnh sửa #@Model.MaHd</li>
         </ol>
     </nav>
 
     <div class="row justify-content-center">
-        <div class="col-lg-11">
-            <div class="card shadow-sm border-0 rounded-3">
+        <div class="col-xl-11">
+            <div class="card shadow border-0 rounded-4 overflow-hidden">
                 <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
-                        <div class="bg-warning-subtle p-2 rounded-circle me-3">
-                            <i class="fas fa-edit text-warning"></i>
+                        <div class="bg-primary text-white p-3 rounded-3 me-3 shadow-sm">
+                            <i class="fas fa-file-invoice fs-4"></i>
                         </div>
-                        <h5 class="m-0 font-weight-bold text-dark">Cập nhật thông tin đơn hàng: <span class="text-primary">#@Model.MaHd</span></h5>
+                        <div>
+                            <h4 class="m-0 fw-bold text-dark">Chi tiết đơn hàng #@Model.MaHd</h4>
+                            <small class="text-muted">Ngày đặt: <span class="fw-bold">@Model.NgayDat?.ToString("dd/MM/yyyy HH:mm")</span></small>
+                        </div>
                     </div>
-                    <span class="badge bg-light text-dark border">Ngày đặt: @Model.NgayDat?.ToString("dd/MM/yyyy HH:mm")</span>
+                    <div id="statusBadgeContainer">
+                        @* Badge trạng thái sẽ được cập nhật bằng JS *@
+                    </div>
                 </div>
 
-                <div class="card-body p-4">
-                    <form asp-action="Edit">
+                <div class="card-body p-4 bg-white">
+                    <form asp-action="Edit" id="adminEditForm">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         <input type="hidden" asp-for="MaHd" />
-                        <input type="hidden" asp-for="NgayDat" /> @* Giữ nguyên ngày đặt không cho sửa *@
+                        <input type="hidden" asp-for="NgayDat" />
 
-                        <div class="row g-4">
-                            <div class="col-md-6 border-end">
-                                <h6 class="fw-bold text-uppercase small text-muted mb-4"><i class="fas fa-shipping-fast me-2"></i>Địa chỉ & Người nhận</h6>
+                        <div class="row g-5">
+                            <div class="col-lg-7 border-end">
+                                <h6 class="fw-bold text-primary text-uppercase mb-4 border-bottom pb-2">
+                                    <i class="fas fa-user-tag me-2"></i>Thông tin người nhận
+                                </h6>
 
                                 <div class="mb-3">
-                                    <label asp-for="HoTen" class="form-label fw-bold small">Họ và Tên khách hàng</label>
-                                    <input asp-for="HoTen" class="form-control border-2" />
-                                    <span asp-validation-for="HoTen" class="text-danger small"></span>
+                                    <label asp-for="HoTen" class="form-label fw-semibold">Họ tên khách hàng</label>
+                                    <input asp-for="HoTen" class="form-control form-control-lg border-2 shadow-none" placeholder="Nhập tên..." />
                                 </div>
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label asp-for="DienThoai" class="form-label fw-bold small">Số điện thoại</label>
-                                        <input asp-for="DienThoai" class="form-control border-2" />
+                                        <label asp-for="DienThoai" class="form-label fw-semibold">Số điện thoại</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-2"><i class="fas fa-phone"></i></span>
+                                            <input asp-for="DienThoai" class="form-control border-2 shadow-none" />
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label asp-for="MaKh" class="form-label fw-bold small text-muted">ID Khách thành viên</label>
-                                        <select asp-for="MaKh" class="form-select border-2 bg-light" asp-items="ViewBag.MaKh"></select>
+                                        <label asp-for="MaKh" class="form-label fw-semibold">Khách thành viên</label>
+                                        <select asp-for="MaKh" class="form-select border-2 shadow-none bg-light" asp-items="ViewBag.MaKh"></select>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="DiaChi" class="form-label fw-bold small">Địa chỉ nhận hàng</label>
-                                    <textarea asp-for="DiaChi" class="form-control border-2" rows="3"></textarea>
+                                    <label asp-for="DiaChi" class="form-label fw-semibold">Địa chỉ giao hàng</label>
+                                    <textarea asp-for="DiaChi" class="form-control border-2 shadow-none" rows="3"></textarea>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="GhiChu" class="form-label fw-bold small">Ghi chú từ khách/Admin</label>
-                                    <textarea asp-for="GhiChu" class="form-control border-2" rows="2"></textarea>
+                                    <label asp-for="GhiChu" class="form-label fw-semibold">Ghi chú nội bộ</label>
+                                    <textarea asp-for="GhiChu" class="form-control border-2 shadow-none bg-light-subtle" rows="4" placeholder="Nhập ghi chú xử lý..."></textarea>
                                 </div>
                             </div>
 
-                            <div class="col-md-6 ps-md-4">
-                                <h6 class="fw-bold text-uppercase small text-muted mb-4"><i class="fas fa-tasks me-2"></i>Xử lý & Thanh toán</h6>
+                            <div class="col-lg-5 ps-lg-4">
+                                <h6 class="fw-bold text-danger text-uppercase mb-4 border-bottom pb-2">
+                                    <i class="fas fa-credit-card me-2"></i>Xử lý & Tài chính
+                                </h6>
 
-                                <div class="p-3 bg-light rounded-3 border mb-4">
-                                    <div class="mb-3">
-                                        <label asp-for="MaTrangThai" class="form-label fw-bold small text-primary">TRẠNG THÁI ĐƠN HÀNG</label>
-                                        <select asp-for="MaTrangThai" class="form-select border-2 border-primary fw-bold" asp-items="ViewBag.MaTrangThai"></select>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label asp-for="CachThanhToan" class="form-label fw-bold small">PT Thanh toán</label>
-                                            <input asp-for="CachThanhToan" class="form-control border-2" />
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label asp-for="CachVanChuyen" class="form-label fw-bold small">Đơn vị vận chuyển</label>
-                                            <input asp-for="CachVanChuyen" class="form-control border-2" />
-                                        </div>
+                                <div class="p-4 bg-primary-subtle rounded-4 border border-primary-subtle mb-4">
+                                    <label asp-for="MaTrangThai" class="form-label fw-bold text-primary">TRẠNG THÁI VẬN ĐƠN 0</label>
+                                    <select asp-for="MaTrangThai" class="form-select form-select-lg border-2 border-primary fw-bold text-primary shadow-sm"
+                                            asp-items="ViewBag.MaTrangThai"
+                                            style="background-color: #f0f7ff;">
+                                    </select>
+                                    <div id="statusWarning" class="small mt-2 text-danger fw-bold d-none">
+                                        <i class="fas fa-exclamation-triangle me-1"></i> Trạng thái đã khóa, không thể thay đổi.
                                     </div>
                                 </div>
 
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label asp-for="NgayGiao" class="form-label fw-bold small">Ngày giao thực tế</label>
-                                        <input asp-for="NgayGiao" type="date" class="form-control border-2" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label asp-for="MaNv" class="form-label fw-bold small">Nhân viên phụ trách</label>
-                                        <select asp-for="MaNv" class="form-select border-2" asp-items="ViewBag.MaNv"></select>
+                                <div class="mb-4 p-3 border rounded-3 bg-white shadow-sm border-start border-5 border-success">
+                                    <div class="form-check form-switch custom-switch">
+                                        <input class="form-check-input ms-0 me-3 shadow-none" type="checkbox" asp-for="DaThanhToan" style="transform: scale(1.5);">
+                                        <label class="form-check-label fw-bold text-success fs-5 cursor-pointer" asp-for="DaThanhToan">ĐÃ THU TIỀN (CHỐT KHO)</label>
                                     </div>
                                 </div>
 
-                                <div class="row mb-3 mt-4">
-                                    <div class="col-md-6">
-                                        <label asp-for="PhiVanChuyen" class="form-label fw-bold small">Phí vận chuyển (đ)</label>
-                                        <input asp-for="PhiVanChuyen" class="form-control border-2 text-end fw-bold" />
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6">
+                                        <label asp-for="CachThanhToan" class="form-label fw-semibold small text-muted">PT Thanh toán</label>
+                                        <input asp-for="CachThanhToan" class="form-control border-2 shadow-none" />
                                     </div>
-                                    <div class="col-md-6">
-                                        <label asp-for="TongTien" class="form-label fw-bold small text-danger">TỔNG TIỀN PHẢI THU (đ)</label>
-                                        <input asp-for="TongTien" class="form-control border-2 text-end fw-bold text-danger bg-white" />
+                                    <div class="col-6">
+                                        <label asp-for="CachVanChuyen" class="form-label fw-semibold small text-muted">Vận chuyển</label>
+                                        <input asp-for="CachVanChuyen" class="form-control border-2 shadow-none" />
+                                    </div>
+                                    <div class="col-6">
+                                        <label asp-for="NgayGiao" class="form-label fw-semibold small text-muted">Ngày giao hàng</label>
+                                        <input asp-for="NgayGiao" type="date" class="form-control border-2 shadow-none" />
+                                    </div>
+                                    <div class="col-6">
+                                        <label asp-for="MaNv" class="form-label fw-semibold small text-muted">Nhân viên xử lý</label>
+                                        <select asp-for="MaNv" class="form-select border-2 shadow-none" asp-items="ViewBag.MaNv"></select>
+                                    </div>
+                                </div>
+
+                                <div class="card border-0 bg-dark rounded-4 text-white">
+                                    <div class="card-body p-4 text-center">
+                                        <p class="text-uppercase small mb-1 opacity-75">Tổng tiền phải thu</p>
+                                        <h2 class="fw-bold mb-0">@Model.TongTien?.ToString("#,##0") <span class="fs-4">đ</span></h2>
+                                        <input type="hidden" asp-for="TongTien" />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <hr class="my-4 opacity-10">
-
-                        <div class="d-flex justify-content-between align-items-center">
-                            <a asp-action="Index" class="btn btn-light border px-4 rounded-pill fw-bold text-muted">
-                                <i class="fas fa-arrow-left me-1"></i> Quay lại
+                        <div class="mt-5 pt-3 border-top d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-bold">
+                                <i class="fas fa-chevron-left me-2"></i> Danh sách
                             </a>
-                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow">
-                                <i class="fas fa-save me-1"></i> Lưu thay đổi
-                            </button>
+                            <div class="d-flex gap-3">
+                                <button type="button" onclick="window.print()" class="btn btn-dark px-4 py-2 rounded-pill fw-bold shadow-sm">
+                                    <i class="fas fa-print me-2"></i> In hóa đơn
+                                </button>
+                                <button type="submit" id="btnSubmit" class="btn btn-primary px-5 py-2 rounded-pill fw-bold shadow">
+                                    <i class="fas fa-save me-2"></i> LƯU THAY ĐỔI
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -127,17 +149,39 @@
 
 @section Styles {
     <style>
-        .bg-warning-subtle {
-            background-color: #fef3c7;
+        body {
+            background-color: #f8f9fc;
         }
 
-        .form-control:focus, .form-select:focus {
-            box-shadow: none;
-            border-color: #3b82f6;
+        .card {
+            border-radius: 1rem;
         }
+
+        .form-control, .form-select {
+            border-radius: 0.6rem;
+            transition: all 0.3s;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #4e73df;
+                box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+            }
 
         textarea {
             resize: none;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .bg-primary-subtle {
+            background-color: #edf2ff;
+        }
+
+        .custom-switch .form-check-input:checked {
+            background-color: #198754;
+            border-color: #198754;
         }
     </style>
 }
@@ -146,4 +190,110 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function () {
+            var ddlStatus = $('#MaTrangThai');
+            var initialStatus = parseInt(ddlStatus.val());
+
+            // --- 1. KHÓA FORM NẾU ĐƠN ĐÃ ĐÓNG (4, 5) ---
+            if (initialStatus === 4 || initialStatus === 5) {
+                ddlStatus.attr('disabled', 'disabled');
+                $('input, textarea, select').not('#MaHd').not('#MaTrangThai').attr('readonly', 'readonly').addClass('bg-light');
+                $('#btnSubmit').hide();
+                $('#statusWarning').removeClass('d-none');
+            }
+
+            // --- 2. LOGIC DROPDOWN THEO QUY TẮC CỦA NÍ ---
+            if (initialStatus === 3) { // Nếu đã Hoàn tất, chỉ cho phép ở lại 3 hoặc sang 5 (Hoàn tiền)
+                ddlStatus.find('option').each(function () {
+                    var val = parseInt($(this).val());
+                    if (val !== 3 && val !== 5) $(this).remove();
+                });
+            }
+
+            // --- 3. BẮT SỰ KIỆN THAY ĐỔI TRẠNG THÁI (CONFIRM) ---
+            ddlStatus.on('change', function () {
+                var newStatus = parseInt($(this).val());
+
+                // Chặn lùi bước hoặc nhảy cóc
+                if (initialStatus < 2 && newStatus === 3) {
+                    showAutoCloseMsg('Ní ơi, phải qua bước Đang giao (2) mới được Hoàn tất nhé!', 'info');
+                    $(this).val(initialStatus);
+                    return;
+                }
+
+                // Hiện bảng hỏi cho các trạng thái chốt (3, 4, 5)
+                if (newStatus >= 3) {
+                    Swal.fire({
+                        title: 'Xác nhận thay đổi?',
+                        text: "Lưu ý: Sau khi chuyển sang trạng thái này, các thao tác sẽ bị giới hạn hoặc khóa vĩnh viễn!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#4e73df',
+                        cancelButtonColor: '#858796',
+                        confirmButtonText: 'Đồng ý, Chốt luôn!',
+                        cancelButtonText: 'Để tui xem lại'
+                    }).then((result) => {
+                        if (!result.isConfirmed) {
+                            $(this).val(initialStatus);
+                        }
+                    });
+                }
+            });
+
+            // --- 4. GỬI AJAX ---
+            $('#adminEditForm').submit(function (e) {
+                e.preventDefault();
+
+                // Hiện loading
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (res) {
+                        if (res.success) {
+                            // Thành công: Hiện thông báo và chuyển trang
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: res.message,
+                                confirmButtonColor: '#4e73df'
+                            }).then(() => {
+                                window.location.href = '@Url.Action("Index", "HoaDons")';
+                            });
+                        } else {
+                            // Thất bại: Hiện thông báo lỗi (Lỗi nghiệp vụ như chưa thu tiền...)
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'LỖI NGHIỆP VỤ',
+                                text: res.message,
+                                confirmButtonColor: '#e74a3b'
+                            });
+                        }
+                    },
+                    error: function () {
+                        showAutoCloseMsg('Lỗi kết nối Server ní ơi!', 'error');
+                    }
+                });
+            });
+
+            // Hàm hiện thông báo tự đóng sau 3 giây
+            function showAutoCloseMsg(msg, iconType) {
+                Swal.fire({
+                    title: msg,
+                    icon: iconType,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            }
+        });
+    </script>
 }

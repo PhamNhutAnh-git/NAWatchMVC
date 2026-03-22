@@ -194,7 +194,7 @@ namespace NAWatchMVC.Controllers
             return RedirectToAction("Checkout", "Cart");
         }
 
-        // 3. XÓA SẢN PHẨM
+        // 3. XÓA SẢN PHẨM khỏi giỏ
         public IActionResult RemoveCart(int id)
         {
             if (User.Identity.IsAuthenticated)
@@ -224,7 +224,7 @@ namespace NAWatchMVC.Controllers
             return RedirectToAction("Index");
         }
 
-        // 4. TĂNG SỐ LƯỢNG
+        // 4. TĂNG SỐ LƯỢNG cho giỏ
         public IActionResult TangSoLuong(int id)
         {
             if (User.Identity.IsAuthenticated)
@@ -254,7 +254,7 @@ namespace NAWatchMVC.Controllers
             return RedirectToAction("Index");
         }
 
-        // 5. GIẢM SỐ LƯỢNG
+        // 5. GIẢM SỐ LƯỢNG cho giỏ
         public IActionResult GiamSoLuong(int id)
         {
             if (User.Identity.IsAuthenticated)
@@ -353,6 +353,16 @@ namespace NAWatchMVC.Controllers
                 {
                     result = Cart; // Lấy từ Session khách vãng lai
                 }
+                // --- KIỂM TRA TỒN KHO LẦN CUỐI CHO CẢ GIỎ cho trường hợp để lâu---
+                foreach (var item in result)
+                {
+                    var sp = db.HangHoas.AsNoTracking().FirstOrDefault(h => h.MaHh == item.MaHH);
+                    if (sp == null || sp.SoLuong < item.SoLuong)
+                    {
+                        TempData["Message"] = $"Sản phẩm {item.TenHH} vừa thay đổi số lượng tồn kho. Vui lòng kiểm tra lại giỏ hàng.";
+                        return RedirectToAction("Index");
+                    }
+                }
             }
 
             // 4. KIỂM TRA RỖNG
@@ -447,28 +457,39 @@ namespace NAWatchMVC.Controllers
             // C. Tạo hóa đơn
             if (myCart != null && myCart.Count > 0)
             {
+                // --- BƯỚC MỚI: KIỂM TRA TỒN KHO TỔNG THỂ TRƯỚC KHI LƯU ---
+                foreach (var item in myCart)
+                {
+                    var hh = db.HangHoas.AsNoTracking().FirstOrDefault(h => h.MaHh == item.MaHH);
+                    if (hh == null || hh.SoLuong < item.SoLuong)
+                    {
+                        // Nếu có 1 món không đủ, báo lỗi và dừng toàn bộ tiến trình
+                        TempData["Message"] = $"Sản phẩm {hh?.TenHh} vừa hết hàng hoặc không đủ số lượng. Vui lòng kiểm tra lại!";
+                        return RedirectToAction("Index");
+                    }
+                }
                 //1.Tạo Hóa Đơn(Lưu vào DB trước để lấy MaHD)
                 var hoadon = new HoaDon
                 {
                     MaKh = khachHang.MaKh,
                     NgayDat = DateTime.Now,
-                    //TongTien = myCart.Sum(p => p.ThanhTien),
                     TongTien = 0, // Sẽ cập nhật lại bên dưới
                     MaTrangThai = 0,
                     HoTen = hoten,
                     DiaChi = diachi,
                     DienThoai = dienthoai,
                     GhiChu = ghichu,
-                    CachThanhToan = "COD",
+                    CachThanhToan = CachThanhToan, // SỬA: Lấy từ tham số truyền vào (VNPAY/COD)
                     CachVanChuyen = "GHN",
-                    PhiVanChuyen = 0
+                    PhiVanChuyen = 0,
+                    DaThanhToan = false     // SỬA: Mặc định là false, VNPay thành công mới chuyển true
                 };
 
                 db.Add(hoadon);
                 await db.SaveChangesAsync();// lưu để có mã hd
                 // 2. Lưu chi tiết và tính tổng tiền thực tế
                 double tongTienThucTe = 0;
-                // Lưu Chi tiết & Trừ kho
+                // Lưu Chi tiết & Trừ kho Trù kho khi vừa tạo xong hóa đơn
                     foreach (var item in myCart)
                     {
                         // Lấy thông tin mới nhất từ DB để đảm bảo giá và tồn kho chính xác lúc nhấn nút
@@ -511,11 +532,11 @@ namespace NAWatchMVC.Controllers
                         // Đánh dấu là đối tượng HangHoa này đã thay đổi để EF Core biết đường mà UPDATE
                         db.Entry(hh).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                     }
-            // Bước C: Cập nhật lại Tổng tiền cho Hóa đơn
+                // Bước C: Cập nhật lại Tổng tiền cho Hóa đơn
                 hoadon.TongTien = tongTienThucTe;
                 db.Update(hoadon);
                 await db.SaveChangesAsync(); // Lưu lần cuối
-                                             // D. Xóa giỏ hàng (Đã đặt xong thì xóa giỏ)
+                // D. Xóa giỏ hàng (Đã đặt xong thì xóa giỏ)
                 if (buyNowId.HasValue)
                 {
                     // Nếu là Mua ngay: CHỈ xóa cờ Mua ngay, giữ nguyên giỏ hàng trong DB/Session
@@ -619,17 +640,19 @@ namespace NAWatchMVC.Controllers
 
             if (checkSignature)
             {
+                // 1. Lôi MaHD và hoaDon ra nằm ngoài cái if thành công/thất bại
+                var maHD = int.Parse(vnp_TxnRef);
+
+                // QUAN TRỌNG: Phải có .Include(h => h.ChiTietHds) thì lát nữa ní mới có dữ liệu để cộng lại kho nhé
+                var hoaDon = db.HoaDons
+                               .Include(h => h.ChiTietHds)
+                               .FirstOrDefault(x => x.MaHd == maHD);
                 if (vnp_ResponseCode == "00") // 00: Giao dịch thành công
                 {
-                    // CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
-                    var maHD = int.Parse(vnp_TxnRef);
-                    var hoaDon = db.HoaDons.FirstOrDefault(x => x.MaHd == maHD);
-
                     if (hoaDon != null)
                     {
-                        hoaDon.MaTrangThai = 1; // 1: Đã thanh toán / Đang xử lý (Tùy quy ước của bạn)
-                                                // Có thể ghi chú thêm mã giao dịch VNPAY vào ghi chú nếu muốn
-                                                // hoaDon.GhiChu += $" | VNPAY: {vnpayData["vnp_TransactionNo"]}"
+                        hoaDon.MaTrangThai = 1; // 1: Đã thanh toán chờ xác nhận. / Đang xử lý (Tùy quy ước của bạn)
+                        hoaDon.DaThanhToan = true; // ĐÃ THU TIỀN XONG                        
                         db.Update(hoaDon);
                         await db.SaveChangesAsync();
 
@@ -641,9 +664,29 @@ namespace NAWatchMVC.Controllers
                 }
                 else
                 {
-                    // Thanh toán thất bại (Mã lỗi != 00)
-                    ViewBag.Message = "Lỗi thanh toán VNPAY: " + vnp_ResponseCode;
-                    return View("PaymentFail");
+                    // THANH TOÁN THẤT BẠI HOẶC KHÁCH BẤM HỦY (Mã 24)
+                    if (hoaDon != null)
+                    {
+                        // 1. Chuyển trạng thái hóa đơn thành Hủy (Mã 4)
+                        hoaDon.MaTrangThai = 4;
+                        hoaDon.GhiChu += " | Khách đã hủy thanh toán hoặc lỗi giao dịch.";
+
+                        // 2. CỘNG LẠI KHO: Vì lúc Checkout mình đã trừ, giờ không trả tiền thì phải trả hàng lại
+                        foreach (var item in hoaDon.ChiTietHds)
+                        {
+                            var sp = db.HangHoas.Find(item.MaHh);
+                            if (sp != null)
+                            {
+                                sp.SoLuong += item.SoLuong; // Trả lại số lượng vào kho
+                                sp.SoLuongBan -= item.SoLuong; // Trừ lại số lượng đã bán ảo
+                            }
+                        }
+
+                        db.Update(hoaDon);
+                        await db.SaveChangesAsync();
+                    }
+                    ViewBag.Message = "Thanh toán không thành công. Mã lỗi: " + vnp_ResponseCode;
+                    return View("PaymentCanceled");
                 }
             }
             else
@@ -653,5 +696,48 @@ namespace NAWatchMVC.Controllers
                 return View("PaymentFail");
             }
         }
+
+        // 9. KHÁCH TỰ HỦY ĐƠN (CHỈ ÁP DỤNG MÃ 0)
+        [HttpGet]
+        public async Task<IActionResult> CancelOrder(int id)
+        {
+            // 1. Tìm hóa đơn và phải lôi cả Chi tiết ra để biết đường mà cộng lại kho
+            var hoadon = db.HoaDons.Include(h => h.ChiTietHds).FirstOrDefault(h => h.MaHd == id);
+
+            if (hoadon == null) return NotFound();
+
+            // 2. Kiểm tra bảo mật: Chỉ cho phép hủy nếu trạng thái là 0 (Mới đặt/COD)
+            // Nếu là mã 1 (VNPay) hoặc 2 (Đang giao) thì không cho vào đây
+            if (hoadon.MaTrangThai != 0)
+            {
+                TempData["Message"] = "Đơn này không thể tự hủy. Ní vui lòng liên hệ Admin nha!";
+                return RedirectToAction("Index", "HoaDon"); // Quay lại trang lịch sử đơn hàng
+            }
+
+            // 3. CỘNG LẠI SỐ LƯỢNG VÀO KHO
+            foreach (var item in hoadon.ChiTietHds)
+            {
+                var sp = db.HangHoas.Find(item.MaHh);
+                if (sp != null)
+                {
+                    sp.SoLuong += item.SoLuong; // Trả lại hàng vào kho
+                    sp.SoLuongBan = (sp.SoLuongBan ?? 0) - item.SoLuong; // Trừ lại số lượng bán ảo
+                    db.Update(sp);
+                }
+            }
+
+            // 4. CẬP NHẬT TRẠNG THÁI HÓA ĐƠN THÀNH 4 (HỦY ĐƠN)
+            hoadon.MaTrangThai = 4;
+            hoadon.GhiChu += " | Khách hàng chủ động hủy đơn.";
+
+            db.Update(hoadon);
+            await db.SaveChangesAsync();
+
+            TempData["Message"] = "Đã hủy đơn hàng thành công và trả hàng về kho!";
+            // Sửa lại cho đúng tên Action và Controller mà ní đang dùng để hiện danh sách đơn
+            return RedirectToAction("LichSuDonHang", "KhachHang");
+        }
+
+
     }
 }

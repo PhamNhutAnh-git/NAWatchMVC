@@ -267,23 +267,37 @@ namespace NAWatchMVC.Controllers
             return View(nhanVien);
         }
         [Authorize]
-        public IActionResult LichSuDonHang()
+        public IActionResult LichSuDonHang(int? page)
         {
-            // 1. Kiểm tra nếu là Admin thì chặn lại (hoặc hiện thông báo riêng)
+            // 1. Chặn Admin/Staff
             if (User.IsInRole("Admin") || User.IsInRole("Staff"))
             {
-                return View("AdminNotification"); // Tạo view riêng cho Admin
+                return View("AdminNotification");
             }
 
             // 2. Lấy mã khách hàng
             var maKH = User.FindFirst("CustomerId")?.Value;
-            if (maKH == null) return RedirectToAction("DangNhap");
+            if (maKH == null) return RedirectToAction("DangNhap", "KhachHang");
 
-            // 3. Lấy danh sách đơn hàng của khách này
-            var dsDonHang = db.HoaDons
-                .Where(hd => hd.MaKh == maKH)
-                .OrderByDescending(hd => hd.NgayDat) // Mới nhất lên đầu
-                .ToList();
+            // --- PHẦN PHÂN TRANG ---
+            int pageSize = 15; // Ní muốn hiện bao nhiêu đơn 1 trang thì sửa số này
+            int pageNumber = (page ?? 1); // Trang hiện tại, mặc định là 1
+
+            var query = db.HoaDons
+                          .Where(hd => hd.MaKh == maKH)
+                          .OrderByDescending(hd => hd.NgayDat);
+
+            int totalItems = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            // Lấy dữ liệu theo trang
+            var dsDonHang = query.Skip((pageNumber - 1) * pageSize)
+                                 .Take(pageSize)
+                                 .ToList();
+
+            // Đẩy dữ liệu phân trang ra View
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.TotalPages = totalPages;
 
             return View(dsDonHang);
         }
