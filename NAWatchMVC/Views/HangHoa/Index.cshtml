@@ -18,6 +18,7 @@
     </ol>
 </div>
 }
+<div class="row g-4 justify-content-center">
 @if (Model != null && Model.Any())
 {
     @foreach (var item in Model)
@@ -27,6 +28,40 @@
             <partial name="_ProductItem" model="item" />
         </div>
     }
+    @* --- BẮT ĐẦU PHẦN PHÂN TRANG (NẰM DƯỚI DANH SÁCH) --- *@
+    <div class="col-12 mt-5">
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-rounded justify-content-center shadow-sm mb-0">
+
+                @* Nút TRƯỚC *@
+                <li class="page-item @(ViewBag.CurrentPage <= 1 ? "disabled" : "")">
+                    <a class="page-link border-0"
+                       href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, query = ViewBag.CurrentQuery, sort = ViewBag.CurrentSort, loai = ViewBag.CurrentLoai, ncc = ViewBag.CurrentNCC, loaiMay = ViewBag.CurrentLoaiMay, day = ViewBag.CurrentDay, mucGia = ViewBag.CurrentMucGia })">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+
+                @* Danh sách Số Trang *@
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link border-0 @(i == ViewBag.CurrentPage ? "bg-primary text-white" : "text-dark")"
+                           href="@Url.Action("Index", new { page = i, query = ViewBag.CurrentQuery, sort = ViewBag.CurrentSort, loai = ViewBag.CurrentLoai, ncc = ViewBag.CurrentNCC, loaiMay = ViewBag.CurrentLoaiMay, day = ViewBag.CurrentDay, mucGia = ViewBag.CurrentMucGia })">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                @* Nút SAU *@
+                <li class="page-item @(ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link border-0"
+                       href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, query = ViewBag.CurrentQuery, sort = ViewBag.CurrentSort, loai = ViewBag.CurrentLoai, ncc = ViewBag.CurrentNCC, loaiMay = ViewBag.CurrentLoaiMay, day = ViewBag.CurrentDay, mucGia = ViewBag.CurrentMucGia })">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 }
 else
 {
@@ -35,5 +70,58 @@ else
         <p class="mt-3 text-muted">Rất tiếc, không tìm thấy đồng hồ nào phù hợp.</p>
     </div>
 }
+</div>
+<style>
+    /* 1. XÓA BỎ CÁI KHUNG XẤU XÍ */
+    .pagination {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center;
+        align-items: center;
+        list-style: none;
+        padding: 0;
+        margin: 30px 0;
+        background-color: transparent !important; /* Xóa màu nền của khung */
+        box-shadow: none !important; /* Xóa bóng của khung */
+        border: none !important; /* Xóa viền của khung */
+    }
 
- 
+        /* 2. STYLE TỪNG NÚT SỐ (LÀM TRÒN & CÁCH NHAU) */
+        .pagination .page-link {
+            width: 42px;
+            height: 42px;
+            border-radius: 50% !important; /* Ép tròn xoe */
+            margin: 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e0e7ff; /* Viền nhạt cho tinh tế */
+            color: #1E88E5; /* Màu Indigo chủ đạo */
+            background-color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Bóng nhẹ cho từng nút thôi */
+        }
+
+        /* 3. CHỈNH LẠI MÀU INDIGO KHI ĐANG CHỌN (ACTIVE) */
+        .pagination .page-item.active .page-link {
+            background-color: #1E88E5 !important; /* MÀU CHỦ ĐẠO CỦA NÍ ĐÂY */
+            border-color: #1E88E5 !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); /* Bóng xanh Indigo rực rỡ */
+        }
+
+        /* 4. HIỆU ỨNG RÊ CHUỘT (HOVER) */
+        .pagination .page-link:hover {
+            background-color: #f5f7ff;
+            color: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        /* 5. NÚT TRƯỚC/SAU KHI BỊ KHÓA */
+        .pagination .page-item.disabled .page-link {
+            background-color: transparent;
+            color: #cbd5e1;
+            border-color: #f1f5f9;
+            box-shadow: none;
+        }
+</style>

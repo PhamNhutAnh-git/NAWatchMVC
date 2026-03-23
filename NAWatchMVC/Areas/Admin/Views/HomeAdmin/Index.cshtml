@@ -1,79 +1,279 @@
-﻿@model IEnumerable<HoaDon>
+﻿@model IEnumerable<NAWatchMVC.Data.HoaDon>
 @{
     ViewData["Title"] = "Bảng điều khiển";
 }
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card bg-primary text-white p-3 h-100 shadow border-0">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase small">TỔNG DOANH THU</h6>
-                    <h3 class="fw-bold">@ViewBag.TongDoanhThu.ToString("#,##0")₫</h3>
+<div class="container-fluid px-4 py-3">
+    <h4 class="fw-bold text-dark mb-4">🏠 Hệ thống NAWATCHMVC - Tổng quan</h4>
+    @* Tầng 1 *@
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-indigo text-white p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small opacity-75 fw-bold">DOANH THU (VNĐ)</div>
+                        <h3 class="fw-bold mb-0">@ViewBag.TongDoanhThu.ToString("N0")</h3>
+                    </div>
+                    <i class="fas fa-coins fa-2x opacity-50"></i>
                 </div>
-                <i class="fas fa-money-bill-wave fa-3x opacity-50"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-info text-white p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small opacity-75 fw-bold">ĐƠN HÀNG MỚI</div>
+                        <h3 class="fw-bold mb-0">@ViewBag.DonHangMoi</h3>
+                    </div>
+                    <i class="fas fa-shopping-cart fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-warning text-white p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small opacity-75 fw-bold">ĐANG GIAO</div>
+                        <h3 class="fw-bold mb-0">@ViewBag.ShippingCount</h3>
+                    </div>
+                    <i class="fas fa-truck fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-danger text-white p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small opacity-75 fw-bold">SẮP HẾT HÀNG</div>
+                        <h3 class="fw-bold mb-0">@ViewBag.SapHetHang</h3>
+                    </div>
+                    <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-md-4 mb-4">
-        <div class="card bg-success text-white p-3 h-100 shadow border-0">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase small">ĐƠN HÀNG MỚI</h6>
-                    <h3 class="fw-bold">@ViewBag.DonHangMoi</h3>
+   @*  tầng 2 *@
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="fw-bold mb-0 text-indigo"><i class="fas fa-chart-line me-2"></i>Doanh thu gần đây</h6>
                 </div>
-                <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                <div class="card-body">
+                    <canvas id="revenueChart" style="min-height: 280px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="fw-bold mb-0 text-indigo"><i class="fas fa-crown me-2"></i>Top bán chạy</h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @if (ViewBag.TopProducts != null)
+                        {
+                            @foreach (var p in ViewBag.TopProducts)
+                            {
+                                <li class="list-group-item border-0 d-flex align-items-center py-2 px-3">
+                                    <img src="~/anhall/@p.Hinh" class="rounded-3 me-2" style="width: 35px; height: 35px; object-fit: cover;" onerror="this.src='/images/no-image.png'">
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="fw-bold text-truncate" style="font-size: 0.75rem;">@p.Ten</div>
+                                        <div class="text-muted" style="font-size: 0.65rem;">Đã bán: @p.SoLuong</div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="fw-bold mb-0 text-indigo"><i class="fas fa-bell me-2"></i>Hoạt động</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="timeline-container p-3" style="max-height: 320px; overflow-y: auto;">
+                        @if (ViewBag.RecentActivities != null)
+                        {
+                            foreach (var act in ViewBag.RecentActivities)
+                            {
+                                <div class="d-flex mb-3 position-relative timeline-item">
+                                    <div class="timeline-icon me-2">
+                                        <span class="bg-indigo-soft text-indigo rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                            <i class="fas @(act.MaTrangThai == 3 ? "fa-check" : "fa-bell")" style="font-size: 0.6rem;"></i>
+                                        </span>
+                                    </div>
+                                    <div class="timeline-content overflow-hidden">
+                                        <p class="mb-0 fw-bold text-dark text-truncate" style="font-size: 0.7rem;" title="#@act.MaHd - @act.TrangThai">
+                                            #@act.MaHd - @act.TrangThai
+                                        </p>
+                                        <span class="text-muted" style="font-size: 0.6rem;">@act.ThoiGian.ToString("dd/MM HH:mm")</span>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-md-4 mb-4">
-        <div class="card bg-danger text-white p-3 h-100 shadow border-0">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase small">SẮP HẾT HÀNG</h6>
-                    <h3 class="fw-bold">@ViewBag.SapHetHang</h3>
+    @* tầng 3 *@
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="fw-bold mb-0 text-indigo"><i class="fas fa-chart-pie me-2"></i>Tỉ lệ đơn hàng</h6>
                 </div>
-                <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="statusPieChart" style="max-height: 220px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="fw-bold mb-0 text-indigo"><i class="fas fa-history me-2"></i>Danh sách đơn mới</h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                        <thead class="bg-light">
+                            <tr class="small text-uppercase fw-bold text-muted">
+                                <th class="ps-4">Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th class="text-end">Tổng tiền</th>
+                                <th class="text-center">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-indigo">#@item.MaHd</td>
+                                    <td>@item.HoTen</td>
+                                    <td class="text-end fw-bold">@item.TongTien?.ToString("N0")₫</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-indigo-soft text-indigo rounded-pill px-3">
+                                            @item.MaTrangThaiNavigation?.TenTrangThai
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card mt-4 shadow-sm border-0">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-list me-2"></i>Đơn hàng gần đây</h5>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Mã đơn</th>
-                        <th>Khách hàng</th>
-                        <th>Ngày đặt</th>
-                        <th>Tổng tiền</th>
-                        <th>Thanh toán</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>#@item.MaHd</td>
-                            <td>@item.HoTen</td>
-                            <td>@item.NgayDat?.ToString("dd/MM/yyyy")</td>
-                            <td class="fw-bold">@item.TongTien?.ToString("#,##0")₫</td>
-                            <td>
-                                <span class="badge @(item.CachThanhToan == "VNPAY" ? "bg-info" : "bg-secondary")">
-                                    @item.CachThanhToan
-                                </span>
-                            </td>
-                        </tr>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // --- 1. BIỂU ĐỒ DOANH THU (Line Chart) ---
+        // Thêm dấu "|| []" để nếu ViewBag null thì JS vẫn không bị lỗi
+        const labelsChart = @Html.Raw(Json.Serialize(ViewBag.Labels7Ngay)) || [];
+        const dataChart = @Html.Raw(Json.Serialize(ViewBag.Data7Ngay)) || [];
+
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: labelsChart,
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: dataChart,
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: v => v.toLocaleString() + '₫' }
                     }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                }
+            }
+        });
+
+        // --- 2. BIỂU ĐỒ TỈ LỆ (Pie Chart) ---
+        // Thêm "|| [0,0,0,0]" để đảm bảo luôn có mảng 4 phần tử
+        const pieData = @Html.Raw(Json.Serialize(ViewBag.PieData)) || [0, 0, 0, 0];
+
+        new Chart(document.getElementById('statusPieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Hoàn tất', 'Đang giao', 'Đã hủy', 'Hoàn tiền'],
+                datasets: [{
+                    data: pieData,
+                    // Mảng màu tương ứng với từng trạng thái
+                    backgroundColor: ['#22c55e', '#f59e0b', '#ef4444', '#64748b']
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 20 }
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+<style>
+    .bg-indigo {
+        background-color: #4f46e5 !important;
+    }
+
+    .text-indigo {
+        color: #4f46e5 !important;
+    }
+
+    .bg-indigo-soft {
+        background-color: #e0e7ff !important;
+        color: #4338ca !important;
+    }
+    /* Đường kẻ dọc cho timeline */
+    .timeline-item:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        left: 17px;
+        top: 35px;
+        bottom: -20px;
+        width: 2px;
+        background-color: #f1f5f9;
+    }
+
+    .bg-info-soft {
+        background-color: #e0f2fe;
+    }
+
+    .bg-success-soft {
+        background-color: #f0fdf4;
+    }
+
+    .bg-warning-soft {
+        background-color: #fffbeb;
+    }
+
+    /* Hiệu ứng khi hover vào item nhật ký */
+    .timeline-item {
+        transition: all 0.2s ease-in-out;
+    }
+
+        .timeline-item:hover {
+            transform: translateX(5px);
+        }
+</style>

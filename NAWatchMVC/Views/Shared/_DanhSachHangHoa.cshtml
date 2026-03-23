@@ -86,8 +86,19 @@
             </form>
         </div>
         @* --- HÀNG 2: TRẠNG THÁI BỘ LỌC (Đã đồng bộ kích thước) --- *@
+        @{
+            // Tạo một biến kiểm tra xem có bất kỳ bộ lọc thực sự nào đang chạy không (Bỏ qua 'page' và 'sort')
+            var q = Context.Request.Query;
+            bool isFiltering = !string.IsNullOrEmpty(q["query"]) ||
+            !string.IsNullOrEmpty(q["ncc"]) ||
+            !string.IsNullOrEmpty(q["loaiMay"]) ||
+            !string.IsNullOrEmpty(q["day"]) ||
+            !string.IsNullOrEmpty(q["mucGia"]) ||
+            !string.IsNullOrEmpty(q["loai"]);
+        }
         <div class="mb-0 d-flex gap-2 flex-wrap">
-            @if (Context.Request.Query.Count > 0)
+            @* @if (Context.Request.Query.Count > 0) *@
+            @if (isFiltering)
             {
                 @* --- KHỐI HIỂN THỊ TRẠNG THÁI BỘ LỌC --- *@
                 <div class="mb-4 d-flex align-items-center gap-2 flex-wrap">

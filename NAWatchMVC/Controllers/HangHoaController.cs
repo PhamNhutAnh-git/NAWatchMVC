@@ -17,8 +17,11 @@ namespace NAWatchMVC.Controllers
             db = context;
         }
 
-        public async Task<IActionResult> Index(string mucGia, string query,int? loai, string ncc, double? giaMin, double? giaMax, string loaiMay, string day, string sort)
+        public async Task<IActionResult> Index(int? page, string mucGia, string query,int? loai, string ncc, double? giaMin, double? giaMax, string loaiMay, string day, string sort)
         {
+            // 0,5. Cấu hình phân trang
+            int pageSize = 16; // Số sản phẩm mỗi trang
+            int pageNumber = (page ?? 1); // Trang hiện tại, mặc định là 1
             // 1. Khởi tạo truy vấn
             var hangHoas = db.HangHoas.AsQueryable();
 
@@ -79,6 +82,7 @@ namespace NAWatchMVC.Controllers
                 case "price_desc": hangHoas = hangHoas.OrderByDescending(p => p.DonGia * (1 - (p.GiamGia ?? 0) / 100.0)); break;
                 default: hangHoas = hangHoas.OrderByDescending(p => p.MaHh); break;
             }
+            
             // 6. CHUYỂN ĐỔI SANG HANGHOAVM (Mapping) Đây là bước quan trọng nhất để truyền dữ liệu vào _ProductItem
             var mappingResult = hangHoas.Select(p => new HangHoaVM
             {
@@ -101,10 +105,30 @@ namespace NAWatchMVC.Controllers
 
                 NhanUuDai = (p.GiamGia ?? 0) > 10 ? "Giảm sốc" : "Trả chậm 0%"
             });
-            // QUAN TRỌNG: Truyền danh sách đã lọc (hangHoas) vào View để hết lỗi null
-            //var result = await hangHoas.ToListAsync();
-            //return View(result);
-            return View(await mappingResult.ToListAsync());
+            // --- BẮT ĐẦU PHÂN TRANG TẠI ĐÂY ---
+
+            // a. Đếm tổng số lượng sau khi đã LỌC sạch sẽ
+            int totalItems = await hangHoas.CountAsync();
+
+            // b. Tính tổng số trang
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewBag.CurrentPage = pageNumber;
+
+            // c. Gửi lại các bộ lọc vào ViewBag để các nút "Trang 2, 3..." không bị mất lọc
+            ViewBag.CurrentQuery = query;
+            ViewBag.CurrentSort = sort;
+            ViewBag.CurrentLoai = loai;
+            ViewBag.CurrentMucGia = mucGia;
+            ViewBag.CurrentNCC = ncc;
+
+            // d. Cắt dữ liệu (Phải Skip/Take TRƯỚC khi ToList)
+            var pagedData = mappingResult
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+            //return View(await mappingResult.ToListAsync());
+            // 3. CHỈ CÓ 1 LỆNH RETURN DUY NHẤT VỚI BIẾN pagedData
+            //return View(await pagedData.ToListAsync());
+            return View(await pagedData.ToListAsync());
         }
 
         public async Task<IActionResult> Detail(int id)

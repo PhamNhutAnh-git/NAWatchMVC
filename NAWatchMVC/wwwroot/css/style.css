@@ -176,11 +176,23 @@
         opacity: 0;
     }
 }
-
-.dropdown .dropdown-menu a:hover {
-    background: var(--bs-secondary);
-    color: var(--bs-primary);
+/*nhutanh fix*/
+/* 1. Thiết lập trạng thái chữ Đen & Đậm mặc định */
+.dropdown .dropdown-menu a {
+    color: #000000 !important; /* Chữ đen tuyền */
+    font-weight: 700 !important; /* In đậm khét lẹt */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển màu mượt mà */
 }
+
+    /* 2. Sửa lại block Hover theo ý ní */
+    .dropdown .dropdown-menu a:hover {
+        /* Nền xanh nhạt: dùng RGBA với độ trong suốt 0.1 (10%) từ màu #1E88E5 */
+        background-color: rgba(30, 136, 229, 0.1) !important;
+        /* Chữ khi lia chuột vào: giữ màu xanh thương hiệu cho đồng bộ */
+        color: #1E88E5 !important;
+        /* Nhích nhẹ chữ sang phải 5px cho có cảm giác tương tác Pro */
+        padding-left: 20px !important;
+    }
 
 .navbar .nav-item:hover .dropdown-menu {
     transform: rotateX(0deg);
@@ -190,9 +202,37 @@
     transition: .5s;
     opacity: 1;
 }
+/* 1. Ép màu VÀNG cho Trang quản trị (Viết dài ra để tăng độ ưu tiên) */
+.dropdown .dropdown-menu a.admin-link {
+    color: #ffc107 !important;
+    font-weight: 800 !important;
+}
 
+    .dropdown .dropdown-menu a.admin-link:hover {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+        color: #ff9800 !important;
+    }
+
+/* 2. Ép màu ĐỎ cho Đăng xuất (Viết dài ra giống hệt thằng đang đè mình) */
+.dropdown .dropdown-menu a.logout-link {
+    color: #dc3545 !important;
+    font-weight: 800 !important;
+}
+
+    .dropdown .dropdown-menu a.logout-link:hover {
+        background-color: rgba(220, 53, 69, 0.1) !important;
+        color: #bd2130 !important;
+    }
+/*end*/
 #searchModal .modal-content {
     background: rgba(255, 255, 255, .8);
+}
+/* 2. ÉP IN ĐẬM VÀ MÀU XANH CHO CẢ .active VÀ .active-detail */
+.navbar .navbar-nav .nav-link.active,
+.navbar .navbar-nav .nav-link.active-detail {
+    color: #1E88E5 !important; /* Màu xanh Blue ní chọn */
+    font-weight: 800 !important; /* In đậm "khét" như ní muốn */
+    position: relative;
 }
 /*** Navbar End ***/
 
@@ -241,6 +281,7 @@
 
 /* Tùy chỉnh ảnh nền Header cho NAWatch */
 .page-header {
+    /*breadcrumb*/
     /* 1. Nhựt Anh dùng linear-gradient để phủ một lớp màu xanh trong suốt lên ảnh, giúp chữ trắng nổi bật hơn */
     background: linear-gradient(rgba(30, 136, 229, 0.7), rgba(30, 136, 229, 0.7)), url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1999') !important;
     background-position: center center !important;
@@ -675,4 +716,28 @@
     min-width: 100%;
     scroll-snap-align: start; /* Điểm dừng khi kéo */
     flex-shrink: 0;
+}
+/*breadcrumb chung fix cuối*/
+/* 1. Ép màu ĐEN cho các liên kết cấp trên */
+.page-header .breadcrumb-item a {
+    color: #000000 !important; /* Màu đen ní yêu cầu */
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+    /* Hiệu ứng khi khách rê chuột vào link */
+    .page-header .breadcrumb-item a:hover {
+        color: #1E88E5 !important; /* Đổi sang xanh blue khi hover cho Pro */
+    }
+
+/* 2. Ép màu TRẮNG cho tên sản phẩm (Trang đang đứng) */
+.page-header .breadcrumb-item.active {
+    color: #ffffff !important; /* Màu trắng ní yêu cầu */
+    font-weight: bold;
+}
+
+/* 3. Chỉnh màu dấu gạch chéo (/) ở giữa các cấp */
+.page-header .breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(0, 0, 0, 0.5) !important; /* Màu đen mờ để không bị chói */
 }

@@ -28,6 +28,37 @@
     <!-- Template Stylesheet -->
     <link href="~/css/style.css" rel="stylesheet">
     @await RenderSectionAsync("Styles", required: false)
+
+    <style>
+        /* --- CSS DÙNG CHUNG CHO TOÀN BỘ WEB --- */
+        .page-header {
+            background: linear-gradient(rgba(30, 136, 229, 0.7), rgba(30, 136, 229, 0.7)), url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1999') !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-size: cover !important;
+            margin-top: 155px !important;
+        }
+
+        /* Màu ĐEN cho Trang chủ / Cửa hàng */
+            .page-header .breadcrumb-item a {
+                color: #000000 !important;
+                font-weight: 500;
+                text-decoration: none;
+            }
+
+            /* Màu TRẮNG cho trang hiện tại */
+            .page-header .breadcrumb-item.active {
+                color: #ffffff !important;
+                font-weight: bold;
+            }
+
+        /* Màu xanh cho Menu "Chi Tiết" */
+        .nav-link.active-detail {
+            color: #1E88E5 !important;
+            font-weight: bold !important;
+        }
+        
+    </style>
 </head>
 
 <body>
@@ -68,20 +99,28 @@
                             @* Kiểm tra nếu đang ở Home thì thêm class active, ngược lại để trống *@
                             @{
                                 // Lấy tên Controller và Action hiện tại từ hệ thống
-                                var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                                var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+                                var action = ViewContext.RouteData.Values["action"]?.ToString();
                             }
+                            @* Trang Chủ: Chỉ active khi ở Home/Index *@
+                            <li class="nav-item">
                             <a asp-controller="Home" asp-action="Index"
-                               class="nav-item nav-link @(currentController == "Home" ? "active" : "")">Trang Chủ</a>
-
-                            @* Kiểm tra nếu đang ở HangHoa thì thêm class active *@
+                               class="nav-link @(controller == "Home" ? "active" : "")">Trang Chủ</a>
+                            </li>
+                            @* Sản Phẩm: CHỈ active khi ở HangHoa/Index (Trang danh sách) *@
+                            <li class="nav-item">
                             <a asp-controller="HangHoa" asp-action="Index"
-                               class="nav-item nav-link @(currentController == "HangHoa" ? "active" : "")">Sản Phẩm</a>
-
-                            <a href="#" class="nav-item nav-link">Chi Tiết</a>
+                               class="nav-link @(controller == "HangHoa" && action == "Index" ? "active" : "")">Sản Phẩm</a>
+                            </li>
+                            @* Chi Tiết: CHỈ active khi ở HangHoa/Detail (Trang xem món đồ) *@
+                            <li class="nav-item">
+                                <a class="nav-link @(action == "Detail" ? "active-detail" : "")"
+                                   asp-controller="HangHoa" asp-action="Detail">Chi Tiết</a>
+                            </li>
 
                             
                             @* ... Các mục khác làm tương tự nếu có Controller riêng ... *@
-                            <a href="#" class="nav-item nav-link">Liên Hệ1</a>
+                            <a href="#" class="nav-item nav-link">Liên Hệ</a>
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Tiện ích</a>
                                 <div class="dropdown-menu m-0 border-0 rounded-0 shadow-sm">
@@ -98,11 +137,6 @@
                             <button class="btn border rounded-circle bg-white me-4" style="border-color: #1E88E5 !important;" data-bs-toggle="modal" data-bs-target="#searchModal">
                                 <i class="fas fa-search" style="color: #1E88E5;"></i>
                             </button>
-                            @* <a href="#" class="position-relative me-4 my-auto">
-                                <i class="fa fa-shopping-bag fa-2x" style="color: #1E88E5;"></i>
-                                <span class="position-absolute rounded-circle d-flex align-items-center justify-content-center text-white px-1"
-                                      style="top: -5px; left: 15px; height: 20px; min-width: 20px; background-color: #1E88E5;">3</span>
-                            </a> *@
                             @await Component.InvokeAsync("Cart")
                             @* nút user *@
                             @* --- ĐOẠN CODE CẦN THAY THẾ CHO NÚT USER --- *@
@@ -124,11 +158,11 @@
                                         @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
                                         {
                                             <div class="dropdown-divider"></div>
-                                            <a href="/Admin/HomeAdmin" class="dropdown-item text-primary">Trang quản trị</a>
+                                            <a href="/Admin/HomeAdmin" class="dropdown-item admin-link">Trang quản trị</a>
                                         }
 
                                         <div class="dropdown-divider"></div>
-                                        <a asp-controller="KhachHang" asp-action="DangXuat" class="dropdown-item text-danger">Đăng xuất</a>
+                                        <a asp-controller="KhachHang" asp-action="DangXuat" class="dropdown-item logout-link">Đăng xuất</a>
                                     }
                                     else
                                     {

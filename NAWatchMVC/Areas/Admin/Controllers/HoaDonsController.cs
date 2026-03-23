@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NAWatchMVC.Data;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace NAWatchMVC.Areas.Admin.Controllers
 {
@@ -22,10 +23,70 @@ namespace NAWatchMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/HoaDons
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int? status, int? month, string payment,bool? isPaid)
         {
-            var nawatchMvcContext = _context.HoaDons.Include(h => h.MaKhNavigation).Include(h => h.MaNvNavigation).Include(h => h.MaTrangThaiNavigation).Include(h => h.ChiTietHds);
-            return View(await nawatchMvcContext.ToListAsync());
+            // 1. TÍNH TOÁN SỐ LIỆU TỔNG (Cố định cho Card)
+            var allOrders = _context.HoaDons.AsNoTracking();
+            ViewBag.Total = allOrders.Count();
+            ViewBag.New = allOrders.Count(h => h.MaTrangThai == 0);
+            ViewBag.VNPay = allOrders.Count(h => h.MaTrangThai == 1);
+            ViewBag.Shipping = allOrders.Count(h => h.MaTrangThai == 2);
+            ViewBag.Success = allOrders.Count(h => h.MaTrangThai == 3);
+            ViewBag.Cancel = allOrders.Count(h => h.MaTrangThai == 4);
+            ViewBag.Refund = allOrders.Count(h => h.MaTrangThai == 5);
+            // --- 2. KHAI BÁO QUERY TRƯỚC (Đưa dòng này lên trên các bộ lọc) ---
+            var query = _context.HoaDons
+                .Include(h => h.MaTrangThaiNavigation)
+                .Include(h => h.ChiTietHds)
+                .AsQueryable();
+            // --- LOGIC LỌC THEO DA THANH TOAN ---
+            if (isPaid.HasValue)
+            {
+                query = query.Where(h => h.DaThanhToan == isPaid.Value);
+            }
+            // 2. LOGIC LỌC DỮ LIỆU
+            
+            //  var  query = _context.HoaDons.Include(h => h.MaTrangThaiNavigation).Include(h => h.ChiTietHds).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+                query = query.Where(h => h.MaHd.ToString().Contains(searchString) || h.HoTen.Contains(searchString) || h.DienThoai.Contains(searchString));
+
+            if (status.HasValue) query = query.Where(h => h.MaTrangThai == status);
+
+            // Lọc theo tháng
+            if (month.HasValue && month > 0)
+                query = query.Where(h => h.NgayDat.HasValue && h.NgayDat.Value.Month == month);
+
+            if (!string.IsNullOrEmpty(payment)) query = query.Where(h => h.CachThanhToan == payment);
+
+            return View(await query.OrderByDescending(h => h.NgayDat).ToListAsync());
+        }
+        // 3. HÀM BẬT/TẮT THANH TOÁN (AJAX)
+        [HttpPost]
+        public async Task<IActionResult> TogglePaid(int id)
+        {
+            var hoadon = await _context.HoaDons.FindAsync(id);
+            if (hoadon == null) return Json(new { success = false });
+
+            hoadon.DaThanhToan = !hoadon.DaThanhToan; // Đảo trạng thái
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, isPaid = hoadon.DaThanhToan });
+        }
+        // POST: Admin/HoaDons/Approve/5 (Duyệt từ 2 sang 3)
+        [HttpPost]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var hoaDon = await _context.HoaDons.FindAsync(id);
+            if (hoaDon == null) return Json(new { success = false, message = "Không tìm thấy đơn!" });
+
+            // Chỉ cho duyệt khi đơn ở trạng thái 0 (Mới) hoặc 1 (VNPay)
+            if (hoaDon.MaTrangThai == 0 || hoaDon.MaTrangThai == 1)
+            {
+                hoaDon.MaTrangThai = 2; // Chuyển sang ĐANG GIAO
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Đã giao hàng cho đơn vị vận chuyển!" });
+            }
+            return Json(new { success = false, message = "Trạng thái đơn không hợp lệ để duyệt!" });
         }
 
         // GET: Admin/HoaDons/Details/5
@@ -331,16 +392,26 @@ namespace NAWatchMVC.Areas.Admin.Controllers
             return _context.HoaDons.Any(e => e.MaHd == id);
         }
         [HttpPost]
-        public async Task<IActionResult> Approve(int id)
+        public async Task<IActionResult> Complete(int id)
         {
             var hoaDon = await _context.HoaDons.FindAsync(id);
-            if (hoaDon != null)
+            if (hoaDon == null) return Json(new { success = false, message = "Không tìm thấy đơn!" });
+
+            // ĐÚNG LOGIC CỦA NÍ: Phải là mã 2 VÀ đã thanh toán
+            if (hoaDon.MaTrangThai == 2)
             {
-                hoaDon.MaTrangThai = 1; // 1: Đang giao
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã duyệt đơn hàng thành công!";
+                if (hoaDon.DaThanhToan == true)
+                {
+                    hoaDon.MaTrangThai = 3; // Chuyển sang HOÀN TẤT
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true, message = "Chúc mừng! Đơn hàng đã hoàn tất thành công." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Ní ơi, đơn này chưa thu tiền (DaThanhToan = False), không được chốt Hoàn tất đâu!" });
+                }
             }
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = false, message = "Đơn hàng phải ở trạng thái Đang giao mới được chốt thành công!" });
         }
         [HttpGet]
         public IActionResult GetKhachHangInfo(string id)
