@@ -33,7 +33,7 @@ namespace NAWatchMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DangKy(RegisterVM model)
+        public async Task<IActionResult> DangKy(RegisterVM model, string? ReturnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -47,7 +47,8 @@ namespace NAWatchMVC.Controllers
                 // 2. Kiểm tra trùng Email
                 if (db.KhachHangs.Any(kh => kh.Email == model.Email))
                 {
-                    ModelState.AddModelError("Email", "Email này đã được sử dụng.");
+                    ModelState.AddModelError("Email", "Email này đã được đăng ký tài khoản.");
+                    ModelState.AddModelError("Email", "Nếu bạn đã mua hàng bằng email này mà chưa đăng ký tài khoản thì tiến hành lấy mật khẩu lại nhé!!");
                     return View(model);
                 }
 
@@ -72,6 +73,26 @@ namespace NAWatchMVC.Controllers
                 // 4. Lưu vào Database
                 db.Add(khachHang);
                 db.SaveChanges();
+                
+                // 2. CHUẨN BỊ "NGUYÊN LIỆU" CLAIMS ĐỂ TỰ ĐĂNG NHẬP
+                var claims = new List<Claim> {
+                    new Claim(ClaimTypes.Email, khachHang.Email),
+                    new Claim(ClaimTypes.Name, khachHang.HoTen),
+                    new Claim("CustomerId", khachHang.MaKh), // CỰC KỲ QUAN TRỌNG: Để hàm Checkout hốt được ID này
+                    new Claim(ClaimTypes.Role, "Customer")
+                };
+
+                // 3. GỌI CÁI HÀM "HỘ PHÁP" CỦA NÍ ĐÃ CÓ
+                await SignInUser(claims, false); // false vì mới đăng ký chưa cần "Ghi nhớ"
+
+                // 4. GỘP GIỎ HÀNG (Dắt đồ từ Session vào DB cho ông khách mới này)
+                await MergeCart(khachHang.MaKh);
+
+                // 5. CHỞ KHÁCH VỀ ĐÍCH (Checkout hoặc Trang chủ)
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                {
+                    return Redirect(ReturnUrl);
+                }
                 // 5. Thông báo và chuyển sang trang Đăng nhập
                 TempData["Message"] = "Đăng ký thành công! Đăng nhập ngay cho nóng ní ơi.";
                 return RedirectToAction("DangNhap");
@@ -128,21 +149,38 @@ namespace NAWatchMVC.Controllers
                             return Redirect("/Admin/HomeAdmin");
                         }
                     }
-                } 
+                }
                 // 2. KIỂM TRA BẢNG KHÁCH HÀNG (CUSTOMER/VIP)
-                // Khách hàng dùng TenDangNhap mới tạo để đăng nhập
-                var khachHang = await db.KhachHangs.SingleOrDefaultAsync(kh => kh.TenDangNhap == model.TenDangNhap);
+                // Đặt cái này để soi xem User có tồn tại không và Pass bị gì
+                //var testUser = await db.KhachHangs.FirstOrDefaultAsync(x => x.Email == model.TenDangNhap || x.TenDangNhap == model.TenDangNhap);
 
+                //if (testUser == null)
+                //{
+                //    System.Diagnostics.Debug.WriteLine("--- LỖI: Không tìm thấy User này trong DB! ---");
+                //}
+                //else
+                //{
+                //    var check = _passwordHasher.VerifyHashedPassword(testUser, testUser.MatKhau, model.MatKhau);
+                //    System.Diagnostics.Debug.WriteLine($"--- USER: {testUser.TenDangNhap} | PASS CHECK: {check} ---");
+                //}
+                // Khách hàng dùng TenDangNhap mới tạo để đăng nhập
+                var khachHang = await db.KhachHangs.SingleOrDefaultAsync(kh => kh.TenDangNhap == model.TenDangNhap || kh.Email == model.TenDangNhap || kh.MaKh == model.TenDangNhap);
+                if (khachHang == null)
+                {
+                    // Lỗi 1: Sai User/Email/MaKH
+                    ModelState.AddModelError("loi", "Tài khoản không tồn tại bạn ơi!");
+                }
                 if (khachHang != null)
                 {
                     if (!(khachHang.HieuLuc ?? true))
                     {
-                        ModelState.AddModelError("loi", "Tài khoản của ní bị khóa rồi, liên hệ Admin nhé!");
+                        ModelState.AddModelError("loi", "Tài khoản của bạn bị khóa rồi, liên hệ Admin nhé!");
                     }
                     else // Check Pass Khách Hàng
                     {
                         var ketQua = _passwordHasher.VerifyHashedPassword(khachHang, khachHang.MatKhau, model.MatKhau);
-                        if (ketQua == PasswordVerificationResult.Success)
+                        //if (ketQua == PasswordVerificationResult.Success)
+                        if (ketQua != PasswordVerificationResult.Failed)
                         {
                             var claims = new List<Claim> 
                             {
@@ -172,11 +210,17 @@ namespace NAWatchMVC.Controllers
 
                             return RedirectToAction("Profile", "KhachHang");
                         }
+                        else
+                        {
+                            // Nếu chạy đến đây là sai bét nhè rồi
+                            ModelState.AddModelError("loi", "Mật khẩu dùng đăng nhập không chính xác rồi bạn! Vui lòng dùng chức năng 'Quên mật khẩu' để tạo mới nhé");
+                            //ModelState.AddModelError("loi", "Tài khoản này chưa thiết lập mật khẩu. Ní vui lòng dùng chức năng 'Quên mật khẩu' để tạo mới nhé!");
+                        }
                     }
                 }
 
                 // Nếu chạy đến đây là sai bét nhè rồi
-                ModelState.AddModelError("loi", "Thông tin đăng nhập không chính xác ní ơi!");
+                //ModelState.AddModelError("loi", "Mật khẩu dùng đăng nhập không chính xác rồi bạn!");
             }
             return View(model);
         }
@@ -192,6 +236,7 @@ namespace NAWatchMVC.Controllers
 
         private async Task MergeCart(string maKh)
         {
+            // 1. Lấy giỏ hàng từ Session
             var sessionCart = HttpContext.Session.Get<List<CartItemVM>>("MYCART");
             if (sessionCart != null && sessionCart.Any())
             {
@@ -201,8 +246,10 @@ namespace NAWatchMVC.Controllers
                 {
                     gioHangDB = new GioHang { MaKh = maKh, NgayTao = DateTime.Now }; // Sửa ở đây nữa
                     db.GioHangs.Add(gioHangDB);
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
+                    //db.SaveChanges();
                 }
+                // 3. Duyệt danh sách từ Session để "đổ" vào Chi tiết giỏ hàng trong DB
                 foreach (var itemS in sessionCart)
                 {
                     var chiTiet = db.ChiTietGioHangs.FirstOrDefault(ct => ct.MaGh == gioHangDB.MaGh && ct.MaHh == itemS.MaHH);
@@ -215,7 +262,8 @@ namespace NAWatchMVC.Controllers
                         chiTiet.SoLuong += itemS.SoLuong;
                     }
                 }
-                db.SaveChanges();
+                //db.SaveChanges();
+                await db.SaveChangesAsync();
                 HttpContext.Session.Remove("MYCART");
             }
         }
@@ -341,7 +389,10 @@ namespace NAWatchMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> QuenMatKhau(string email)
         {
-            var khachHang = db.KhachHangs.SingleOrDefault(kh => kh.Email == email);
+            //var khachHang = db.KhachHangs.SingleOrDefault(kh => kh.Email == email);
+            // Dùng SingleOrDefaultAsync và nhớ thêm await ở trước
+            //var khachHang = await db.KhachHangs.SingleOrDefaultAsync(kh => kh.Email == email);
+            var khachHang = await db.KhachHangs.SingleOrDefaultAsync(kh => kh.Email.Trim().ToLower() == email.Trim().ToLower()); // xóa khoản trắng tự động
             if (khachHang == null)
             {
                 ModelState.AddModelError("Loi", "Email này chưa đăng ký tài khoản.");
@@ -388,11 +439,11 @@ namespace NAWatchMVC.Controllers
                 return View();
             }
 
-            // Mã đúng -> Đổi mật khẩu (Nhớ mã hóa)
-            khachHang.MatKhau = _passwordHasher.HashPassword(khachHang, matKhauMoi);
-
             // Reset lại RandomKey để mã cũ không dùng được nữa
             khachHang.RandomKey = Guid.NewGuid().ToString();
+
+            // Mã đúng -> Đổi mật khẩu (Nhớ mã hóa)
+            khachHang.MatKhau = _passwordHasher.HashPassword(khachHang, matKhauMoi);
 
             db.Update(khachHang);
             await db.SaveChangesAsync();

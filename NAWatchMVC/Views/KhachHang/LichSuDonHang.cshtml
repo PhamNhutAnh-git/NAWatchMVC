@@ -15,7 +15,7 @@
 <div class="container-fluid pt-3 pb-5">
     <div class="container">
         @* TRẢ LẠI CHỮ DANH SÁCH ĐƠN HÀNG ĐÂY NÍ ƠI *@
-        <h3 class="text-center fw-bold text-primary mb-3 text-uppercase">Danh Sách Đơn Hàng Của Ní</h3>
+        <h3 class="text-center fw-bold text-primary mb-3 text-uppercase">Danh Sách Đơn Hàng Của Bạn</h3>
         @if (Model != null && Model.Any())
         {
             @* ÉP CỨNG MÀU XANH DƯƠNG CHO THEAD *@
@@ -42,6 +42,44 @@
                                     @if (item.MaTrangThai == 0)
                                     {
                                         @* Đơn mới đặt: Cho phép khách tự hủy *@
+                                        <span class="badge bg-warning text-dark">Mới đặt, chờ xác nhận</span>
+                                    }
+                                    else if (item.MaTrangThai == 1)
+                                    {
+                                        <span class="badge bg-primary"> Đơn VNPAY chờ xác nhận</span>   
+                                    }
+                                    else if (item.MaTrangThai == 2)
+                                    {
+                                        <span class="badge bg-primary"> Đã xác nhận đang giao</span>  
+                                    }
+                                    else
+                                    {
+                                        @* Các trạng thái khác: Show tên trạng thái bằng Badge cho Pro *@
+                                        @switch (item.MaTrangThai)
+                                        {
+                                            case 3:
+                                                <span class="badge rounded-pill bg-success px-3">Giao thành công</span>
+                                                break;
+                                            case 4:
+                                                <span class="badge rounded-pill bg-secondary px-3">Đã hủy đơn</span>
+                                                break;
+                                            case 5:
+                                                <span class="badge bg-warning text-dark">Đã hoàn tiền</span>
+                                                break;
+                                            default:
+                                                <span class="badge rounded-pill bg-dark px-3">Hệ thống xử lý</span>
+                                                break;
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="ChiTietDonHang" asp-route-id="@item.MaHd" class="btn btn-sm btn-outline-primary rounded-circle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    @if (item.MaTrangThai == 0)
+                                    {
                                         <button onclick="confirmCancel(@item.MaHd)" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-sm">Hủy đơn</button>
                                     }
                                     else if (item.MaTrangThai == 1)
@@ -58,32 +96,12 @@
                                         @* Đang giao: Dẫn về trang Contact để hỏi thăm shipper *@
                                         <a asp-controller="Contact" asp-action="Index"
                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
-                                            <i class="fas fa-truck me-1"></i> Hỗ trợ giao
+                                            <i class="fas fa-truck me-1"></i> Theo dõi đơn
                                         </a>
                                     }
                                     else
                                     {
-                                        @* Các trạng thái khác (Hoàn tất, Đã hủy) *@
-                                        <span class="text-muted small">---</span>
-                                    }
-                                </td>
-                                <td>
-                                    <a asp-action="ChiTietDonHang" asp-route-id="@item.MaHd" class="btn btn-sm btn-outline-primary rounded-circle">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
-                                <td>
-                                    @if (item.MaTrangThai == 0)
-                                    {
-                                        <button onclick="confirmCancel(@item.MaHd)" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-sm">Hủy đơn</button>
-                                    }
-                                    else if (item.MaTrangThai == 1)
-                                    {
-                                        <a asp-controller="Home" asp-action="Contact" class="btn btn-sm btn-outline-info rounded-pill px-3">Liên hệ</a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small">---</span>
+                                        <span class="text-muted small">Không thể hủy</span>
                                     }
                                 </td>
                             </tr>

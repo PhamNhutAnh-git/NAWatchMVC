@@ -13,7 +13,9 @@
             <p class="text-muted mb-0" style="font-size: 0.95rem;">
                 Số Đồng Hồ <i class="fas fa-chevron-right mx-2" style="font-size: 0.7rem;"></i>
                 @* Tránh lỗi Null khi danh sách trống *@
-                <b class="text-dark">@(Model?.Count ?? 0)</b> sản phẩm
+                @* <b class="text-dark">@(Model?.Count ?? 0)</b> sản phẩm *@
+                @* SỬA DÒNG NÀY: Dùng ViewBag thay vì Model.Count *@
+                <b class="text-dark">@(ViewBag.TotalItems ?? 0)</b> sản phẩm
             </p>
         </div>
         @* --- HÀNG 1: THANH CÔNG CỤ (Sắp xếp, Tìm kiếm, Các hãng) --- *@
@@ -49,23 +51,50 @@
                     return Url.Action("Index", "HangHoa", routeData);
                 }
             }
-            <select class="form-select rounded-pill border-primary shadow-sm text-dark"
-                    style="width: auto; border-color: #1E88E5 !important;"
-                    onchange="location = this.value;">
+            @{
+                // 1. Lấy giá trị sort hiện tại từ URL để hiển thị trạng thái lên nút
+                string currentSort = Context.Request.Query["sort"];
 
-                @* Dùng hàm BuildSortUrl để giữ lại các bộ lọc đang có *@
-                <option value="@BuildSortUrl("")" selected="@(string.IsNullOrEmpty(Context.Request.Query["sort"]))">
-                    Sắp xếp: Mới nhất
-                </option>
+                // 2. Xác định nhãn (Label) hiển thị trên nút bấm
+                string displaySort = "Mới nhất"; // Mặc định
+                if (currentSort == "price_asc") displaySort = "Giá thấp đến cao";
+                if (currentSort == "price_desc") displaySort = "Giá cao đến thấp";
+            }
 
-                <option value="@BuildSortUrl("price_asc")" selected="@(Context.Request.Query["sort"] == "price_asc")">
-                    Giá thấp đến cao
-                </option>
+            <div class="dropdown d-inline-block">
+                @* NÚT BẤM: Dùng class chuẩn của ní để bo tròn và đổ bóng *@
+                <button class="btn btn-outline-primary dropdown-toggle rounded-pill px-4 shadow-sm text-dark bg-white"
+                        type="button"
+                        id="dropdownSort"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        style="border-color: #1E88E5 !important; font-size: 0.9rem; font-weight: 500;">
+                    Sắp xếp Giá: <span class="fw-bold">@displaySort</span>
+                </button>
 
-                <option value="@BuildSortUrl("price_desc")" selected="@(Context.Request.Query["sort"] == "price_desc")">
-                    Giá cao đến thấp
-                </option>
-            </select>
+                @* DANH SÁCH: Dùng chung CSS 'Tiện ích' (m-0 border-0 rounded-0 shadow-sm) *@
+                <div class="dropdown-menu m-0 border-1 rounded-3 shadow-sm mt-2" aria-labelledby="dropdownSort">
+
+                    @* Mới nhất *@
+                    <a class="dropdown-item py-2 @(string.IsNullOrEmpty(currentSort) ? "active text-white bg-primary" : "")"
+                       href="@BuildSortUrl("")">
+                        Mới nhất
+                    </a>
+
+                    @* Giá thấp đến cao *@
+                    <a class="dropdown-item py-2 @(currentSort == "price_asc" ? "active text-white bg-primary" : "")"
+                       href="@BuildSortUrl("price_asc")">
+                        <i class="fas fa-sort-amount-down-alt me-2"></i>Thấp - cao
+                    </a>
+
+                    @* Giá cao đến thấp *@
+                    <a class="dropdown-item py-2 @(currentSort == "price_desc" ? "active text-white bg-primary" : "")"
+                       href="@BuildSortUrl("price_desc")">
+                        <i class="fas fa-sort-amount-down me-2"></i>Cao - Thấp
+                    </a>
+
+                </div>
+            </div>
             @* 3. THANH TÌM KIẾM: Thu ngắn lại và đổi viền xanh *@
             <form asp-action="Index" method="get" class="d-flex position-relative ms-lg-1">
                 @* THÊM DÒNG dưới: Để giữ giá trị sắp xếp khi khách tìm kiếm tại đây *@

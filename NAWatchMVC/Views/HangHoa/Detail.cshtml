@@ -50,6 +50,40 @@
         background-color: #1E88E5 !important;
         color: #ffffff !important;
      }
+     /* làm phần đánh giá */
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+        .rating-stars input {
+            display: none;
+        }
+
+        .rating-stars label {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .rating-stars label:hover,
+            .rating-stars label:hover ~ label,
+            .rating-stars input:checked ~ label {
+                color: #ff9800; /* Màu vàng cam chuẩn TGDD */
+            }
+
+    /* Card đánh giá khách hàng */
+    .review-card {
+        border-left: 4px solid #1E88E5;
+        background: #f8f9fa;
+        transition: 0.3s;
+    }
+
+        .review-card:hover {
+            transform: translateX(5px);
+        }
 </style>
 @* breadcrumb *@
 <div class="container-fluid page-header py-5">
@@ -60,6 +94,8 @@
         <li class="breadcrumb-item active text-white">@Model.TenHh</li>
     </ol>
 </div>
+
+
 
 <div class="container-fluid ">
     <div class="container py-5">
@@ -140,6 +176,7 @@
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#nav-mission">Đánh giá</button>
                             </div>
                         </nav>
+                        @* thông số kĩ thuạt *@
                         <div class="tab-content">
                             @* Tab Thông số kỹ thuật (Show 27 thuộc tính) *@
                             <div class="tab-pane fade show active" id="nav-specs">
@@ -185,10 +222,109 @@
                                 </div>
                             </div>
 
-                            @* Giữ nguyên phần đánh giá cũ của bạn *@
+                            @*phần đánh giá cũ của bạn *@
                             <div class="tab-pane fade" id="nav-mission">
-                                @* ... Code đánh giá của Nhựt Anh ... *@
-                                <p class="text-muted text-center py-4">Chưa có đánh giá nào.</p>
+                                <div class="p-4 bg-white border rounded">
+                                    <h4 class="fw-bold mb-4">Đánh giá sản phẩm @Model.TenHh</h4>
+                                    @* --- Thông báo riêng cho Admin khi cố tình đánh giá --- *@
+                                    @if (TempData["AdminMessage"] != null)
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-shield fs-4 me-3"></i>
+                                                <div>
+                                                    <strong>Lỗi quyền hạn!</strong> @TempData["AdminMessage"]
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    }
+                                    @* Thông báo THÀNH CÔNG (Màu xanh) *@
+                                    @if (TempData["Success"] != null)
+                                    {
+                                        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mt-3">
+                                            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    }
+
+                                    @* Thông báo LỖI (Màu đỏ) *@
+                                    @if (TempData["Error"] != null)
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mt-3">
+                                            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    }
+                                    @* --- FORM GỬI ĐÁNH GIÁ --- *@
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        <div class="card mb-5 shadow-sm border-0 bg-light">
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold text-primary mb-3">Gửi đánh giá của ní</h5>
+                                                <form asp-action="GuiDanhGia" asp-controller="HangHoa" method="post">
+                                                    <input type="hidden" name="MaHh" value="@Model.MaHh" />
+                                                    <div class="mb-3">
+                                                        <label class="form-label d-block fw-bold">Ní chấm mấy sao?</label>
+                                                        <div class="rating-stars">
+                                                            <input type="radio" name="Sao" value="5" id="star5" checked><label for="star5">★</label>
+                                                            <input type="radio" name="Sao" value="4" id="star4"><label for="star4">★</label>
+                                                            <input type="radio" name="Sao" value="3" id="star3"><label for="star3">★</label>
+                                                            <input type="radio" name="Sao" value="2" id="star2"><label for="star2">★</label>
+                                                            <input type="radio" name="Sao" value="1" id="star1"><label for="star1">★</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Nội dung đánh giá</label>
+                                                        <textarea name="NoiDung" class="form-control" rows="3" placeholder="Nhập cảm nhận của ní về sản phẩm này..."></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">GỬI ĐÁNH GIÁ NGAY</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center">
+                                            <i class="fas fa-info-circle me-3 fs-3"></i>
+                                            <div>
+                                                Ní cần <strong>Đăng nhập</strong> để gửi đánh giá.
+                                                <a asp-controller="KhachHang" asp-action="DangNhap" asp-route-returnUrl="@Context.Request.Path" class="fw-bold text-primary">Đăng nhập ngay ní ơi!</a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @* --- DANH SÁCH ĐÁNH GIÁ --- *@
+                                    <div class="review-list mt-4">
+                                        <h5 class="fw-bold mb-3 border-bottom pb-2">Khách hàng nói gì? (@(Model.DanhGias?.Count ?? 0) nhận xét)</h5>
+                                        @if (Model.DanhGias != null && Model.DanhGias.Any())
+                                        {
+                                            foreach (var dg in Model.DanhGias)
+                                            {
+                                                <div class="review-card p-3 mb-3 rounded shadow-sm">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="fw-bold text-uppercase"><i class="fas fa-user-circle me-1"></i> @dg.MaKh</span>
+                                                        <small class="text-muted italic">@dg.NgayDang?.ToString("dd/MM/yyyy HH:mm")</small>
+                                                    </div>
+                                                    <div class="text-warning mb-2">
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            <i class="@(i <= dg.Sao ? "fas" : "far") fa-star small"></i>
+                                                        }
+                                                    </div>
+                                                    <p class="mb-0 text-dark">@dg.NoiDung</p>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center py-5">
+                                                <img src="/img/no-review.png" style="width: 80px; opacity: 0.5" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1150/1150247.png'" />
+                                                <p class="text-muted mt-3">Chưa có đánh giá nào. Ní hãy là người đầu tiên nhé!</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

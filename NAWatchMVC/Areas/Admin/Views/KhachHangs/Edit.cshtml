@@ -84,7 +84,7 @@
                                     <small class="text-muted italic">Tên đăng nhập không thể thay đổi.</small>
                                 </div>
 
-                                <div class="mb-3">
+                                @* <div class="mb-3">
                                     <label asp-for="MatKhau" class="form-label fw-bold small">Mật khẩu mới</label>
                                     <div class="input-group">
                                         <input asp-for="MatKhau" type="password" class="form-control border-2 border-end-0" id="passwordInput" />
@@ -93,6 +93,20 @@
                                         </button>
                                     </div>
                                     <small class="text-muted small">Để trống nếu không muốn đổi mật khẩu.</small>
+                                </div> *@
+                                <div class="mb-3">
+                                    <label asp-for="MatKhau" class="form-label fw-bold small">Mật khẩu</label>
+                                    <div class="input-group">
+                                        @* Thêm thuộc tính readonly và đổi value thành chuỗi sao cho đẹp *@
+                                        <input asp-for="MatKhau" type="text" value="********"
+                                               class="form-control border-2 border-end-0 bg-light"
+                                               id="passwordInput" readonly />
+
+                                        <button class="btn btn-outline-secondary border-2 border-start-0" type="button" disabled>
+                                            <i class="fas fa-lock"></i> @* Đổi icon con mắt thành cái ổ khóa cho nó "uy tín" *@
+                                        </button>
+                                    </div>
+                                    <small class="text-danger small">Admin không có quyền chỉnh sửa mật khẩu trực tiếp.</small>
                                 </div>
 
                                 <div class="mb-3">

@@ -1,0 +1,255 @@
+﻿@using NAWatchMVC.ViewModels
+@model List<ChiTietHangHoaVM>
+
+@{
+    ViewData["Title"] = "So sánh Sản phẩm - NAWatch";
+}
+
+<style>
+    .compare-table td:first-child {
+        width: 20%;
+        background-color: #f8f9fa;
+        font-weight: bold;
+        color: #444;
+    }
+
+    .compare-table td {
+        width: 26%;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .spec-group-title {
+        background-color: #343a40 !important;
+        color: white !important;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .product-price {
+        color: #d9534f;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .compare-img-wrapper {
+        height: 180px; /* Chiều cao cố định cho mọi ô ảnh */
+        display: flex;
+        align-items: center; /* Canh giữa theo chiều dọc */
+        justify-content: center; /* Canh giữa theo chiều ngang */
+        margin-bottom: 10px;
+        background-color: #fff; /* Đảm bảo nền trắng nếu ảnh PNG bị trong suốt */
+    }
+
+        .compare-img-wrapper img {
+            max-height: 100%; /* Không bao giờ cao quá cái khung */
+            max-width: 100%; /* Không bao giờ rộng quá cái khung */
+            object-fit: contain; /* Giữ nguyên tỷ lệ ảnh, không bị méo */
+        }
+
+    .product-name-fixed {
+        min-height: 45px; /* Ép tên sản phẩm luôn chiếm ít nhất 2 dòng để giá tiền không bị lệch */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="container-fluid px-4 mt-5">
+    <h1 class="text-center fw-bold mb-5 text-uppercase text-primary">So sánh chi tiết đồng hồ</h1>
+
+    <div class="card shadow-lg border-0 mb-5">
+        <div class="card-body">
+            @* --- 1. LƯỚI SẢN PHẨM CHÍNH (ẢNH & GIÁ) --- *@
+            <div class="row mb-4 text-center align-items-end">
+                <div class="col-md-3">
+                    <h5 class="text-muted fw-bold">Hình ảnh & Giá</h5>
+                </div>
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-3">
+                        @* Bọc ảnh vào cái wrapper đã tạo ở trên *@
+                        <div class="compare-img-wrapper">
+                            <img src="~/anhall/@item.Hinh" alt="@item.TenHh" />
+                        </div>
+
+                        @* Tên sản phẩm có min-height để giá tiền luôn nằm trên cùng một đường thẳng *@
+                        <h6 class="fw-bold text-dark product-name-fixed">@item.TenHh</h6>
+
+                        <p class="product-price mb-0">
+                            @((item.DonGia * (1 - (item.GiamGia / 100))).ToString("#,##0₫"))
+                        </p>
+                    </div>
+                }
+                @for (int i = 0; i < (3 - Model.Count); i++)
+                {
+                    <div class="col-md-3 text-muted small">
+                        <div class="border rounded d-flex align-items-center justify-content-center" style="height: 200px; border-style: dashed !important;">
+                            Chưa chọn sản phẩm
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @* --- 2. BẢNG THÔNG SỐ CHI TIẾT --- *@
+            <table class="table table-bordered align-middle compare-table">
+                <tbody>
+                    @* NHÓM 1: THÔNG TIN CHUNG *@
+                    <tr><td colspan="4" class="spec-group-title text-start ps-3">Thông tin chung</td></tr>
+                    <tr>
+                        <td>Thương hiệu / NCC</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.TenNcc</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Loại đồng hồ</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.TenLoai</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Đối tượng sử dụng</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.GioiTinh</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Xuất xứ</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.XuatXu</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+
+                    @* NHÓM 2: MẶT ĐỒNG HỒ & BỘ MÁY *@
+                    <tr><td colspan="4" class="spec-group-title text-start ps-3">Mặt đồng hồ & Bộ máy</td></tr>
+                    <tr>
+                        <td>Loại máy (Bộ máy)</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.LoaiMay (@item.TenBoMay)</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Đường kính mặt</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.DuongKinhMat</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Chất liệu mặt kính</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.ChatLieuKinh</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Chất liệu khung viền</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.ChatLieuKhungVien</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+
+                    @* NHÓM 3: DÂY ĐEO & TIỆN ÍCH *@
+                    <tr><td colspan="4" class="spec-group-title text-start ps-3">Dây đeo & Tiện ích</td></tr>
+                    <tr>
+                        <td>Chất liệu dây</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.ChatLieuDay</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Độ rộng dây</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.DoRongDay</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Kháng nước</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@item.ChongNuoc</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Thời gian Pin / Sạc</td>
+                        @foreach (var item in Model)
+                        {
+                            <td>@(item.ThoiGianPin > 0 ? item.ThoiGianPin + " tháng" : "Không dùng pin")</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td>Tiện ích khác</td>
+                        @foreach (var item in Model)
+                        {
+                            <td class="small">@item.TienIch</td>
+                        }
+                        @for (int i = 0; i < (3 - Model.Count); i++)
+                        {
+                            <td>-</td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-html {
+﻿html {
   font-size: 14px;
 }
 
@@ -20,3 +20,24 @@ html {
 body {
   margin-bottom: 60px;
 }
+/*nav fixx*/
+.compare-item-slot {
+    width: 90px; /* Tăng nhẹ chiều rộng */
+    height: 100px; /* TĂNG CHIỀU CAO lên 100px hoặc 110px */
+    border: 2px dashed #ddd;
+    margin-right: 15px;
+    background: #fff;
+    display: flex;
+    flex-direction: column; /* Sắp xếp theo chiều dọc: Ảnh trên - Chữ dưới */
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 8px;
+}
+
+    /* Đảm bảo ảnh không chiếm hết chỗ của chữ */
+    .compare-item-slot img {
+        max-height: 55px !important;
+        width: auto;
+        margin-bottom: 2px;
+    }

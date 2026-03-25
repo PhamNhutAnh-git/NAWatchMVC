@@ -152,7 +152,8 @@
     .navbar .navbar-nav .nav-link.active,
     .fixed-top.bg-white .navbar .navbar-nav .nav-link:hover,
     .fixed-top.bg-white .navbar .navbar-nav .nav-link.active {
-        color: var(--bs-primary);
+        /*color: var(--bs-primary);*/
+        color: #1E88E5 !important;
     }
 
     .navbar .dropdown-toggle::after {
@@ -162,6 +163,7 @@
         font-weight: 700;
         vertical-align: middle;
         margin-left: 8px;
+        color: #1E88E5 !important;
     }
 
 @media (min-width: 1200px) {
@@ -741,3 +743,5 @@
 .page-header .breadcrumb-item + .breadcrumb-item::before {
     color: rgba(0, 0, 0, 0.5) !important; /* Màu đen mờ để không bị chói */
 }
+
+

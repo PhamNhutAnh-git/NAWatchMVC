@@ -23,7 +23,7 @@
                             <i class="fas fa-unlock-alt fa-3x" style="color: #1E88E5;"></i>
                         </div>
                         <h3 class="fw-bold">Quên Mật Khẩu?</h3>
-                        <p class="text-muted px-3">Nhập email ní đã đăng ký, NAWatch sẽ gửi mã OTP để đặt lại mật khẩu mới nhé.</p>
+                        <p class="text-muted px-3">Nhập đúng email bạn dùng để đăng ký tài khoản, NAWatch sẽ gửi mã OTP để đặt lại mật khẩu mới nhé.</p>
                     </div>
 
                     <form asp-action="QuenMatKhau" method="post">
@@ -38,6 +38,8 @@
                                 <input type="email" name="email" class="form-control border-start-0 bg-light"
                                        required placeholder="example@gmail.com...">
                             </div>
+                            @* Cách 2: Hiện ngay dưới ô nhập Email cho nó trực quan *@
+                            <span class="text-danger">@Html.ValidationMessage("Loi")</span>
                         </div>
 
                         <div class="d-grid gap-2">

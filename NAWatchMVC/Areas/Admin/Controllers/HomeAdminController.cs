@@ -16,7 +16,6 @@ namespace NAWatchMVC.Areas.Admin.Controllers
         {
             _context = context;
         }
-
         public async Task<IActionResult> Index()
         {
             // Nới rộng ra 20 ngày để ní thấy dữ liệu cũ (Lúc bảo vệ thì sửa lại 7 nhé)

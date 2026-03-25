@@ -40,17 +40,17 @@
         }
 
         /* Màu ĐEN cho Trang chủ / Cửa hàng */
-            .page-header .breadcrumb-item a {
-                color: #000000 !important;
-                font-weight: 500;
-                text-decoration: none;
-            }
+        .page-header .breadcrumb-item a {
+            color: #000000 !important;
+            font-weight: 500;
+            text-decoration: none;
+        }
 
-            /* Màu TRẮNG cho trang hiện tại */
-            .page-header .breadcrumb-item.active {
-                color: #ffffff !important;
-                font-weight: bold;
-            }
+        /* Màu TRẮNG cho trang hiện tại */
+        .page-header .breadcrumb-item.active {
+            color: #ffffff !important;
+            font-weight: bold;
+        }
 
         /* Màu xanh cho Menu "Chi Tiết" */
         .nav-link.active-detail {
@@ -58,6 +58,85 @@
             font-weight: bold !important;
         }
         
+        @* --- CSS CHO THANH SO SÁNH (Ní dán vào file site.css nhé) --- *@
+        .sticky-compare-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f8f9fa;
+            border-top: 2px solid #007bff;
+            z-index: 9999;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .compare-item-slot {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #ddd;
+            margin-right: 15px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .compare-item-slot img {
+          max-height: 70px;
+          width: auto;
+        }    
+
+        .btn-remove-compare {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-so-sanh-ngay {
+            width: 150px;
+        }
+        /* không theay */
+        /* Nút mở rộng ở góc trái */
+        .compare-expand-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #1E88E5; /* Màu xanh của NAWatch */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 2px solid white;
+            cursor: pointer;
+            z-index: 10000;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Nút thu gọn nằm trên đầu thanh bar */
+        .collapse-trigger {
+            position: absolute;
+            top: -30px;
+            right: 30px;
+            background: #f8f9fa;
+            padding: 5px 15px;
+            border: 3px solid #007bff;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #007bff;
+        }
     </style>
 </head>
 
@@ -132,7 +211,7 @@
                             </div>
                             <a href="#" class="nav-item nav-link">Liên Hệ</a>
                         </div>
-
+                        @* tìm kim *@
                         <div class="d-flex m-3 me-0">
                             <button class="btn border rounded-circle bg-white me-4" style="border-color: #1E88E5 !important;" data-bs-toggle="modal" data-bs-target="#searchModal">
                                 <i class="fas fa-search" style="color: #1E88E5;"></i>
@@ -178,12 +257,15 @@
             </div>
         </div>
         <!-- Navbar End -->
-
+        
         <div style="min-height: 1000px;">
             @RenderBody()
         </div>
-
+        @* 1. Chân trang - hiện ra bình thường *@
         @await Html.PartialAsync("_Footer")
+
+        @* 2. Các thành phần Overlay - Chỉ hiện khi cần *@
+        <partial name="_SearchModal" />
     </div>
 
 
@@ -204,6 +286,42 @@
     <script src="~/js/main.js"></script>
     @await RenderSectionAsync("Scripts", required: false)\
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @* Nút mở rộng so sánh *@
+    <div id="compare-expand-btn" class="compare-expand-btn shadow" style="display: none;" onclick="toggleCompareBar(true)">
+        <i class="fas fa-balance-scale"></i>
+        <span class="ms-1">So sánh (<span id="compare-count-badge">0</span>)</span>
+    </div>
+
+    @* --- GIAO DIỆN THANH SO SÁNH CỐ ĐỊNH (STICKY COMPARE BAR) --- *@
+    <div id="sticky-compare-bar" class="sticky-compare-bar shadow-lg" style="display: none;">
+        @* Nút Thu gọn ở góc trên bên phải thanh bar *@
+        <div class="collapse-trigger" onclick="toggleCompareBar(false)">
+            Thu gọn <i class="fas fa-chevron-down ms-1"></i>
+        </div>
+        <div class="container-fluid p-0">
+        <div class="row align-items-center m-0">
+            @* 1. Cột trái: Trống hoặc ní có thể chèn gì đó vào đây *@
+            <div class="col-3 col-lg-2"></div>
+            
+            @* 2. Cột giữa: Chứa 3 món so sánh và CĂN GIỮA (Centered) *@
+            <div class="col-6 col-lg-8 d-flex align-items-center justify-content-center gap-3 py-2" id="compare-list-items">
+                @* 3 cái slot sản phẩm sẽ được JS append vào đây *@
+            </div>
+            
+            @* 3. Cột phải: Chứa các nút hành động (vẫn nằm bên phải) *@
+            <div class="col-3 col-lg-2 compare-actions text-center border-start ps-3 py-2">
+                <input type="hidden" id="idsCompareHidden" name="productIds" />
+                <button type="submit" class="btn btn-primary rounded-pill btn-so-sanh-ngay mb-1">
+                    @* <i class="fas fa-balance-scale-right me-1"></i> *@So sánh ngay
+                </button>
+                <a href="javascript:void(0)" class="small text-danger d-block mt-2" onclick="clearAllCompare()">
+                    Xóa tất cả sản phẩm
+                </a>
+            </div>
+        </div>
+    </div>
+    </div>
 
     <script>
         $(document).ready(function () {
@@ -233,7 +351,6 @@
             };
 
             // 3. XỬ LÝ CLICK "THÊM VÀO GIỎ" (AJAX)
-            // Dùng $(document).on để các nút load sau vẫn chạy ngon lành
             $(document).on('click', '.add-to-cart-js', function (e) {
                 e.preventDefault();
 
@@ -274,74 +391,147 @@
                     }
                 });
             });
+            // --- 3. LOGIC SO SÁNH SẢN PHẨM (MỚI) ---
+            let compareList = JSON.parse(localStorage.getItem('compareList')) || [];
+            // MỚI: Lấy trạng thái thu gọn từ bộ nhớ trình duyệt
+            let isCollapsed = sessionStorage.getItem('compareCollapsed') === 'true';
 
-            // 4. Kiểm tra TempData từ Server (Cho các trang load lại kiểu cũ)
-        @if (TempData["Success"] != null)
-        {
-            <text>
-                        Toast.fire({
-                            icon: 'success',
-                        title: '@TempData["Success"]'
-                            });
-            </text>
-        }
+            // MỚI: Hàm đóng/mở thanh bar
+            window.toggleCompareBar = function(show) {
+                isCollapsed = !show;
+                sessionStorage.setItem('compareCollapsed', isCollapsed);
+                renderStickyBar();
+            };
+            // Hàm Thêm vào so sánh (Cái mà ní bị báo lỗi thiếu nè)
+            window.addToCompare = function(id, name, img) {
+                if (compareList.some(x => x.id == id)) {
+                    Toast.fire({ icon: 'info', title: 'Món này đã có trong danh sách so sánh!' });
+                    return;
+                }
+                if (compareList.length >= 3) {
+                    Swal.fire({ icon: 'warning', title: 'Giới hạn', text: 'Ní chọn tối đa 3 món thôi nha!' });
+                    return;
+                }
 
-        @if (TempData["Error"] != null)
-        {
-            <text>
-                        Toast.fire({
-                            icon: 'error',
-                        title: '@TempData["Error"]'
-                            });
-            </text>
-        }
+                compareList.push({ id, name, img });
+                localStorage.setItem('compareList', JSON.stringify(compareList));
+                renderStickyBar();
+            };
+
+            // Hàm Xóa 1 món khỏi so sánh
+            window.removeFromCompare = function(id) {
+                compareList = compareList.filter(x => x.id != id);
+                localStorage.setItem('compareList', JSON.stringify(compareList));
+                renderStickyBar();
+            };
+
+            // Hàm Xóa tất cả
+            window.clearAllCompare = function() {
+                compareList = [];
+                localStorage.removeItem('compareList');
+                renderStickyBar();
+            };
+
+            // MỚI: Cập nhật hàm vẽ để xử lý Ẩn/Hiện
+            function renderStickyBar() {
+                const bar = $("#sticky-compare-bar");
+                const expandBtn = $("#compare-expand-btn"); // Nút nhỏ ở góc trái
+                const list = $("#compare-list-items");
+                const inputHidden = $("#idsCompareHidden");
+
+                if (compareList.length > 0) {
+                    // Cập nhật số lượng vào nút nhỏ
+                    $("#compare-count-badge").text(compareList.length);
+
+                    if (isCollapsed) {
+                        bar.hide();
+                        expandBtn.fadeIn(); // Hiện nút nhỏ góc trái
+                    } else {
+                        expandBtn.hide();
+                        bar.slideDown(); // Hiện thanh bar bự
+                    
+                        list.empty();
+                        for (let i = 0; i < 3; i++) {
+                            if (compareList[i]) {
+                                const item = compareList[i];
+                                list.append(`
+                                    <div class="compare-item-slot border-solid d-flex flex-column align-items-center p-1">
+                                        <span class="btn-remove-compare" onclick="removeFromCompare('${item.id}')">x</span>
+        
+                                        <img src="/anhall/${item.img}" style="max-height: 50px; width: auto; object-fit: contain;" />
+        
+                                        <div class="small text-truncate mt-1 w-100 text-center text-dark" 
+                                             style="font-size: 10px; line-height: 1.2;" title="${item.name}">
+                                            ${item.name}
+                                        </div>
+                                    </div>
+                                `);
+                                // list.append(`
+                                //     <div class="compare-item-slot border-solid">
+                                //         <span class="btn-remove-compare" onclick="removeFromCompare('${compareList[i].id}')">x</span>
+                                //         <img src="/anhall/${compareList[i].img}" />
+                                //         <div class="small text-truncate" style="width:80px; font-size:0.6rem">${compareList[i].name}</div>
+                                //     </div>
+                                // `);
+                            } else {
+                                list.append(`<div class="compare-item-slot text-muted small" style="font-size:0.6rem">Trống</div>`);
+                            }
+                        }
+                        inputHidden.val(compareList.map(x => x.id).join(','));
+                    }
+                } else {
+                    bar.hide();
+                    expandBtn.hide();
+                }
+            }
+            // Hàm này để thay đổi trạng thái khi bấm nút
+            window.toggleCompareBar = function(show) {
+                isCollapsed = !show;
+                sessionStorage.setItem('compareCollapsed', isCollapsed);
+                renderStickyBar();
+            };
+
+            // Tự động vẽ lại khi load trang
+            renderStickyBar();
+
+            // --- 4. THÔNG BÁO TEMP DATA ---
+            @if (TempData["Success"] != null) { <text>Toast.fire({ icon: 'success', title: '@TempData["Success"]' });</text> }
+            @if (TempData["Error"] != null) { <text>Toast.fire({ icon: 'error', title: '@TempData["Error"]' });</text> }
+            
+            //tìm kiếm chung
+            // Hàm thực hiện chuyển trang tìm kiếm
+            function performSearch() {
+                var query = $('#searchInput').val(); // Lấy chữ ní vừa nhập
+                console.log("Ní đang tìm:", query); // Dòng này để kiểm tra ở Console
+
+                if (query && query.trim() !== "") {
+                    // Chuyển hướng sang controller HangHoa, action Index
+                    window.location.href = '/HangHoa?query=' + encodeURIComponent(query.trim());
+                } else {
+                    alert("Ní nhập từ khóa cái đã!");
+                }
+            }
+
+            // 1. Bắt sự kiện Click nút
+            $(document).on('click', '#search-button-modal', function () {
+                performSearch();
             });
-    </script>
-    @* <script>
-        $(document).ready(function () {
-            //1. Cấu hình kiểu Toast (nhỏ gọn ở góc) cho nó sang
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+
+            // 2. Bắt sự kiện nhấn phím Enter
+            $(document).on('keypress', '#searchInput', function (e) {
+                if (e.which == 13) {
+                    performSearch();
                 }
             });
-            //2. Hàm này để các trang con gọi khi thêm hàng thành công
-            window.updateCartBadge = function (newCount) {
-                $('#cart-badge-count').text(newCount);
-                // Hiệu ứng rung rinh cho cái giỏ cho nó sinh động
-                $('#cart-badge-count').addClass('animate__animated animate__bounceIn');
-                setTimeout(() => {
-                    $('#cart-badge-count').removeClass('animate__animated animate__bounceIn');
-                }, 1000);
-            };
-            //3. Kiểm tra TempData từ Server gửi về
-            @if (TempData["Success"] != null)
-            {
-                <text>
-                            Toast.fire({
-                                icon: 'success',
-                            title: '@TempData["Success"]'
-                            });
-                </text>
+            // 3. nâng cấp giao diện tìm kiếm
+            function fillSearch(text) {
+                $('#searchInput').val(text);
+                // Có thể tự động tìm luôn sau khi điền
+                $('#search-button-modal').click();
             }
-
-            @if (TempData["Error"] != null)
-            {
-                <text>
-                            Toast.fire({
-                                icon: 'error',
-                            title: '@TempData["Error"]'
-                            });
-                </text>
-            }
-                });
-    </script> *@
+        });
+    </script>
+    
 </body>
 
 </html>

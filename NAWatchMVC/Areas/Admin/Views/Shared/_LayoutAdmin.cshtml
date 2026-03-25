@@ -181,6 +181,14 @@
                     </a>
                 </li>
 
+                <hr>
+
+                <div class="sidebar-heading">Tương tác</div>
+                <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "AdminReview" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="AdminReview" asp-action="Index">
+                        <i class="fas fa-star"></i> <span>Quản lý Đánh giá</span>
+                    </a>
+                </li>
                 <hr class="mt-4">
 
                 <li>
@@ -248,7 +256,7 @@
                     "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json"
                 },
                 "pageLength": 10,
-                "responsive": true
+                "responsive": true,
                 "ordering": false // <--- THÊM DÒNG NÀY: Xóa sổ mấy cái mũi tên ở tiêu đề cột
             });
 

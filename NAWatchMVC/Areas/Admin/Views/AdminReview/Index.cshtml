@@ -1,0 +1,78 @@
+﻿@model IEnumerable<NAWatchMVC.Data.DanhGium>
+
+@{
+    ViewData["Title"] = "Quản lý Đánh giá";
+    Layout = "_LayoutAdmin"; // Hoặc layout admin của ní
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quản lý Đánh giá sản phẩm</h1>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i> Danh sách phản hồi khách hàng
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Khách hàng</th>
+                        <th>Sản phẩm</th>
+                        <th>Nội dung</th>
+                        <th class="text-center">Số sao</th>
+                        <th>Ngày đăng</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.MaKhNavigation?.HoTen</strong><br />
+                                <small class="text-muted">(@item.MaKh)</small>
+                            </td>
+                            <td>@item.MaHhNavigation?.TenHh</td>
+                            <td style="max-width: 250px;" class="text-truncate" title="@item.NoiDung">
+                                @item.NoiDung
+                            </td>
+                            <td class="text-center">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="@(i <= item.Sao ? "fas" : "far") fa-star text-warning" style="font-size: 0.8rem;"></i>
+                                }
+                            </td>
+                            <td>@item.NgayDang?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @if (item.TrangThai == true)
+                                {
+                                    <span class="badge bg-success">Đang hiển thị</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Đã ẩn</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <form asp-action="ToggleStatus" asp-route-id="@item.MaDg" method="post">
+                                    <button type="submit" class="btn btn-sm @(item.TrangThai == true ? "btn-outline-danger" : "btn-outline-success")">
+                                        @(item.TrangThai == true ? "Ẩn bài" : "Cho hiện")
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

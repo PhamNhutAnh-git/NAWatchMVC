@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NAWatchMVC.Data;
+using System;
 namespace NAWatchMVC.ViewModels
 {
     public class HangHoaVM
@@ -26,6 +27,7 @@ namespace NAWatchMVC.ViewModels
 
         // Tên loại/Hãng để hiển thị thêm nếu cần
         public string TenLoai { get; set; }
+        public int? SoLuong { get; set; }
     }
     public class ChiTietHangHoaVM
     {
@@ -75,5 +77,6 @@ namespace NAWatchMVC.ViewModels
         public string TenNcc { get; set; }
         // Thêm dòng này để chứa danh sách sản phẩm cùng loại
         public List<HangHoaVM> SanPhamTuongTu { get; set; }
+        public List<DanhGium> DanhGias { get; set; }
     }
 }

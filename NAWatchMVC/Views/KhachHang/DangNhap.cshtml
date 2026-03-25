@@ -15,10 +15,20 @@
 
 @if (!ViewData.ModelState.IsValid)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Đăng nhập thất bại rồi ní ơi!</strong>
-        <div asp-validation-summary="All" class="text-danger"></div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="d-flex justify-content-center w-100 mb-4">
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm text-center py-3 px-4"
+             style="max-width: 500px; border-radius: 15px; background-color: #fff5f5;" role="alert">
+
+            @* Thêm cái icon cho nó sinh động *@
+            <i class="fas fa-exclamation-circle mb-2 d-block fa-2x" style="color: #dc3545;"></i>
+
+            <strong class="d-block mb-1" style="font-size: 1.1rem;">Đăng nhập thất bại rồi ní ơi!</strong>
+
+            @* Thêm class list-unstyled để dẹp mấy dấu chấm đầu dòng *@
+            <div asp-validation-summary="All" class="text-danger small list-unstyled"></div>
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     </div>
 }
 
@@ -36,10 +46,10 @@
                     }
 
                     <form asp-action="DangNhap" asp-route-returnurl="@ViewBag.ReturnUrl" method="post">
+                        <input type="hidden" name="ReturnUrl" value="@Context.Request.Query["ReturnUrl"]" />
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Tên đăng nhập / Mã NV</label>
+                            <label class="form-label fw-bold">Tên đăng nhập/ email / Mã NV</label>
                             @* Đổi UserName thành TenDangNhap *@
                             <input asp-for="TenDangNhap" class="form-control border-secondary py-3 rounded-pill" placeholder="Nhập tên tài khoản">
                             <span asp-validation-for="TenDangNhap" class="text-danger"></span>
@@ -81,13 +91,17 @@
 </div>
 
 @section Scripts {
+    @* 1. Load Validation mặc định của ASP.NET *@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
+    @* 2. Load thư viện SweetAlert2 (Nếu Layout chưa có thì ní thêm dòng này)= đã co *@
+    
+
     <script>
         $(document).ready(function () {
-            // Logic ẩn/hiện mật khẩu của ní vẫn chạy tốt nhé
+            // --- A. LOGIC ẨN/HIỆN MẬT KHẨU CỦA NÍ ---
             $("#togglePassword").click(function () {
                 var input = $("#passwordInput");
                 var icon = $(this).find("i");
@@ -100,6 +114,40 @@
                     icon.removeClass("fa-eye-slash").addClass("fa-eye");
                 }
             });
-        });
+
+            // --- B. HIỆN POPUP LỖI (SAI USER, SAI PASS, KHÓA TK) ---
+        @if (!ViewData.ModelState.IsValid)
+        {
+            // Lấy thông báo lỗi từ key "loi" mà mình đã đặt ở Controller
+            var error = ViewData.ModelState["loi"]?.Errors.FirstOrDefault()?.ErrorMessage;
+            if (!string.IsNullOrEmpty(error))
+            {
+                <text>
+                            Swal.fire({
+                                icon: 'error',
+                            title: 'Lỗi một chút!',
+                            text: '@Html.Raw(error)', // Thêm Html.Raw vào đây nè ní
+                            confirmButtonColor: '#1E88E5', // Màu xanh NAWatch của ní
+                            background: '#fff',
+                            timer: 5000 // Tự đóng sau 5s nếu ní lười bấm
+                                    });
+                </text>
+            }
+        }
+
+                // --- C. HIỆN POPUP THÀNH CÔNG (KHI ĐỔI PASS XONG NHẢY VỀ) ---
+        @if (TempData["Message"] != null)
+        {
+            <text>
+                        Swal.fire({
+                            icon: 'success',
+                        title: 'Ngon lành!',
+                        text: '@TempData["Message"]',
+                        showConfirmButton: false,
+                        timer: 3000
+                            });
+            </text>
+        }
+                });
     </script>
 }

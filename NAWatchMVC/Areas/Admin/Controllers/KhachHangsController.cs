@@ -53,17 +53,60 @@ namespace NAWatchMVC.Areas.Admin.Controllers
             return View(khachHang);
         }
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(string id, [Bind("MaKh,MatKhau,HoTen,GioiTinh,NgaySinh,DiaChi,DienThoai,Email,Hinh,HieuLuc,VaiTro,RandomKey,TenDangNhap")] KhachHang khachHang)
+        //{
+        //    if (id != khachHang.MaKh) return NotFound();
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            _context.Update(khachHang);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            if (!KhachHangExists(khachHang.MaKh)) return NotFound();
+        //            else throw;
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    return View(khachHang);
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("MaKh,MatKhau,HoTen,GioiTinh,NgaySinh,DiaChi,DienThoai,Email,Hinh,HieuLuc,VaiTro,RandomKey,TenDangNhap")] KhachHang khachHang)
+        public async Task<IActionResult> Edit(string id, [Bind("MaKh,HoTen,GioiTinh,NgaySinh,DiaChi,DienThoai,Email,Hinh,HieuLuc,VaiTro,TenDangNhap")] KhachHang khachHang)
         {
+            // 1. Xóa "MatKhau" khỏi danh sách [Bind] ở trên để đảm bảo an toàn
             if (id != khachHang.MaKh) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(khachHang);
+                    // 2. Tìm ông khách hàng ĐANG CÓ trong Database
+                    var existingKh = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaKh == id);
+
+                    if (existingKh == null) return NotFound();
+
+                    // 3. Chỉ cập nhật những trường Admin ĐƯỢC PHÉP sửa
+                    existingKh.HoTen = khachHang.HoTen;
+                    existingKh.GioiTinh = khachHang.GioiTinh;
+                    existingKh.NgaySinh = khachHang.NgaySinh;
+                    existingKh.DiaChi = khachHang.DiaChi;
+                    existingKh.DienThoai = khachHang.DienThoai;
+                    existingKh.Email = khachHang.Email;
+                    existingKh.Hinh = khachHang.Hinh;
+                    existingKh.HieuLuc = khachHang.HieuLuc;
+                    existingKh.VaiTro = khachHang.VaiTro;
+                    existingKh.TenDangNhap = khachHang.TenDangNhap;
+
+                    // TUYỆT ĐỐI KHÔNG GÁN: existingKh.MatKhau = ...
+                    // Như vậy mật khẩu cũ của khách vẫn được giữ nguyên vẹn 100%
+
+                    _context.Update(existingKh);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -75,7 +118,6 @@ namespace NAWatchMVC.Areas.Admin.Controllers
             }
             return View(khachHang);
         }
-
         public async Task<IActionResult> Delete(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();

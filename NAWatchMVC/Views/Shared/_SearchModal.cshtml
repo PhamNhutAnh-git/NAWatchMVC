@@ -1,0 +1,105 @@
+﻿@* trang tìm kiếm  *@
+<style>
+    /* Khung Modal nhỏ gọn */
+    .search-compact-content {
+        border-radius: 20px !important; /* Bo góc mạnh cho hiện đại */
+        border: none;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        overflow: hidden;
+    }
+
+    /* Thanh tìm kiếm kiểu Minimalist */
+    .search-box-compact {
+        display: flex;
+        background: #f1f5f9;
+        padding: 5px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        transition: 0.3s;
+    }
+
+        .search-box-compact:focus-within {
+            border-color: #1E88E5;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.1);
+        }
+
+    .search-input-mini {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 10px 15px;
+        outline: none;
+        font-size: 1rem;
+    }
+
+    .btn-search-mini {
+        background: #1E88E5;
+        color: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        transition: 0.2s;
+    }
+
+        .btn-search-mini:hover {
+            background: #1565C0;
+            transform: scale(1.05);
+        }
+
+    /* Các Tag nhỏ xinh */
+    .mini-tag {
+        font-size: 0.75rem;
+        background: #e2e8f0;
+        color: #475569;
+        padding: 5px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .mini-tag:hover {
+            background: #1E88E5;
+            color: white;
+        }
+
+    /* Hiệu ứng làm mờ nền khi hiện Modal */
+    .modal-backdrop.show {
+        backdrop-filter: blur(4px);
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+</style>
+<div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+    @* modal-dialog-centered: giúp nó nằm giữa màn hình *@
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content search-compact-content">
+            <div class="modal-header border-0">
+                <h5 class="fw-bold m-0" style="color: #1E88E5;"><i class="fas fa-search me-2"></i>Tìm kiếm nhanh</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                @* Ô tìm kiếm gọn gàng hơn *@
+                <div class="search-box-compact">
+                    <input type="search" id="searchInput" class="search-input-mini"
+                           placeholder="Ní muốn tìm đồng hồ gì nè?" autocomplete="off">
+                    <button id="search-button-modal" class="btn-search-mini">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                @* Gợi ý từ khóa thu nhỏ lại bên dưới *@
+                <div class="mt-3">
+                    <small class="text-muted d-block mb-2">Gợi ý cho ní:</small>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="mini-tag" onclick="fillSearch('Casio')">Casio</span>
+                        <span class="mini-tag" onclick="fillSearch('Dây da')">Dây da</span>
+                        <span class="mini-tag" onclick="fillSearch('Nam')">Nam</span>
+                        <span class="mini-tag" onclick="fillSearch('Nữ')">Nữ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

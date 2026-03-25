@@ -29,7 +29,7 @@
 
                     <form asp-action="DangKy" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+                        <input type="hidden" name="ReturnUrl" value="@Context.Request.Query["ReturnUrl"]" />
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <div class="form-item">
@@ -119,4 +119,38 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function () {
+            // --- 1. HIỆN POPUP LỖI KHI ĐĂNG KÝ (Trùng tên, trùng Email...) ---
+        @if (!ViewData.ModelState.IsValid)
+        {
+            var error = ViewData.ModelState["loi"]?.Errors.FirstOrDefault()?.ErrorMessage;
+            if (!string.IsNullOrEmpty(error))
+            {
+                <text>
+                            Swal.fire({
+                                icon: 'warning',
+                            title: 'Khoan đã ní!',
+                            text: '@Html.Raw(error)',
+                            confirmButtonColor: '#1E88E5'
+                                    });
+                </text>
+            }
+        }
+
+                // --- 2. HIỆN POPUP LỖI VALIDATION (Nếu ní muốn dùng Swal thay cho chữ đỏ) ---
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState["loi"] == null)
+        {
+            <text>
+                        Swal.fire({
+                            icon: 'error',
+                        title: 'Lỗi nhập liệu',
+                        text: 'Ní kiểm tra lại các thông tin màu đỏ phía dưới nhé!',
+                        confirmButtonColor: '#dc3545'
+                            });
+            </text>
+        }
+                });
+    </script>
 }

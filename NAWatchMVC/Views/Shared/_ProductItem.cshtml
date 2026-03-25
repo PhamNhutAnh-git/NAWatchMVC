@@ -77,20 +77,43 @@
                 <span class="text-muted ms-1">@Model.DiemDanhGia • Đã bán @Model.SoLuongBan</span>
             </div>
 
-            @* Link so sánh: Thêm hiệu ứng hover nhẹ *@
-            <a href="#" class="text-primary text-decoration-none small fw-bold tgdd-compare">
-                <i class="fas fa-plus-circle me-1"></i>So sánh
-            </a>
+            @* --- Link so sánh kiểu nhỏ, có icon chuẩn TGDĐ --- *@
+            <div class="text-center mt-2">
+                <a href="javascript:void(0);"
+                   class="text-primary text-decoration-none small fw-bold d-inline-flex align-items-center tgdd-compare-link"
+                   onclick="addToCompare('@Model.MaHh', '@Model.TenHh', '@Model.Hinh')">
+                    @* Đây là cái icon vòng tròn dấu cộng *@
+                    <span class="tgdd-compare-icon"><i class="fas fa-plus"></i></span>
+                    <span class="ms-1">So sánh</span>
+                </a>
+            </div>
         </div>
     </div>
     @* 4. Nút hành động nhanh: Đổi thành btn-primary (Xanh dương đặc) để nổi bật *@
-
     <div class="card-footer bg-transparent border-0 pb-3">
-        @* Thêm class btn-sm-buy để dễ dàng quản lý màu sắc riêng *@
+        @if (Model.SoLuong > 0)
+        {
+            @* CÒN HÀNG: Hiện nút xanh, cho phép bấm *@
+            <a class="btn btn-primary w-100 rounded-pill py-2 btn-sm-buy shadow-sm add-to-cart-js"
+               data-id="@Model.MaHh"
+               href="javascript:void(0);">
+                <i class="fa fa-shopping-bag me-2"></i> THÊM VÀO GIỎ
+            </a>
+        }
+        else
+        {
+            @* HẾT HÀNG: Khóa nút, đổi màu xám, đổi chữ *@
+            <button class="btn btn-secondary w-100 rounded-pill py-2 shadow-sm disabled"
+                    style="cursor: not-allowed; opacity: 0.7;">
+                <i class="fas fa-exclamation-triangle me-2"></i> SẢN PHẨM TẠM HẾT
+            </button>
+        }
+    </div>
+    @* <div class="card-footer bg-transparent border-0 pb-3">
         <a class="btn btn-primary w-100 rounded-pill py-2 btn-sm-buy shadow-sm add-to-cart-js"
            data-id="@Model.MaHh"
            href="javascript:void(0);">
             <i class="fa fa-shopping-bag me-2"></i> THÊM VÀO GIỎ
         </a>
-    </div>
+    </div> *@
 </div>

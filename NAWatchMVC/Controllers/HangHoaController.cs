@@ -5,6 +5,7 @@ using NAWatchMVC.ViewModels; // QUAN TRỌNG: Thêm namespace này
 using System.Linq;
 using NAWatchMVC.Helpers; // Thay 'NAWatchMVC' bằng tên Project của bạn nếu khác
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NAWatchMVC.Controllers
 {
@@ -48,6 +49,7 @@ namespace NAWatchMVC.Controllers
                 }
             }
             // 3. Lọc theo Tìm kiếm Nâng cao (Keyword Splitting)
+            Console.WriteLine("===> Dữ liệu khách tìm là: " + query);
             if (!string.IsNullOrEmpty(query))
             {
                 // Tách chuỗi "đồng hồ nam dây da" thành ["đồng", "hồ", "nam", "dây", "da"]
@@ -90,7 +92,7 @@ namespace NAWatchMVC.Controllers
                 TenHh = p.TenHh,
                 Hinh = p.Hinh ?? "default.jpg",
                 DonGia = p.DonGia ?? 0,
-
+                SoLuong = p.SoLuong ?? 0, // THÊM DÒNG NÀY NÈ NÍ!
                 // Ép kiểu double? về int an toàn
                 GiamGia = (double)(p.GiamGia ?? 0),
 
@@ -109,7 +111,8 @@ namespace NAWatchMVC.Controllers
 
             // a. Đếm tổng số lượng sau khi đã LỌC sạch sẽ
             int totalItems = await hangHoas.CountAsync();
-
+            // THÊM DÒNG NÀY để đếm số kỹ hơn
+            ViewBag.TotalItems = totalItems;
             // b. Tính tổng số trang
             ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewBag.CurrentPage = pageNumber;
@@ -136,6 +139,7 @@ namespace NAWatchMVC.Controllers
             // 1. Tìm sản phẩm theo ID và lấy kèm thông tin Loại/NCC
             var hangHoa = await db.HangHoas
                 .Include(p => p.MaLoaiNavigation)
+                .Include(h => h.DanhGia) // <--- ĐIỀN ĐÚNG "DANHGIA" VÀO ĐÂY
                 .Include(p => p.MaNccNavigation)
                 .SingleOrDefaultAsync(p => p.MaHh == id);
                 
@@ -197,6 +201,10 @@ namespace NAWatchMVC.Controllers
                 // Tên hiển thị từ bảng liên kết
                 TenLoai = hangHoa.MaLoaiNavigation?.TenLoai??"chưa phân loại",
                 TenNcc = hangHoa.MaNccNavigation?.MaNcc??"",
+                DanhGias = hangHoa.DanhGia
+                .Where(dg => dg.TrangThai == true) // Chỉ lấy đánh giá đã duyệt
+                .ToList()
+                //DanhGias = hangHoa.DanhGia.ToList()
             };
             // --- LOGIC LƯU SẢN PHẨM ĐÃ XEM ---
             var viewedIds = HttpContext.Session.Get<List<int>>("ViewedProducts") ?? new List<int>();
@@ -210,6 +218,125 @@ namespace NAWatchMVC.Controllers
             }
 
             return View(model);
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> GuiDanhGia(int MaHh, int Sao, string NoiDung)
+        {
+            // 1. KIỂM TRA QUYỀN: Nếu là Admin thì chặn lại ngay
+            if (User.IsInRole("Admin"))
+            {
+                // Gửi thông báo đỏ rực để Admin biết mình bị chặn
+                TempData["Error"] = "Ní đang là Admin, chỉ được xem thôi chứ không được 'tự luyến' đánh giá đâu nha!";
+
+                // Trả về đúng cái view chi tiết sản phẩm đó
+                return RedirectToAction("Detail", new { id = MaHh });
+            }
+            var maKh = User.FindFirst("CustomerId")?.Value;
+            // KIỂM TRA XEM ĐÃ MUA HÀNG CHƯA
+            bool daMua = await db.HoaDons
+                .AnyAsync(hd => hd.MaKh == maKh &&
+                                hd.MaTrangThai == 3 && // Giả sử 3 là Đã giao hàng thành công
+                                db.ChiTietHds.Any(ct => ct.MaHd == hd.MaHd && ct.MaHh == MaHh));
+
+            if (!daMua)
+            {
+                // Dùng cái tên khác để phân biệt
+                TempData["Error"] = "Ní chưa mua hàng mà, mua đi rồi mới cho đánh giá nha! ❌";
+                return RedirectToAction("Detail", new { id = MaHh });
+            }
+            // 1. Lưu đánh giá mới (dùng db.DanhGium vì tên DbSet của ní là DanhGium)
+            var dg = new DanhGium
+            {
+                MaHh = MaHh,
+                MaKh = maKh,
+                Sao = Sao,
+                NoiDung = NoiDung,
+                NgayDang = DateTime.Now,
+                TrangThai = true
+            };
+            db.DanhGia.Add(dg);
+            await db.SaveChangesAsync();
+
+            // 2. TÍNH LẠI TRUNG BÌNH CỘNG
+            // Lấy tất cả số sao của sản phẩm này trong DB
+            var listSao = await db.DanhGia
+                .Where(d => d.MaHh == MaHh)
+                .Select(d => d.Sao ?? 0)
+                .ToListAsync();
+
+            if (listSao.Any())
+            {
+                double trungBinh = listSao.Average(); // Đây là hàm thần thánh tính trung bình cộng
+
+                // Tìm ông hàng hóa đó để cập nhật điểm mới
+                var hh = await db.HangHoas.FindAsync(MaHh);
+                if (hh != null)
+                {
+                    // Làm tròn ví dụ 4.6 thành 5, 4.4 thành 4
+                    hh.DiemDanhGia = (int)Math.Round(trungBinh);
+
+                    db.Update(hh);
+                    await db.SaveChangesAsync();
+                }
+            }
+            // Nếu thành công thì dùng cái này
+            TempData["Success"] = "Đánh giá của ní đã lên sóng! ✅";
+            return RedirectToAction("Detail", new { id = MaHh });
+        }
+
+        // Trang hiển thị so sánh chi tiết: HangHoa/Compare?ids=123,456,789
+        public async Task<IActionResult> Compare(string ids)
+        {
+            if (string.IsNullOrEmpty(ids)) return RedirectToAction("Index");
+
+            // 1. Chuyển chuỗi ID (ví dụ: "1,2,3") thành danh sách SỐ (List<int>)
+            var listMaHh = ids.Split(',')
+                              .Select(int.Parse) // Ép kiểu từng phần tử sang int
+                              .ToList();
+
+            // 2. Bây giờ câu lệnh Where sẽ chạy "mượt như nhung"
+            var model = await db.HangHoas
+                .Include(h => h.MaLoaiNavigation)
+                .Where(h => listMaHh.Contains(h.MaHh)) // Số so sánh với Số -> Chuẩn bài!
+                .Take(3)
+                            .Select(h => new ChiTietHangHoaVM
+                {
+                    MaHh = h.MaHh,
+                    TenHh = h.TenHh,
+                    TenAlias = h.TenAlias ?? "",
+                    MaLoai = h.MaLoai,
+                    MaNcc = h.MaNcc,
+                    DonGia = h.DonGia ?? 0,
+                    GiamGia = (double)(h.GiamGia ?? 0),
+                    Hinh = h.Hinh ?? "default.jpg",
+                    NgaySx = h.NgaySx ?? DateTime.Now,
+                    SoLanXem = h.SoLanXem ?? 0,
+                    MoTa = h.MoTa ?? "Đang cập nhật",
+                    SoLuongBan = h.SoLuongBan ?? 0,
+                    SoLuong = h.SoLuong ?? 0,
+                    GioiTinh = h.GioiTinh ?? "Unisex",
+                    DuongKinhMat = h.DuongKinhMat ?? "Đang cập nhật",
+                    ChatLieuDay = h.ChatLieuDay ?? "Đang cập nhật",
+                    DoRongDay = h.DoRongDay ?? "Đang cập nhật",
+                    ChatLieuKhungVien = h.ChatLieuKhungVien ?? "Đang cập nhật",
+                    ChatLieuKinh = h.ChatLieuKinh ?? "Kính khoáng",
+                    TenBoMay = h.TenBoMay ?? "Đang cập nhật",
+                    ChongNuoc = h.ChongNuoc ?? "3 ATM",
+                    TienIch = h.TienIch ?? "Không có",
+                    NguonNangLuong = h.NguonNangLuong ?? "Pin (Quartz)",
+                    LoaiMay = h.LoaiMay ?? "Đang cập nhật",
+                    BoSuuTap = h.BoSuuTap ?? "Cơ bản",
+                    XuatXu = h.XuatXu ?? "Chính hãng",
+                    DiemDanhGia = (int)(h.DiemDanhGia ?? 5),
+                    ThoiGianPin = h.ThoiGianPin ?? 0, // Nếu null thì để là 0
+                    // Tên hiển thị từ bảng liên kết
+                    TenLoai = h.MaLoaiNavigation.TenLoai ?? "chưa phân loại",
+                    TenNcc = h.MaNccNavigation.MaNcc ?? "",
+                })
+                .ToListAsync();
+
+            return View(model); // Trả về trang Views/HangHoa/Compare.cshtml
         }
     }
 }

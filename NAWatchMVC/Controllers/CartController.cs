@@ -285,6 +285,7 @@ namespace NAWatchMVC.Controllers
         }
 
         // 6. HIỂN THỊ CHECKOUT (GET)
+        [Authorize]
         [HttpGet]
         public IActionResult Checkout()
         {
@@ -372,52 +373,76 @@ namespace NAWatchMVC.Controllers
         }
 
         // 7. XỬ LÝ CHECKOUT (POST)
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Checkout(string email, string hoten, string dienthoai, string diachi, string ghichu, string CachThanhToan)
         {
             KhachHang khachHang = null;
 
-            // A. Xử lý khách hàng
-            if (User.Identity.IsAuthenticated)
+            // A. Xử lý khách hàng kiểu hệ thống tự thêm tài khoản
+            //if (User.Identity.IsAuthenticated)
+            //{
+            //    var maKH = User.FindFirst("CustomerId")?.Value;
+            //    khachHang = db.KhachHangs.SingleOrDefault(kh => kh.MaKh == maKH);
+            //    if (khachHang != null)
+            //    {
+            //        // Cập nhật địa chỉ mới nhất
+            //        khachHang.DiaChi = diachi;
+            //        khachHang.DienThoai = dienthoai;
+            //        db.Update(khachHang);
+            //        await db.SaveChangesAsync();
+            //    }
+            //}
+            //if (khachHang == null) // Khách vãng lai
+            //{
+            //    var khachHangCu = db.KhachHangs.SingleOrDefault(k => k.Email == email);
+            //    if (khachHangCu == null)
+            //    {
+            //        khachHang = new KhachHang
+            //        {
+            //            MaKh = email,
+            //            Email = email,
+            //            HoTen = hoten,
+            //            DienThoai = dienthoai,
+            //            DiaChi = diachi,
+            //            MatKhau = Guid.NewGuid().ToString(),
+            //            VaiTro = 2,
+            //            HieuLuc = true,
+            //            RandomKey = Guid.NewGuid().ToString()
+            //        };
+            //        db.Add(khachHang);
+            //        await db.SaveChangesAsync();
+            //    }
+            //    else
+            //    {
+            //        khachHang = khachHangCu;
+            //        khachHang.HoTen = hoten; khachHang.DiaChi = diachi; khachHang.DienThoai = dienthoai;
+            //        db.Update(khachHang);
+            //        await db.SaveChangesAsync();
+            //    }
+            //}
+            // A. Xử lý khách hàng (Chỉ dành cho người đã đăng nhập)
+            // 1. Lấy mã khách hàng từ Claim (giống hệt code cũ của ní)
+            var maKH = User.FindFirst("CustomerId")?.Value;
+
+            // 2. Tìm đúng ông khách đó trong DB
+            khachHang = await db.KhachHangs.SingleOrDefaultAsync(kh => kh.MaKh == maKH);
+
+            if (khachHang != null)
             {
-                var maKH = User.FindFirst("CustomerId")?.Value;
-                khachHang = db.KhachHangs.SingleOrDefault(kh => kh.MaKh == maKH);
-                if (khachHang != null)
-                {
-                    // Cập nhật địa chỉ mới nhất
-                    khachHang.DiaChi = diachi;
-                    khachHang.DienThoai = dienthoai;
-                    db.Update(khachHang);
-                    await db.SaveChangesAsync();
-                }
+                // 3. Cập nhật thông tin nhận hàng mới nhất mà họ vừa nhập ở Form Thanh toán
+                // Việc này giúp khách có thể đổi địa chỉ giao hàng khác với địa chỉ lúc đăng ký
+                khachHang.DiaChi = diachi;
+                khachHang.DienThoai = dienthoai;
+                khachHang.HoTen = hoten;
+
+                db.Update(khachHang);
+                await db.SaveChangesAsync();
             }
-            if (khachHang == null) // Khách vãng lai
+            else
             {
-                var khachHangCu = db.KhachHangs.SingleOrDefault(k => k.Email == email);
-                if (khachHangCu == null)
-                {
-                    khachHang = new KhachHang
-                    {
-                        MaKh = email,
-                        Email = email,
-                        HoTen = hoten,
-                        DienThoai = dienthoai,
-                        DiaChi = diachi,
-                        MatKhau = Guid.NewGuid().ToString(),
-                        VaiTro = 2,
-                        HieuLuc = true,
-                        RandomKey = Guid.NewGuid().ToString()
-                    };
-                    db.Add(khachHang);
-                    await db.SaveChangesAsync();
-                }
-                else
-                {
-                    khachHang = khachHangCu;
-                    khachHang.HoTen = hoten; khachHang.DiaChi = diachi; khachHang.DienThoai = dienthoai;
-                    db.Update(khachHang);
-                    await db.SaveChangesAsync();
-                }
+                // Nếu không tìm thấy (trường hợp hy hữu), đá về trang đăng nhập
+                return RedirectToAction("DangNhap", "KhachHang");
             }
             // B. Lấy giỏ hàng (Từ DB hoặc Session)
             List<CartItemVM> myCart = new List<CartItemVM>();
