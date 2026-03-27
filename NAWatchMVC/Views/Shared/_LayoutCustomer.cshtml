@@ -299,6 +299,7 @@
         <div class="collapse-trigger" onclick="toggleCompareBar(false)">
             Thu gọn <i class="fas fa-chevron-down ms-1"></i>
         </div>
+        <form asp-controller="HangHoa" asp-action="SoSanh" method="get">
         <div class="container-fluid p-0">
         <div class="row align-items-center m-0">
             @* 1. Cột trái: Trống hoặc ní có thể chèn gì đó vào đây *@
@@ -309,17 +310,20 @@
                 @* 3 cái slot sản phẩm sẽ được JS append vào đây *@
             </div>
             
-            @* 3. Cột phải: Chứa các nút hành động (vẫn nằm bên phải) *@
+            @* 3. Cột phải: Chứa các nút hành động (vẫn nằm bên phải) *@ 
             <div class="col-3 col-lg-2 compare-actions text-center border-start ps-3 py-2">
                 <input type="hidden" id="idsCompareHidden" name="productIds" />
-                <button type="submit" class="btn btn-primary rounded-pill btn-so-sanh-ngay mb-1">
-                    @* <i class="fas fa-balance-scale-right me-1"></i> *@So sánh ngay
+                @* SỬA NÚT NÀY: Dùng onclick để nó chủ động nhảy trang *@
+                <button type="button" class="btn btn-primary rounded-pill mb-1" 
+                        onclick="var ids = $('#idsCompareHidden').val(); if(ids) { window.location.href='/HangHoa/Compare?ids=' + ids; } else { Swal.fire('xin chọn món trước!'); }">
+                    So sánh ngay
                 </button>
                 <a href="javascript:void(0)" class="small text-danger d-block mt-2" onclick="clearAllCompare()">
                     Xóa tất cả sản phẩm
                 </a>
             </div>
         </div>
+        </form>
     </div>
     </div>
 

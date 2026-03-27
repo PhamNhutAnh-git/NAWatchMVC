@@ -70,18 +70,26 @@
                 </div>
                 @foreach (var item in Model)
                 {
-                    <div class="col-md-3">
-                        @* Bọc ảnh vào cái wrapper đã tạo ở trên *@
+                    <div class="col-md-3 position-relative">
+                        @* Nút xóa món này khỏi danh sách so sánh *@
+                        @* <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 rounded-circle"
+                                onclick="removeFromCompare('@item.MaHh'); location.reload();">
+                            <i class="fas fa-times"></i>
+                        </button> *@
                         <div class="compare-img-wrapper">
                             <img src="~/anhall/@item.Hinh" alt="@item.TenHh" />
                         </div>
 
-                        @* Tên sản phẩm có min-height để giá tiền luôn nằm trên cùng một đường thẳng *@
                         <h6 class="fw-bold text-dark product-name-fixed">@item.TenHh</h6>
 
-                        <p class="product-price mb-0">
+                        <p class="product-price mb-2">
                             @((item.DonGia * (1 - (item.GiamGia / 100))).ToString("#,##0₫"))
                         </p>
+
+                        @* Nút Thêm vào giỏ hàng *@
+                        <button class="btn btn-primary btn-sm rounded-pill px-3 add-to-cart-js" data-id="@item.MaHh">
+                            <i class="fas fa-shopping-cart me-1"></i> Thêm vào giỏ
+                        </button>
                     </div>
                 }
                 @for (int i = 0; i < (3 - Model.Count); i++)
