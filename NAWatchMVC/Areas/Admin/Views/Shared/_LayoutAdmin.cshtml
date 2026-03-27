@@ -171,7 +171,11 @@
                         <i class="fas fa-user-friends"></i> <span>Khách hàng</span>
                     </a>
                 </li>
-
+                <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Vouchers" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="Vouchers" asp-action="Index">
+                        <i class="fas fa-user-friends"></i> <span>Vouchers</span>
+                    </a>
+                </li>
                 <hr>
 
                 <div class="sidebar-heading">Nhân Sự</div>

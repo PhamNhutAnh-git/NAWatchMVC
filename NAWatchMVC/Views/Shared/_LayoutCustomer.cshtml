@@ -58,7 +58,7 @@
             font-weight: bold !important;
         }
         
-        @* --- CSS CHO THANH SO SÁNH (Ní dán vào file site.css nhé) --- *@
+        @* --- CSS CHO THANH SO SÁNH (Bạn dán vào file site.css nhé) --- *@
         .sticky-compare-bar {
             position: fixed;
             bottom: 0;
@@ -390,7 +390,7 @@
                     error: function () {
                         Toast.fire({
                             icon: 'error',
-                            title: 'Lỗi rồi ní ơi! Không kết nối được server.'
+                            title: 'Lỗi rồi Bạn ơi! Không kết nối được server.'
                         });
                     }
                 });
@@ -406,14 +406,14 @@
                 sessionStorage.setItem('compareCollapsed', isCollapsed);
                 renderStickyBar();
             };
-            // Hàm Thêm vào so sánh (Cái mà ní bị báo lỗi thiếu nè)
+            // Hàm Thêm vào so sánh (Cái mà Bạn bị báo lỗi thiếu nè)
             window.addToCompare = function(id, name, img) {
                 if (compareList.some(x => x.id == id)) {
                     Toast.fire({ icon: 'info', title: 'Món này đã có trong danh sách so sánh!' });
                     return;
                 }
                 if (compareList.length >= 3) {
-                    Swal.fire({ icon: 'warning', title: 'Giới hạn', text: 'Ní chọn tối đa 3 món thôi nha!' });
+                    Swal.fire({ icon: 'warning', title: 'Giới hạn', text: 'Bạn chọn tối đa 3 món thôi nha!' });
                     return;
                 }
 
@@ -505,14 +505,14 @@
             //tìm kiếm chung
             // Hàm thực hiện chuyển trang tìm kiếm
             function performSearch() {
-                var query = $('#searchInput').val(); // Lấy chữ ní vừa nhập
-                console.log("Ní đang tìm:", query); // Dòng này để kiểm tra ở Console
+                var query = $('#searchInput').val(); // Lấy chữ Bạn vừa nhập
+                console.log("Bạn đang tìm:", query); // Dòng này để kiểm tra ở Console
 
                 if (query && query.trim() !== "") {
                     // Chuyển hướng sang controller HangHoa, action Index
                     window.location.href = '/HangHoa?query=' + encodeURIComponent(query.trim());
                 } else {
-                    alert("Ní nhập từ khóa cái đã!");
+                    alert("Bạn nhập từ khóa cái đã!");
                 }
             }
 

@@ -1,0 +1,101 @@
+﻿@model NAWatchMVC.Data.Voucher
+
+@{
+    ViewData["Title"] = "Xác nhận xóa Voucher";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid p-4">
+    @* --- Tiêu đề & Cảnh báo --- *@
+    <div class="mb-4">
+        <h2 class="fw-bold text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Xác Nhận Xóa Voucher</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">Quản lý Voucher</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Xác nhận xóa</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+                @* --- Header Cảnh báo --- *@
+                <div class="card-header bg-danger text-white py-3">
+                    <h5 class="mb-0 text-center text-uppercase fw-bold">
+                        <i class="fas fa-trash-alt me-2"></i>Ní có chắc chắn muốn xóa mã này không?
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="alert alert-warning border-start border-4 border-warning">
+                        <strong>Lưu ý:</strong> Hành động này không thể hoàn tác. Mọi lịch sử liên quan đến mã <b>@Model.MaVoucher</b> sẽ bị ảnh hưởng nếu không xử lý khóa ngoại đúng cách.
+                    </div>
+
+                    @* --- Tóm tắt thông tin --- *@
+                    <div class="row mt-4">
+                        <div class="col-sm-6 mb-3">
+                            <label class="text-muted small d-block">Mã Voucher</label>
+                            <span class="fs-5 fw-bold text-dark">@Model.MaVoucher</span>
+                        </div>
+                        <div class="col-sm-6 mb-3 text-sm-end">
+                            <label class="text-muted small d-block">Loại Voucher</label>
+                            <span class="badge @(Model.LoaiVoucher == 0 ? "bg-info" : "bg-warning") px-3 rounded-pill">
+                                @(Model.LoaiVoucher == 0 ? "Giảm tiền hàng" : "Giảm phí vận chuyển")
+                            </span>
+                        </div>
+                    </div>
+
+                    <hr class="my-2 text-muted opacity-25">
+
+                    <div class="row mt-3">
+                        <div class="col-sm-6 mb-3">
+                            <label class="text-muted small d-block">Giá trị giảm</label>
+                            <span class="fw-bold text-danger fs-5">
+                                @(Model.LoaiGiamGia == 1 ? Model.GiaTriGiam + "%" : Model.GiaTriGiam.ToString("N0") + "đ")
+                            </span>
+                            @if (Model.LoaiGiamGia == 1)
+                            {
+                                <small class="text-muted">(Tối đa: @Model.GiamToiDa.ToString("N0")đ)</small>
+                            }
+                        </div>
+                        <div class="col-sm-6 mb-3 text-sm-end">
+                            <label class="text-muted small d-block">Đơn tối thiểu</label>
+                            <span class="fw-bold">@Model.GiaTriDonHangToiThieu.ToString("N0")đ</span>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-sm-6 mb-3">
+                            <label class="text-muted small d-block">Thời gian áp dụng</label>
+                            <span class="small">
+                                <i class="far fa-calendar-alt text-primary me-1"></i> @Model.NgayBatDau.ToString("dd/MM/yyyy")
+                                <i class="fas fa-arrow-right mx-1 text-muted"></i>
+                                <i class="far fa-calendar-times text-danger me-1"></i> @Model.NgayKetThuc.ToString("dd/MM/yyyy")
+                            </span>
+                        </div>
+                        <div class="col-sm-6 mb-3 text-sm-end">
+                            <label class="text-muted small d-block">Tình trạng sử dụng</label>
+                            <span class="fw-bold text-dark">@Model.SoLuongDaDung / @(Model.SoLuongToiDa == 0 ? "∞" : Model.SoLuongToiDa)</span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    @* --- Nút hành động --- *@
+                    <form asp-action="Delete" class="d-flex justify-content-between align-items-center">
+                        <input type="hidden" asp-for="MaVoucher" />
+
+                        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                            <i class="fas fa-chevron-left me-2"></i>Quay lại danh sách
+                        </a>
+
+                        <button type="submit" class="btn btn-danger rounded-pill px-5 shadow-sm fw-bold">
+                            <i class="fas fa-trash-alt me-2"></i>XÓA NGAY
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

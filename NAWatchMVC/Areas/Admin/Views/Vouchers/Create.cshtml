@@ -1,0 +1,123 @@
+﻿@model NAWatchMVC.Data.Voucher
+
+@{
+    ViewData["Title"] = "Tạo mới Voucher";
+    Layout = "_LayoutAdmin"; // Đảm bảo đúng tên Layout Admin của ní
+}
+
+<div class="container-fluid p-4">
+    @* --- Tiêu đề & Breadcrumb --- *@
+    <div class="mb-4">
+        <h2 class="fw-bold text-primary"><i class="fas fa-ticket-alt me-2"></i>Thiết Lập Voucher Mới</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">Quản lý Voucher</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tạo mới</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card shadow border-0 rounded-3">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Thông tin chi tiết mã giảm giá</h5>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    @* --- Cột trái: Thông tin mã --- *@
+                    <div class="col-md-6 border-end">
+                        <div class="mb-3">
+                            <label asp-for="MaVoucher" class="form-label fw-bold">Mã Voucher (Viết liền, không dấu)</label>
+                            <input asp-for="MaVoucher" class="form-control rounded-pill border-primary" placeholder="Ví dụ: ANGIANG50K" />
+                            <span asp-validation-for="MaVoucher" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="LoaiVoucher" class="form-label fw-bold">Áp dụng cho</label>
+                            <select asp-for="LoaiVoucher" class="form-select rounded-pill">
+                                <option value="0">Giảm tiền hàng</option>
+                                <option value="1">Giảm phí vận chuyển (Freeship)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="LoaiGiamGia" class="form-label fw-bold">Hình thức giảm</label>
+                            <select asp-for="LoaiGiamGia" class="form-select rounded-pill">
+                                <option value="0">Giảm theo số tiền (đ)</option>
+                                <option value="1">Giảm theo phần trăm (%)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="GiaTriGiam" class="form-label fw-bold">Giá trị giảm</label>
+                            <div class="input-group">
+                                <input asp-for="GiaTriGiam" class="form-control rounded-start-pill border-primary" placeholder="Ví dụ: 50000 hoặc 10" />
+                                <span class="input-group-text rounded-end-pill bg-light">đ / %</span>
+                            </div>
+                            <span asp-validation-for="GiaTriGiam" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    @* --- Cột phải: Điều kiện & Thời gian --- *@
+                    <div class="col-md-6 ps-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="GiaTriDonHangToiThieu" class="form-label fw-bold">Đơn tối thiểu</label>
+                                <input asp-for="GiaTriDonHangToiThieu" class="form-control rounded-pill" placeholder="0" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="GiamToiDa" class="form-label fw-bold">Giảm tối đa</label>
+                                <input asp-for="GiamToiDa" class="form-control rounded-pill" placeholder="Để 0 nếu không giới hạn" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NgayBatDau" class="form-label fw-bold">Ngày bắt đầu</label>
+                                <input asp-for="NgayBatDau" type="datetime-local" class="form-control rounded-pill" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NgayKetThuc" class="form-label fw-bold">Ngày kết thúc</label>
+                                <input asp-for="NgayKetThuc" type="datetime-local" class="form-control rounded-pill" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SoLuongToiDa" class="form-label fw-bold">Tổng lượt sử dụng</label>
+                            <input asp-for="SoLuongToiDa" class="form-control rounded-pill" placeholder="Ví dụ: 100" />
+                        </div>
+
+                        @* Ẩn số lượng đã dùng vì khi tạo mới mặc định phải là 0 *@
+                        <input type="hidden" asp-for="SoLuongDaDung" value="0" />
+
+                        <div class="mb-3 mt-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="TrangThai" checked>
+                                <label class="form-check-label fw-bold" asp-for="TrangThai">Kích hoạt mã ngay bây giờ?</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="fas fa-undo me-2"></i>Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow">
+                        <i class="fas fa-save me-2"></i>Lưu Voucher
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

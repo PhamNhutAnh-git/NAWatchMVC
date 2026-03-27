@@ -14,7 +14,10 @@ public partial class NawatchMvcContext : DbContext
         : base(options)
     {
     }
-
+    // DÁN 2 DÒNG ĐÓ VÀO ĐÂY NÈ NÍ!
+    public virtual DbSet<Voucher> Vouchers { get; set; } = null!;
+    public virtual DbSet<ChiTietSuDungVoucher> ChiTietSuDungVouchers { get; set; } = null!;
+    //
     public virtual DbSet<ChiTietGioHang> ChiTietGioHangs { get; set; }
 
     public virtual DbSet<ChiTietHd> ChiTietHds { get; set; }
@@ -53,6 +56,9 @@ public partial class NawatchMvcContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // 1. Thêm dòng này vào đầu hàm (để đảm bảo các cấu hình mặc định được chạy)
+        base.OnModelCreating(modelBuilder);
+        //
         modelBuilder.Entity<ChiTietGioHang>(entity =>
         {
             entity.HasKey(e => e.MaCtgh).HasName("PK__ChiTietG__1E4FAF543D7327B9");
@@ -414,6 +420,31 @@ public partial class NawatchMvcContext : DbContext
             entity.HasOne(d => d.MaKhNavigation).WithMany(p => p.YeuThiches)
                 .HasForeignKey(d => d.MaKh)
                 .HasConstraintName("FK__YeuThich__MaKH__114A936A");
+        });
+        // 2. Kéo xuống CUỐI CÙNG của hàm, trước dấu "}" kết thúc, dán đoạn này vào:
+        modelBuilder.Entity<ChiTietSuDungVoucher>(entity =>
+        {
+            // Khai báo khóa chính kép
+            entity.HasKey(e => new { e.MaKh, e.MaVoucher });
+
+            entity.ToTable("ChiTietSuDungVoucher");
+
+            entity.Property(e => e.MaKh).HasColumnName("MaKH");
+            entity.Property(e => e.MaVoucher).HasColumnName("MaVoucher");
+            entity.Property(e => e.MaHd).HasColumnName("MaHD");
+
+            // Cấu hình các mối quan hệ (Foreign Keys)
+            entity.HasOne(d => d.MaKhNavigation).WithMany()
+                .HasForeignKey(d => d.MaKh)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.MaVoucherNavigation).WithMany()
+                .HasForeignKey(d => d.MaVoucher)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.MaHdNavigation).WithMany()
+                .HasForeignKey(d => d.MaHd)
+                .OnDelete(DeleteBehavior.SetNull); // Nếu xóa hóa đơn thì giữ lại vết voucher (hoặc tùy ní chọn)
         });
 
         OnModelCreatingPartial(modelBuilder);

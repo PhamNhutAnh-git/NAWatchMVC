@@ -378,49 +378,6 @@ namespace NAWatchMVC.Controllers
         public async Task<IActionResult> Checkout(string email, string hoten, string dienthoai, string diachi, string ghichu, string CachThanhToan)
         {
             KhachHang khachHang = null;
-
-            // A. Xử lý khách hàng kiểu hệ thống tự thêm tài khoản
-            //if (User.Identity.IsAuthenticated)
-            //{
-            //    var maKH = User.FindFirst("CustomerId")?.Value;
-            //    khachHang = db.KhachHangs.SingleOrDefault(kh => kh.MaKh == maKH);
-            //    if (khachHang != null)
-            //    {
-            //        // Cập nhật địa chỉ mới nhất
-            //        khachHang.DiaChi = diachi;
-            //        khachHang.DienThoai = dienthoai;
-            //        db.Update(khachHang);
-            //        await db.SaveChangesAsync();
-            //    }
-            //}
-            //if (khachHang == null) // Khách vãng lai
-            //{
-            //    var khachHangCu = db.KhachHangs.SingleOrDefault(k => k.Email == email);
-            //    if (khachHangCu == null)
-            //    {
-            //        khachHang = new KhachHang
-            //        {
-            //            MaKh = email,
-            //            Email = email,
-            //            HoTen = hoten,
-            //            DienThoai = dienthoai,
-            //            DiaChi = diachi,
-            //            MatKhau = Guid.NewGuid().ToString(),
-            //            VaiTro = 2,
-            //            HieuLuc = true,
-            //            RandomKey = Guid.NewGuid().ToString()
-            //        };
-            //        db.Add(khachHang);
-            //        await db.SaveChangesAsync();
-            //    }
-            //    else
-            //    {
-            //        khachHang = khachHangCu;
-            //        khachHang.HoTen = hoten; khachHang.DiaChi = diachi; khachHang.DienThoai = dienthoai;
-            //        db.Update(khachHang);
-            //        await db.SaveChangesAsync();
-            //    }
-            //}
             // A. Xử lý khách hàng (Chỉ dành cho người đã đăng nhập)
             // 1. Lấy mã khách hàng từ Claim (giống hệt code cũ của ní)
             var maKH = User.FindFirst("CustomerId")?.Value;
@@ -493,7 +450,11 @@ namespace NAWatchMVC.Controllers
                         return RedirectToAction("Index");
                     }
                 }
-                //1.Tạo Hóa Đơn(Lưu vào DB trước để lấy MaHD)
+                // 1. LẤY THÔNG TIN VOUCHER VÀ PHÍ SHIP
+                double phiShip = 50000;
+                var voucherCode = HttpContext.Session.GetString("VoucherCode");
+                var discount = HttpContext.Session.GetDouble("VoucherDiscount") ?? 0;
+                //2.Tạo Hóa Đơn(Lưu vào DB trước để lấy MaHD)
                 var hoadon = new HoaDon
                 {
                     MaKh = khachHang.MaKh,
@@ -506,16 +467,19 @@ namespace NAWatchMVC.Controllers
                     GhiChu = ghichu,
                     CachThanhToan = CachThanhToan, // SỬA: Lấy từ tham số truyền vào (VNPAY/COD)
                     CachVanChuyen = "GHN",
-                    PhiVanChuyen = 0,
-                    DaThanhToan = false     // SỬA: Mặc định là false, VNPay thành công mới chuyển true
+                    PhiVanChuyen = phiShip, // Lưu 50k vào đây
+                    DaThanhToan = false,    // SỬA: Mặc định là false, VNPay thành công mới chuyển true
+                    MaVoucher = voucherCode, // Lưu mã vào DB
+                    TienGiam = discount       // Lưu số tiền được giảm
                 };
 
                 db.Add(hoadon);
                 await db.SaveChangesAsync();// lưu để có mã hd
-                // 2. Lưu chi tiết và tính tổng tiền thực tế
+                // 3. Lưu chi tiết và tính tổng tiền thực tế
                 double tongTienThucTe = 0;
+                //double subtotalItems = 0;
                 // Lưu Chi tiết & Trừ kho Trù kho khi vừa tạo xong hóa đơn
-                    foreach (var item in myCart)
+                foreach (var item in myCart)
                     {
                         // Lấy thông tin mới nhất từ DB để đảm bảo giá và tồn kho chính xác lúc nhấn nút
                         var hh = db.HangHoas.Find(item.MaHH);
@@ -558,10 +522,31 @@ namespace NAWatchMVC.Controllers
                         db.Entry(hh).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                     }
                 // Bước C: Cập nhật lại Tổng tiền cho Hóa đơn
-                hoadon.TongTien = tongTienThucTe;
+                if (tongTienThucTe >= 1000000) // Đơn trên 1 củ thì Freeship
+                {
+                    phiShip = 0;
+                }
+                // Tổng = (Tiền hàng) + (Ship) - (Voucher)
+                hoadon.TongTien = tongTienThucTe + phiShip - discount;
                 db.Update(hoadon);
-                await db.SaveChangesAsync(); // Lưu lần cuối
-                // D. Xóa giỏ hàng (Đã đặt xong thì xóa giỏ)
+                // C.2 GHI LẠI LỊCH SỬ DÙNG VOUCHER (QUAN TRỌNG)
+                if (!string.IsNullOrEmpty(voucherCode))
+                {
+                    var lichSu = new ChiTietSuDungVoucher
+                    {
+                        MaKh = khachHang.MaKh,
+                        MaVoucher = voucherCode,
+                        MaHd = hoadon.MaHd,
+                        NgayDung = DateTime.Now
+                    };
+                    db.ChiTietSuDungVouchers.Add(lichSu);
+
+                    // Cập nhật lượt dùng của Voucher
+                    var v = db.Vouchers.Find(voucherCode);
+                    if (v != null) v.SoLuongDaDung++;
+                }
+                await db.SaveChangesAsync(); // Lưu lần cuối cho database
+                // D. Xóa giỏ hàng (Đã đặt xong thì xóa giỏ) thêm xóa voucher
                 if (buyNowId.HasValue)
                 {
                     // Nếu là Mua ngay: CHỈ xóa cờ Mua ngay, giữ nguyên giỏ hàng trong DB/Session
@@ -586,6 +571,8 @@ namespace NAWatchMVC.Controllers
                         HttpContext.Session.Remove("MYCART");
                     }
                 }
+                HttpContext.Session.Remove("VoucherCode");
+                HttpContext.Session.Remove("VoucherDiscount");
                 // E. PHÂN LUỒNG THANH TOÁN (VNPAY vs COD)
                 if (CachThanhToan == "VNPAY")
                 {

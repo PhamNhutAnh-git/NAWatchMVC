@@ -265,7 +265,7 @@
                                                 <form asp-action="GuiDanhGia" asp-controller="HangHoa" method="post">
                                                     <input type="hidden" name="MaHh" value="@Model.MaHh" />
                                                     <div class="mb-3">
-                                                        <label class="form-label d-block fw-bold">Ní chấm mấy sao?</label>
+                                                        <label class="form-label d-block fw-bold">Bạn chấm mấy sao?</label>
                                                         <div class="rating-stars">
                                                             <input type="radio" name="Sao" value="5" id="star5" checked><label for="star5">★</label>
                                                             <input type="radio" name="Sao" value="4" id="star4"><label for="star4">★</label>
@@ -288,7 +288,7 @@
                                         <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center">
                                             <i class="fas fa-info-circle me-3 fs-3"></i>
                                             <div>
-                                                Ní cần <strong>Đăng nhập</strong> để gửi đánh giá.
+                                                Bạn cần <strong>Đăng nhập</strong> để gửi đánh giá.
                                                 <a asp-controller="KhachHang" asp-action="DangNhap" asp-route-returnUrl="@Context.Request.Path" class="fw-bold text-primary">Đăng nhập ngay ní ơi!</a>
                                             </div>
                                         </div>
@@ -320,7 +320,7 @@
                                         {
                                             <div class="text-center py-5">
                                                 <img src="/img/no-review.png" style="width: 80px; opacity: 0.5" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1150/1150247.png'" />
-                                                <p class="text-muted mt-3">Chưa có đánh giá nào. Ní hãy là người đầu tiên nhé!</p>
+                                                <p class="text-muted mt-3">Chưa có đánh giá nào. Bạn hãy là người đầu tiên nhé!</p>
                                             </div>
                                         }
                                     </div>

@@ -68,7 +68,7 @@
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Địa chỉ giao hàng mặc định</label>
                                 <p class="form-control-plaintext border-bottom text-dark">
                                     <i class="fas fa-map-marker-alt text-danger me-1"></i>
-                                    @(string.IsNullOrEmpty(Model.DiaChi) ? "Ní vui lòng cập nhật địa chỉ để NAWatch giao hàng tận nơi nhé!" : Model.DiaChi)
+                                    @(string.IsNullOrEmpty(Model.DiaChi) ? "Bạn vui lòng cập nhật địa chỉ để NAWatch giao hàng tận nơi nhé!" : Model.DiaChi)
                                 </p>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                                 <a asp-action="DoiMatKhau" class="btn btn-outline-warning rounded-pill px-4 fw-bold">
                                     <i class="fas fa-lock me-2"></i>Đổi mật khẩu
                                 </a>
-                                <a asp-action="DangXuat" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm" onclick="return confirm('Ní chắc chắn muốn đăng xuất không?')">
+                                <a asp-action="DangXuat" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm" onclick="return confirm('Bạn chắc chắn muốn đăng xuất không?')">
                                     <i class="fas fa-sign-out-alt me-2"></i>Thoát
                                 </a>
                             </div>

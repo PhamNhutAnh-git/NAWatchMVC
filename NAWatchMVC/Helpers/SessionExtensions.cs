@@ -13,5 +13,16 @@ namespace NAWatchMVC.Helpers
             var value = session.GetString(key);
             return value == null ? default : JsonConvert.DeserializeObject<T>(value);
         }
+        public static void SetDouble(this ISession session, string key, double value)
+        {
+            session.SetString(key, value.ToString());
+        }
+
+        public static double? GetDouble(this ISession session, string key)
+        {
+            var data = session.GetString(key);
+            if (double.TryParse(data, out double result)) return result;
+            return null;
+        }
     }
 }

@@ -1,0 +1,195 @@
+﻿@model IEnumerable<NAWatchMVC.Data.Voucher>
+
+@{
+    ViewData["Title"] = "Danh sách Voucher";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid p-4">
+    @* --- Tiêu đề & Nút thêm mới --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-0">Quản Lý Mã Giảm Giá</h2>
+            <p class="text-muted small mb-0">Thiết lập và theo dõi các chương trình khuyến mãi của cửa hàng.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus-circle me-2"></i>Tạo Voucher Mới
+        </a>
+    </div>
+
+    @* --- Bảng dữ liệu --- *@
+    <div class="card shadow border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                @if (TempData["MessageError"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i> @TempData["MessageError"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (TempData["MessageSuccess"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> @TempData["MessageSuccess"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-dark">
+                        <tr>
+                            <th class="ps-4">Mã Voucher</th>
+                            <th>Phân Loại</th>
+                            <th>Mức Giảm</th>
+                            <th>Đơn Tối Thiểu</th>
+                            <th>Thời Gian Hạn Định</th>
+                            <th class="text-center">Sử Dụng</th>
+                            <th class="text-center">Trạng Thái</th>
+                            <th class="text-center">Duyệt</th>
+                            <th class="text-end pe-4">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="fw-bold text-dark">@item.MaVoucher</span>
+                                </td>
+                                <td>
+                                    @if (item.LoaiVoucher == 0)
+                                    {
+                                        <span class="badge bg-info-subtle text-info border border-info">Tiền hàng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning border border-warning">Phí ship</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.LoaiGiamGia == 1)
+                                    {
+                                        <span class="fw-bold text-danger">@item.GiaTriGiam%</span>
+                                        <small class="d-block text-muted" style="font-size: 0.7rem;">Tối đa: @item.GiamToiDa.ToString("N0")đ</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold text-danger">@item.GiaTriGiam.ToString("N0")đ</span>
+                                    }
+                                </td>
+                                <td>@item.GiaTriDonHangToiThieu.ToString("N0")đ</td>
+                                <td class="small">
+                                    <div><i class="far fa-calendar-check me-1 text-success"></i> @item.NgayBatDau.ToString("dd/MM/yyyy HH:mm")</div>
+                                    <div><i class="far fa-calendar-times me-1 text-danger"></i> @item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="fw-bold">@item.SoLuongDaDung / @(item.SoLuongToiDa == 0 ? "∞" : item.SoLuongToiDa)</div>
+                                    <div class="progress mt-1" style="height: 5px;">
+                                        @{
+                                            var percent = item.SoLuongToiDa > 0 ? (item.SoLuongDaDung * 100 / item.SoLuongToiDa) : 0;
+                                            var colorClass = percent > 80 ? "bg-danger" : "bg-success";
+                                        }
+                                        <div class="progress-bar @colorClass" style="width: @percent%"></div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai && item.NgayKetThuc >= DateTime.Now && item.NgayBatDau <= DateTime.Now)
+                                    {
+                                        <span class="badge bg-success rounded-pill px-3">Đang chạy</span>
+                                    }
+                                    else if (item.NgayBatDau > DateTime.Now)
+                                    {
+                                        <span class="badge bg-primary rounded-pill px-3">Sắp diễn ra</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary rounded-pill px-3">Kết thúc/Khóa</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-flex justify-content-center">
+                                        @* Thêm class 'chkToggleStatus' và data-id để JavaScript dễ "túm" *@
+                                        <input class="form-check-input chkToggleStatus"
+                                               type="checkbox"
+                                               style="cursor: pointer; width: 40px; height: 20px;"
+                                               data-id="@item.MaVoucher"
+                                        @(item.TrangThai ? "checked" : "")>
+                                    </div>
+                                    <small id="status-text-@item.MaVoucher" class="text-muted" style="font-size: 0.7rem;">
+                                        @(item.TrangThai ? "Đang mở" : "Đang khóa")
+                                    </small>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+                                        <a asp-action="Edit" asp-route-id="@item.MaVoucher" class="btn btn-sm btn-white text-primary border-end" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.MaVoucher" class="btn btn-sm btn-white text-info border-end" title="Chi tiết">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaVoucher" class="btn btn-sm btn-white text-danger" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Thêm CSS bổ sung để nút group đẹp hơn *@
+<style>
+    .btn-white { background: #fff; border: 1px solid #eee; }
+    .btn-white:hover { background: #f8f9fa; }
+    .table-hover tbody tr:hover { background-color: rgba(30, 136, 229, 0.02); }
+</style>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".chkToggleStatus").change(function () {
+                var input = $(this);
+                var voucherId = input.data("id");
+                var statusText = $("#status-text-" + voucherId);
+
+                // Lấy Token bảo mật từ Form (ASP.NET tự sinh ra một cái input ẩn)
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    // Kiểm tra kỹ đường dẫn: /TênArea/TênController/TênAction
+                    url: "/Admin/Vouchers/ToggleStatus",
+                    type: "POST",
+                    data: {
+                        id: voucherId,
+                        __RequestVerificationToken: token // Gửi kèm token để "thông quan"
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            if (res.newState) {
+                                statusText.text("Đang mở").addClass("text-success").removeClass("text-muted");
+                            } else {
+                                statusText.text("Đang khóa").addClass("text-muted").removeClass("text-success");
+                            }
+                            console.log("Đã lưu trạng thái mới vào DB!");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 500);
+                        } else {
+                            alert("Không lưu được trạng thái rồi bạn!");
+                            input.prop("checked", !input.prop("checked"));
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr.responseText); // Xem lỗi cụ thể ở F12 -> Console
+                        alert("Lỗi kết nối (Có thể do sai đường dẫn hoặc thiếu Token)!");
+                        input.prop("checked", !input.prop("checked"));
+                    }
+                });
+            });
+        });
+    </script>
+}

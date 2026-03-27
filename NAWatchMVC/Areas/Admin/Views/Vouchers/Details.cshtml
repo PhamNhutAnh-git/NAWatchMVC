@@ -1,0 +1,124 @@
+﻿@model NAWatchMVC.Data.Voucher
+
+@{
+    ViewData["Title"] = "Chi tiết Voucher";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid p-4">
+    @* --- Tiêu đề & Thao tác nhanh --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-0"><i class="fas fa-info-circle me-2"></i>Chi Tiết Voucher</h2>
+            <p class="text-muted small mb-0">Mã định danh: <span class="badge bg-dark">@Model.MaVoucher</span></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.MaVoucher" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="fas fa-edit me-2"></i>Chỉnh sửa mã
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        @* --- Cột trái: Thông tin cấu hình --- *@
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-cog me-2 text-primary"></i>Cấu hình & Điều kiện</h5>
+                </div>
+                <div class="card-body p-4">
+                    <table class="table table-borderless align-middle">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted" style="width: 40%;">Loại Voucher:</td>
+                                <td class="fw-bold">
+                                    <span class="badge @(Model.LoaiVoucher == 0 ? "bg-info-subtle text-info border border-info" : "bg-warning-subtle text-warning border border-warning")">
+                                        @(Model.LoaiVoucher == 0 ? "Giảm tiền hàng" : "Giảm phí vận chuyển")
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Hình thức giảm:</td>
+                                <td class="fw-bold text-dark">@(Model.LoaiGiamGia == 1 ? "Giảm theo phần trăm (%)" : "Giảm trực tiếp số tiền (đ)")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Giá trị ưu đãi:</td>
+                                <td class="fw-bold text-danger fs-5">
+                                    @(Model.LoaiGiamGia == 1 ? Model.GiaTriGiam + "%" : Model.GiaTriGiam.ToString("N0") + "đ")
+                                </td>
+                            </tr>
+                            @if (Model.LoaiGiamGia == 1)
+                            {
+                                <tr>
+                                    <td class="text-muted">Mức giảm tối đa:</td>
+                                    <td class="fw-bold">@Model.GiamToiDa.ToString("N0")đ</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td class="text-muted">Đơn tối thiểu:</td>
+                                <td class="fw-bold">@Model.GiaTriDonHangToiThieu.ToString("N0")đ</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted text-info"><i class="far fa-calendar-alt me-1"></i> Ngày bắt đầu:</td>
+                                <td class="fw-bold">@Model.NgayBatDau.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted text-danger"><i class="far fa-calendar-times me-1"></i> Ngày kết thúc:</td>
+                                <td class="fw-bold">@Model.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @* --- Cột phải: Thống kê hiệu quả --- *@
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 rounded-3 mb-4 h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-chart-line me-2 text-success"></i>Thống kê sử dụng</h5>
+                </div>
+                <div class="card-body p-4 text-center">
+                    @{
+                        var percentUsage = Model.SoLuongToiDa > 0 ? (Model.SoLuongDaDung * 100 / Model.SoLuongToiDa) : 0;
+                    }
+                    <div class="mb-4">
+                        <div class="display-4 fw-bold text-dark">@Model.SoLuongDaDung</div>
+                        <div class="text-muted">Lượt đã sử dụng</div>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 15px; border-radius: 10px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: @percentUsage%"></div>
+                    </div>
+                    <p class="small text-muted">Đã sử dụng <strong>@percentUsage%</strong> trên tổng số <strong>@Model.SoLuongToiDa</strong> lượt phát hành.</p>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-around">
+                        <div>
+                            <div class="h5 mb-0 fw-bold">@(Model.SoLuongToiDa - Model.SoLuongDaDung)</div>
+                            <small class="text-muted">Còn lại</small>
+                        </div>
+                        <div class="border-start"></div>
+                        <div>
+                            <div class="h5 mb-0 fw-bold">
+                                @if (Model.TrangThai && Model.NgayKetThuc >= DateTime.Now)
+                                {
+                                    <span class="text-success">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">Đã khóa/Hết hạn</span>
+                                }
+                            </div>
+                            <small class="text-muted">Trạng thái hiện tại</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

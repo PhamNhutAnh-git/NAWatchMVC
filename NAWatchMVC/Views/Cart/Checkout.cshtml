@@ -6,8 +6,10 @@
     // Lấy thông tin khách hàng từ ViewBag để điền sẵn vào form
     var khachHang = ViewBag.ThongTinKhachHang as NAWatchMVC.Data.KhachHang;
 
-    // Tính tổng tiền đơn hàng (Sử dụng thuộc tính ThanhTien tự tính trong VM)
-    double tongTien = Model.Sum(p => p.ThanhTien);
+    // Tính tổng tiền tongThanhToan đơn hàng (Sử dụng thuộc tính ThanhTien tự tính trong VM)
+    double subtotal = Model.Sum(p => p.ThanhTien);
+    double phiShip = (subtotal >= 1000000) ? 0 : 50000; // Phí ship cố định cho All đơn
+    double tongThanhToan = subtotal + phiShip;
 }
 
 <div class="container-fluid page-header py-5" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/Hinh/banner-watch.jpg'); background-size: cover;">
@@ -80,6 +82,55 @@
                                 {
                                     <tr>
                                         <th scope="row">
+                                            <img src="~/anhall/@item.Hinh" class="img-fluid rounded shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
+                                        </th>
+                                        <td class="small">@item.TenHH</td>
+                                        <td class="text-center">x @item.SoLuong</td>
+                                        <td class="text-end fw-bold text-dark">@item.ThanhTien.ToString("#,##0") đ</td>
+                                    </tr>
+                                }
+
+                                <tr class="border-top">
+                                    <td colspan="3" class="pt-3 text-end fw-bold">Tạm tính:</td>
+                                    <td class="pt-3 text-end"><span id="subtotal">@subtotal.ToString("#,##0")</span> đ</td>
+                                </tr>
+
+                                @* --- PHẦN VOUCHER (MỚI THÊM) --- *@
+                                <tr>
+                                    <td colspan="4" class="py-3">
+                                        <div class="input-group">
+                                            <input type="text" id="voucherCode" class="form-control border-primary" placeholder="Nhập mã giảm giá...">
+                                            <button type="button" id="btnApplyVoucher" class="btn btn-primary px-3">Áp dụng</button>
+                                        </div>
+                                        <div id="voucherMessage" class="small mt-1"></div>
+                                    </td>
+                                </tr>
+
+                                <tr class="text-danger">
+                                    <td colspan="3" class="text-end fw-bold">Giảm giá:</td>
+                                    <td class="text-end fw-bold">- <span id="discountValue">0</span> đ</td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold text-info">Phí vận chuyển:</td>
+                                    <td class="text-end text-info fw-bold">
+                                        @* 2. Thêm ID shipValue để JavaScript có thể đổi chữ thành "Miễn phí" *@
+                                        <span id="shipValue">@(phiShip == 0 ? "Miễn phí" : phiShip.ToString("#,##0") + " đ")</span>
+                                    </td>
+                                </tr>
+
+                                <tr class="bg-white border-top border-primary border-2">
+                                    <td colspan="3" class="py-3 text-end fw-bold text-uppercase fs-5">Tổng cộng:</td>
+                                    <td class="py-3 text-end fw-bold text-danger fs-4">
+                                        <span id="finalTotal">@tongThanhToan.ToString("#,##0")</span> đ
+                                    </td>
+                                </tr>
+                            </tbody>
+                            @* <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <th scope="row">
                                             <img src="~/anhall/@item.Hinh" class="img-fluid rounded shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" alt="@item.TenHH">
                                         </th>
                                         <td class="small">@item.TenHH</td>
@@ -99,7 +150,7 @@
                                     <td colspan="3" class="py-3 text-end fw-bold text-uppercase fs-5">Tổng cộng:</td>
                                     <td class="py-3 text-end fw-bold text-danger fs-5">@tongTien.ToString("#,##0") đ</td>
                                 </tr>
-                            </tbody>
+                            </tbody> *@
                         </table>
                     </div>
 
@@ -128,3 +179,95 @@
         </form>
     </div>
 </div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#btnApplyVoucher").click(function () {
+                var code = $("#voucherCode").val();
+                var subtotal = parseFloat($("#subtotal").text().replace(/,/g, ''));
+
+                if (!code) {
+                    $("#voucherMessage").html("<span class='text-warning'>Bạn chưa nhập mã mà!</span>");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/Voucher/CheckVoucher",
+                    type: "POST",
+                    data: { code: code, subtotal: subtotal },
+                    success: function (res) {
+                        if (res.success) {
+                            $("#voucherMessage").html("<span class='text-success'>" + res.message + "</span>");
+                            $("#discountValue").text(res.discount.toLocaleString());
+
+                            // 3. Lấy phí ship từ Controller trả về (đã tính logic đơn 1 triệu)
+                            var phiShipMoi = res.phiShip;
+
+                            // Cập nhật hiển thị phí ship
+                            if (phiShipMoi == 0) {
+                                $("#shipValue").text("Miễn phí");
+                            } else {
+                                $("#shipValue").text(phiShipMoi.toLocaleString() + " đ");
+                            }
+
+                            // 4. Tính toán tổng tiền dựa trên phí ship thực tế
+                            var newTotal = subtotal + phiShipMoi - res.discount;
+                            $("#finalTotal").text(newTotal.toLocaleString());
+                        } else {
+                            $("#voucherMessage").html("<span class='text-danger'>" + res.message + "</span>");
+                            $("#discountValue").text("0");
+                            // Nếu lỗi, vẫn phải tính lại tổng tiền dựa trên ship (đề phòng đơn 1 triệu)
+                            var hienTaiShip = (subtotal >= 1000000) ? 0 : 50000;
+                            $("#finalTotal").text((subtotal + hienTaiShip).toLocaleString());
+                        }
+                    },
+                    error: function () {
+                        alert("Lỗi kết nối rồi bạn ơi!");
+                    }
+                });
+            });
+        });
+    </script>
+}
+@* @section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#btnApplyVoucher").click(function () {
+                var code = $("#voucherCode").val();
+                // Lấy subtotal, xóa dấu phẩy nếu có
+                var subtotal = parseFloat($("#subtotal").text().replace(/,/g, ''));
+                var phiShip = 50000;
+
+                if (!code) {
+                    $("#voucherMessage").html("<span class='text-warning'>Bạn chưa nhập mã mà!</span>");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/Voucher/CheckVoucher",
+                    type: "POST",
+                    data: { code: code, subtotal: subtotal },
+                    success: function (res) {
+                        if (res.success) {
+                            $("#voucherMessage").html("<span class='text-success'>" + res.message + "</span>");
+
+                            // Cập nhật số tiền giảm
+                            $("#discountValue").text(res.discount.toLocaleString());
+
+                            // Tính lại tổng cuối cùng
+                            var newTotal = subtotal + phiShip - res.discount;
+                            $("#finalTotal").text(newTotal.toLocaleString());
+                        } else {
+                            $("#voucherMessage").html("<span class='text-danger'>" + res.message + "</span>");
+                            $("#discountValue").text("0");
+                            $("#finalTotal").text((subtotal + phiShip).toLocaleString());
+                        }
+                    },
+                    error: function () {
+                        alert("Lỗi kết nối rồi ní ơi!");
+                    }
+                });
+            });
+        });
+    </script>
+} *@
