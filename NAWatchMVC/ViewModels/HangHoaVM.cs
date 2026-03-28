@@ -28,6 +28,8 @@ namespace NAWatchMVC.ViewModels
         // Tên loại/Hãng để hiển thị thêm nếu cần
         public string TenLoai { get; set; }
         public int? SoLuong { get; set; }
+        // tim
+        public bool IsLiked { get; set; }
     }
     public class ChiTietHangHoaVM
     {
@@ -78,5 +80,7 @@ namespace NAWatchMVC.ViewModels
         // Thêm dòng này để chứa danh sách sản phẩm cùng loại
         public List<HangHoaVM> SanPhamTuongTu { get; set; }
         public List<DanhGium> DanhGias { get; set; }
+        //
+        public bool IsLiked { get; set; }
     }
 }

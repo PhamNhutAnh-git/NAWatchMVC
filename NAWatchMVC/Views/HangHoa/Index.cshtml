@@ -125,3 +125,30 @@ else
             box-shadow: none;
         }
 </style>
+@section scripts{
+    <script>
+        function addWishlist(id) {
+            $.ajax({
+                url: '/KhachHang/ToggleWishlist', // Nhớ đổi tên URL cho khớp hàm mới
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        var icon = $("#heart-icon-" + id);
+                        if (res.action === "added") {
+                            icon.removeClass("far").addClass("fas animate__animated animate__heartBeat");
+                        } else {
+                            icon.removeClass("fas").addClass("far");
+                            // Nếu ní đang đứng ở trang Wishlist, thì ẩn luôn cái card sản phẩm
+                            $("#item-" + id).fadeOut(300);
+                        }
+                        // Dùng Toastr hoặc thông báo nhỏ ở góc sẽ đẹp hơn alert nha ní
+                        console.log(res.message);
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        }
+    </script>
+}

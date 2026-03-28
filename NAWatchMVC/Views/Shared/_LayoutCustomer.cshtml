@@ -191,6 +191,11 @@
                             <a asp-controller="HangHoa" asp-action="Index"
                                class="nav-link @(controller == "HangHoa" && action == "Index" ? "active" : "")">Sản Phẩm</a>
                             </li>
+                            <li class="nav-item">
+                            <a asp-controller="KhachHang" asp-action="Wishlist"
+                               class="nav-link @(controller == "KhachHang" && action == "Wishlist" ? "active" : "")">
+                               <i class="fas fa-heart text-danger me-1"></i> Yêu Thích</a>
+                            </li>
                             @* Chi Tiết: CHỈ active khi ở HangHoa/Detail (Trang xem món đồ) *@
                             <li class="nav-item">
                                 <a class="nav-link @(action == "Detail" ? "active-detail" : "")"
@@ -204,12 +209,13 @@
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Tiện ích</a>
                                 <div class="dropdown-menu m-0 border-0 rounded-0 shadow-sm">
                                     <a href="#" class="dropdown-item">Giỏ hàng</a>
-                                    <a href="#" class="dropdown-item">Thanh toán</a>
+                                    <a asp-controller="KhachHang" asp-action="SanPhamDaMua" class="dropdown-item">
+                                        <i class="fas fa-history me-2 text-primary"></i> Sản phẩm đã mua
+                                    </a>
                                     <a href="#" class="dropdown-item">Đánh giá khách hàng</a>
                                     <a href="#" class="dropdown-item">Câu hỏi thường gặp</a>
                                 </div>
                             </div>
-                            <a href="#" class="nav-item nav-link">Liên Hệ</a>
                         </div>
                         @* tìm kim *@
                         <div class="d-flex m-3 me-0">
@@ -230,14 +236,20 @@
                                 <div class="dropdown-menu m-0 border-0 rounded-0 shadow-sm" style="right: 0; left: auto;">
                                     @if (User.Identity.IsAuthenticated)
                                     {
-                                        @* Nếu đã đăng nhập thì hiện thông tin cá nhân *@
-                                        <a asp-controller="KhachHang" asp-action="Profile" class="dropdown-item">Hồ sơ cá nhân</a>
-                                        <a asp-controller="KhachHang" asp-action="LichSuDonHang" class="dropdown-item">Lịch sử đơn hàng</a>
-
+           
                                         @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
                                         {
                                             <div class="dropdown-divider"></div>
                                             <a href="/Admin/HomeAdmin" class="dropdown-item admin-link">Trang quản trị</a>
+                                            @* Nếu đã đăng nhập thì hiện thông tin cá nhân *@
+                                            <a asp-controller="KhachHang" asp-action="ProfileNhanVien" class="dropdown-item">Hồ sơ cá nhân</a>
+                                            <a asp-controller="KhachHang" asp-action="AdminNotification" class="dropdown-item">Lịch sử đơn hàng</a>
+                                        }
+                                        else
+                                        {
+                                            @* Nếu đã đăng nhập thì hiện thông tin cá nhân *@
+                                            <a asp-controller="KhachHang" asp-action="Profile" class="dropdown-item">Hồ sơ cá nhân</a>
+                                            <a asp-controller="KhachHang" asp-action="LichSuDonHang" class="dropdown-item">Lịch sử đơn hàng</a>
                                         }
 
                                         <div class="dropdown-divider"></div>

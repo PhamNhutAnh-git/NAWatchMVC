@@ -287,32 +287,55 @@ namespace NAWatchMVC.Controllers
         // 6. HIỂN THỊ CHECKOUT (GET)
         [Authorize]
         [HttpGet]
-        public IActionResult Checkout()
+        public IActionResult Checkout(int[] ids)
         {
             // 1. CHẶN ADMIN MUA HÀNG (Giữ nguyên logic của ní)
             if (User.IsInRole("Admin") || User.IsInRole("Staff"))
             {
                 return View("AdminCantShop");
             }
-
+            string maKH = "";
             // 2. LẤY THÔNG TIN KHÁCH HÀNG (Nếu đã đăng nhập)
             if (User.Identity.IsAuthenticated)
             {
-                var maKH = User.FindFirst("CustomerId")?.Value;
+                maKH = User.FindFirst("CustomerId")?.Value;
                 var khachHang = db.KhachHangs.SingleOrDefault(kh => kh.MaKh == maKH);
                 if (khachHang != null) ViewBag.ThongTinKhachHang = khachHang;
             }
 
             // 3. KHỞI TẠO DANH SÁCH KẾT QUẢ
             List<CartItemVM> result = new List<CartItemVM>();
-
-            // --- BƯỚC QUAN TRỌNG: KIỂM TRA MUA NGAY TRƯỚC ---
-            var buyNowId = HttpContext.Session.GetInt32("BuyNow_Id");
-            var buyNowQty = HttpContext.Session.GetInt32("BuyNow_Quantity") ?? 1;
-
-            if (buyNowId.HasValue)
+            // fix thêm id chọn hàng
+            // TRƯỜNG HỢP A: Có truyền danh sách ID (Chọn từ checkbox)
+            if (ids != null && ids.Length > 0)
             {
-                // TRƯỜNG HỢP 1: MUA NGAY -> Chỉ lấy đúng 1 món này
+                if (User.Identity.IsAuthenticated)
+                {
+                    // Lấy từ DB nhưng chỉ lấy những món có trong ids
+                    result = db.ChiTietGioHangs
+                        .Include(ct => ct.MaHhNavigation)
+                    .Where(ct => ct.MaGhNavigation.MaKh == maKH && ids.Contains(ct.MaHh))
+                    .Select(item => new CartItemVM
+                    {
+                            MaHH = item.MaHh,
+                            TenHH = item.MaHhNavigation.TenHh,
+                            Hinh = item.MaHhNavigation.Hinh ?? "",
+                            DonGia = item.MaHhNavigation.DonGia ?? 0,
+                            SoLuong = item.SoLuong ?? 1,
+                            GiamGia = item.MaHhNavigation.GiamGia ?? 0
+                        }).ToList();
+                }
+                else
+                {
+                    // Khách vãng lai: Lọc trong Session Cart
+                    result = Cart.Where(x => ids.Contains(x.MaHH)).ToList();
+                }
+            }
+            // TRƯỜNG HỢP B: Mua ngay (BuyNow) - Ưu tiên sau ids
+            else if (HttpContext.Session.GetInt32("BuyNow_Id").HasValue)
+            {
+                var buyNowId = HttpContext.Session.GetInt32("BuyNow_Id");
+                var buyNowQty = HttpContext.Session.GetInt32("BuyNow_Quantity") ?? 1;
                 var hangHoa = db.HangHoas.Find(buyNowId.Value);
                 if (hangHoa != null)
                 {
@@ -326,14 +349,14 @@ namespace NAWatchMVC.Controllers
                         SoLuong = buyNowQty
                     });
                 }
-                // Lưu ý: Đừng xóa Session vội ở đây để đề phòng khách F5 trang
             }
+            // end
             else
             {
-                // TRƯỜNG HỢP 2: THANH TOÁN CẢ GIỎ HÀNG (Logic cũ của ní)
+                // TRƯỜNG HỢP C: THANH TOÁN CẢ GIỎ HÀNG (Logic cũ của ní)
                 if (User.Identity.IsAuthenticated)
                 {
-                    var maKH = User.FindFirst("CustomerId")?.Value;
+                    maKH = User.FindFirst("CustomerId")?.Value;
                     var gioHang = db.GioHangs.Include(gh => gh.ChiTietGioHangs)
                                              .ThenInclude(ct => ct.MaHhNavigation)
                                              .FirstOrDefault(gh => gh.MaKh == maKH);
@@ -375,7 +398,7 @@ namespace NAWatchMVC.Controllers
         // 7. XỬ LÝ CHECKOUT (POST)
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Checkout(string email, string hoten, string dienthoai, string diachi, string ghichu, string CachThanhToan)
+        public async Task<IActionResult> Checkout(string email, string hoten, string dienthoai, string diachi, string ghichu, string CachThanhToan, int[] selectedIds)
         {
             KhachHang khachHang = null;
             // A. Xử lý khách hàng (Chỉ dành cho người đã đăng nhập)
@@ -423,16 +446,32 @@ namespace NAWatchMVC.Controllers
             }
             else
             {
-                // TRƯỜNG HỢP 2: THANH TOÁN CẢ GIỎ (Giữ nguyên logic cũ của ní)
+                // TRƯỜNG HỢP 2: THANH TOÁN CÓ CHỌN LỌC
                 if (User.Identity.IsAuthenticated)
                 {
-                    var gioHang = db.GioHangs.Include(gh => gh.ChiTietGioHangs).FirstOrDefault(gh => gh.MaKh == khachHang.MaKh);
+                    var gioHang = db.GioHangs
+                        .Include(gh => gh.ChiTietGioHangs)
+                        .ThenInclude(ct => ct.MaHhNavigation) // Include luôn để lấy giá/hình cho lẹ
+                        .FirstOrDefault(gh => gh.MaKh == khachHang.MaKh);
+
                     if (gioHang != null)
-                        myCart = gioHang.ChiTietGioHangs.Select(ct => new CartItemVM { MaHH = ct.MaHh, DonGia = db.HangHoas.Find(ct.MaHh).DonGia ?? 0, SoLuong = ct.SoLuong ?? 1 }).ToList();
+                    {
+                        // CHỈ lấy những món nằm trong danh sách selectedIds
+                        myCart = gioHang.ChiTietGioHangs
+                            .Where(ct => selectedIds.Contains(ct.MaHh))
+                            .Select(ct => new CartItemVM
+                            {
+                                MaHH = ct.MaHh,
+                                DonGia = ct.MaHhNavigation.DonGia ?? 0,
+                                SoLuong = ct.SoLuong ?? 1,
+                                GiamGia = (int)(ct.MaHhNavigation.GiamGia ?? 0)
+                            }).ToList();
+                    }
                 }
                 else
                 {
-                    myCart = Cart;
+                    // Khách vãng lai (Session): Cũng chỉ lọc những món được chọn
+                    myCart = Cart.Where(x => selectedIds.Contains(x.MaHH)).ToList();
                 }
             }
 
@@ -556,19 +595,42 @@ namespace NAWatchMVC.Controllers
                 else
                 {
                     // Nếu là thanh toán cả giỏ: Xóa sạch sành sanh
+                    //if (User.Identity.IsAuthenticated)
+                    //{
+                    //    var gioHang = db.GioHangs.FirstOrDefault(gh => gh.MaKh == khachHang.MaKh);
+                    //    if (gioHang != null)
+                    //    {
+                    //        var chiTiets = db.ChiTietGioHangs.Where(ct => ct.MaGh == gioHang.MaGh);
+                    //        db.ChiTietGioHangs.RemoveRange(chiTiets);
+                    //        await db.SaveChangesAsync();
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    HttpContext.Session.Remove("MYCART");
+                    //}
+                    // Nếu là thanh toán có chọn lọc: CHỈ XÓA NHỮNG MÓN ĐÃ MUA
                     if (User.Identity.IsAuthenticated)
                     {
                         var gioHang = db.GioHangs.FirstOrDefault(gh => gh.MaKh == khachHang.MaKh);
                         if (gioHang != null)
                         {
-                            var chiTiets = db.ChiTietGioHangs.Where(ct => ct.MaGh == gioHang.MaGh);
-                            db.ChiTietGioHangs.RemoveRange(chiTiets);
+                            // Tìm đúng những dòng ChiTietGioHang ứng với selectedIds để xóa
+                            var itemsToRemove = db.ChiTietGioHangs
+                                .Where(ct => ct.MaGh == gioHang.MaGh && selectedIds.Contains(ct.MaHh));
+
+                            db.ChiTietGioHangs.RemoveRange(itemsToRemove);
                             await db.SaveChangesAsync();
                         }
                     }
                     else
                     {
-                        HttpContext.Session.Remove("MYCART");
+                        // Khách vãng lai: Loại bỏ các món đã mua khỏi Session MYCART
+                        var currentCart = Cart;
+                        currentCart.RemoveAll(x => selectedIds.Contains(x.MaHH));
+                        // Cập nhật lại Session (Ní dùng cái key mà ní đặt lúc đầu, thường là "MYCART")
+                        // Nếu ní có dùng Helper Set/Get JSON thì gọi nó ra nhé
+                        HttpContext.Session.Set("MYCART", currentCart);
                     }
                 }
                 HttpContext.Session.Remove("VoucherCode");

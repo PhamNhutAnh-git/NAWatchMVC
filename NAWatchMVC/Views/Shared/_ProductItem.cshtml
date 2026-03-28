@@ -77,6 +77,20 @@
                 <span class="text-muted ms-1">@Model.DiemDanhGia • Đã bán @Model.SoLuongBan</span>
             </div>
 
+            @{
+                // Lấy danh sách ID đã thích từ ViewBag
+                var likedIds = ViewBag.LikedProductIds as List<int> ?? new List<int>();
+                // Check xem sản phẩm hiện tại có nằm trong danh sách đó không
+                bool isLiked = likedIds.Contains(Model.MaHh);
+            }
+            @* Dùng @Model.MaHh để tạo ID duy nhất cho từng cái tim *@
+            <button class="btn btn-sm btn-light rounded-circle shadow-s m position-absolute"
+                    style="top: 10px; right: 10px; z-index: 10; width: 35px; height: 35px;"
+                    onclick="addWishlist(@Model.MaHh)">
+                @* Nếu đã thích thì dùng class 'fas' (đặc), chưa thích dùng 'far' (rỗng) *@
+                <i id="heart-icon-@Model.MaHh" class="@(isLiked ? "fas" : "far") fa-heart text-danger"></i>
+            </button>
+
             @* --- Link so sánh kiểu nhỏ, có icon chuẩn TGDĐ --- *@
             <div class="text-center mt-2">
                 <a href="javascript:void(0);"

@@ -26,6 +26,24 @@ namespace NAWatchMVC.Controllers
             // 1. Khởi tạo truy vấn
             var hangHoas = db.HangHoas.AsQueryable();
 
+            // --- ĐOẠN CODE TÍCH HỢP WISHLIST ---
+            // 1. Lấy MaKh từ Claim (Đảm bảo đồng bộ với hệ thống Identity ní đang dùng)
+            var maKh = User.Claims.FirstOrDefault(c => c.Type == "CustomerId")?.Value;
+
+            // 2. Nếu khách đã đăng nhập, đi lấy danh sách mã sản phẩm họ đã thích
+            if (!string.IsNullOrEmpty(maKh))
+            {
+                ViewBag.LikedProductIds = await db.YeuThiches
+                    .Where(y => y.MaKh == maKh)
+                    .Select(y => y.MaHh)
+                    .ToListAsync();
+            }
+            else
+            {
+                ViewBag.LikedProductIds = new List<int>(); // Nếu chưa đăng nhập thì gửi list rỗng
+            }
+            // ----------------------------------
+
             // 2. Các bộ lọc (Nhựt Anh giữ nguyên các đoạn if lọc loai, ncc, gia...)
             if (loai.HasValue) hangHoas = hangHoas.Where(p => p.MaLoai == loai.Value);
             if (!string.IsNullOrEmpty(ncc)) hangHoas = hangHoas.Where(p => p.MaNcc == ncc);
@@ -105,7 +123,9 @@ namespace NAWatchMVC.Controllers
                 DoRongDay = p.DoRongDay ?? "18 mm", // Giả sử cột là DoMongDay
                 ChatLieuKinh = p.ChatLieuKinh ?? " kính cường lực", // Có thể lấy từ p.ChatLieu nếu có cột
 
-                NhanUuDai = (p.GiamGia ?? 0) > 10 ? "Giảm sốc" : "Trả chậm 0%"
+                NhanUuDai = (p.GiamGia ?? 0) > 10 ? "Giảm sốc" : "Trả chậm 0%",
+                // tim
+                //IsLiked = likedIds.Contains(p.MaHh)
             });
             // --- BẮT ĐẦU PHÂN TRANG TẠI ĐÂY ---
 
@@ -128,9 +148,7 @@ namespace NAWatchMVC.Controllers
             var pagedData = mappingResult
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize);
-            //return View(await mappingResult.ToListAsync());
             // 3. CHỈ CÓ 1 LỆNH RETURN DUY NHẤT VỚI BIẾN pagedData
-            //return View(await pagedData.ToListAsync());
             return View(await pagedData.ToListAsync());
         }
 
@@ -338,5 +356,7 @@ namespace NAWatchMVC.Controllers
 
             return View(model); // Trả về trang Views/HangHoa/Compare.cshtml
         }
+
+        
     }
 }

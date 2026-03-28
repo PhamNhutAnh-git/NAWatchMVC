@@ -10,21 +10,25 @@ using Microsoft.AspNetCore.Identity;
 using NAWatchMVC.Helpers;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Hosting;
-
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 namespace NAWatchMVC.Controllers
 {
     public class KhachHangController : Controller
     {
+        
         private readonly NawatchMvcContext db; // Đã đổi tên Context
         private readonly IPasswordHasher<KhachHang> _passwordHasher;
         private readonly MyEmailSender _emailSender;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public KhachHangController(IWebHostEnvironment webHostEnvironment,NawatchMvcContext context, IPasswordHasher<KhachHang> passwordHasher, MyEmailSender emailSender)
+        public KhachHangController(IWebHostEnvironment webHostEnvironment,NawatchMvcContext context,
+            IPasswordHasher<KhachHang> passwordHasher, MyEmailSender emailSender)
         {
             _webHostEnvironment = webHostEnvironment;
             db = context;
             _passwordHasher = passwordHasher;
             _emailSender = emailSender;
+            //_context = context; // Gán context vào biến _context
         }
 
         #region Đăng Ký
@@ -192,6 +196,8 @@ namespace NAWatchMVC.Controllers
                             };
 
                             await SignInUser(claims, model.RememberMe);
+                            // Lưu MaKh vào Session để các hàm khác (như AddToWishlist) có thể lấy ra xài
+                            HttpContext.Session.SetString("MaKh", khachHang.MaKh);
                             // --- ĐOẠN CODE MỚI XỬ LÝ GHI NHỚ ---
                             var authProperties = new AuthenticationProperties
                             {
@@ -570,7 +576,86 @@ namespace NAWatchMVC.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult AdminNotification()
+        {
+            return View();
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Wishlist()
+        {
+            // 1. Chặn Admin/Staff
+            if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+            {
+                return View("AdminNotification");
+            }
+            // Lấy từ Claim cho chắc ăn nè ní
+            var maKh = User.Claims.FirstOrDefault(c => c.Type == "CustomerId")?.Value;
 
+            if (string.IsNullOrEmpty(maKh)) return RedirectToAction("DangNhap");
+
+            var list = await db.YeuThiches
+                .Include(y => y.MaHhNavigation)
+                .Where(y => y.MaKh == maKh)
+                .ToListAsync();
+
+            return View(list);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ToggleWishlist(int id)
+        {
+            // 1. Lấy MaKh từ Claim (Dùng cái này đồng bộ với Identity ní đang xài)
+            var maKh = User.Claims.FirstOrDefault(c => c.Type == "CustomerId")?.Value;
+
+            if (string.IsNullOrEmpty(maKh))
+                return Json(new { success = false, message = "Ní phải đăng nhập mới thả tim được chứ!" });
+
+            // 2. Kiểm tra xem món này đã có trong danh sách chưa
+            var item = await db.YeuThiches.FirstOrDefaultAsync(y => y.MaKh == maKh && y.MaHh == id);
+
+            if (item != null)
+            {
+                // Đã có -> XÓA (Hủy yêu thích)
+                db.YeuThiches.Remove(item);
+                await db.SaveChangesAsync();
+                return Json(new { success = true, action = "removed", message = "Đã bỏ yêu thích món này!" });
+            }
+            else
+            {
+                // Chưa có -> THÊM
+                var yeuThich = new YeuThich
+                {
+                    MaKh = maKh,
+                    MaHh = id,
+                    NgayChon = DateTime.Now
+                };
+                db.YeuThiches.Add(yeuThich);
+                await db.SaveChangesAsync();
+                return Json(new { success = true, action = "added", message = "Đã thêm vào yêu thích của ní!" });
+            }
+        }
+
+        [Authorize]
+        public IActionResult SanPhamDaMua()
+        {
+            var maKH = User.FindFirst("CustomerId")?.Value;
+
+            // 1. Lấy danh sách ID sản phẩm từ các đơn hàng ĐÃ GIAO THÀNH CÔNG (MaTrangThai = 3)
+            var idsDaMua = db.ChiTietHds
+                .Include(ct => ct.MaHdNavigation)
+                .Where(ct => ct.MaHdNavigation.MaKh == maKH && ct.MaHdNavigation.MaTrangThai == 3)
+                .Select(ct => ct.MaHh)
+                .Distinct()
+                .ToList();
+
+            // 2. Lấy thông tin chi tiết các sản phẩm đó để hiện lên Card
+            var dsSanPham = db.HangHoas
+                .Where(hh => idsDaMua.Contains(hh.MaHh))
+                .ToList();
+
+            return View(dsSanPham);
+        }
 
     }
 }

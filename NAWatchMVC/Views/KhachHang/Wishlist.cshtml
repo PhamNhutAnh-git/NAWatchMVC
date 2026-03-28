@@ -1,0 +1,119 @@
+﻿@model IEnumerable<NAWatchMVC.Data.YeuThich>
+
+@* Tăng padding-top lên 100px để né cái Navbar ra nha ní *@
+<div class="container mb-10" style="padding-top: 180px;">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="fw-bold mb-4 text-uppercase" style="border-left: 5px solid #ff0000; padding-left: 15px;">
+                <i class="fas fa-heart text-danger"></i> Danh sách bạn đang "tăm tia"
+            </h3>
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info text-center p-5 shadow-sm">
+                    <p class="mb-3">Ní chưa thả tim cái đồng hồ nào hết trơn!</p>
+                    <a href="/" class="btn btn-primary px-4 py-2 rounded-pill">Đi lựa đồng hồ ngay ní ơi</a>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-md-4 g-4">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col" id="item-@item.MaHh">
+                            <div class="card h-100 shadow-sm border-0 position-relative card-hover">
+                                @* Nút xóa nhanh *@
+                                <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm text-danger"
+                                        onclick="removeFromWishlist(@item.MaHh)" title="Bỏ thích" style="z-index: 10;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+
+                                @* 2. Hình ảnh sản phẩm (Đi qua Navigation Property) *@
+                                <a asp-controller="HangHoa" asp-action="Detail" asp-route-id="@item.MaHh" class="text-decoration-none">
+                                    <div class="p-4 text-center product-img-container" style="height: 220px;">
+                                        @* Nhớ dùng item.MaHhNavigation.Hinh mới đúng nha ní *@
+                                        <img src="~/anhall/@item.MaHhNavigation.Hinh"
+                                             class="img-fluid transition-img"
+                                             alt="@item.MaHhNavigation.TenHh"
+                                             style="max-height: 100%; object-fit: contain;">
+                                    </div>
+                                </a>
+
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h6 class="card-title fw-bold text-truncate">@item.MaHhNavigation.TenHh</h6>
+                                    <p class="text-danger fw-bold mb-3">@item.MaHhNavigation.DonGia?.ToString("N0") VNĐ</p>
+
+                                    <div class="mt-auto pt-2">
+                                        <div class="d-grid gap-2">
+                                            @* Nút 1: Xem chi tiết - Đã đồng bộ w-100 và py-2 *@
+                                            <a asp-controller="HangHoa" asp-action="Detail" asp-route-id="@item.MaHh"
+                                               class="btn btn-dark w-100 rounded-pill py-2 shadow-sm">
+                                                <i class="fas fa-eye me-1"></i> Xem chi tiết
+                                            </a>
+                                            @* Nút thêm vào giỏ hàng - Ní kiểm tra lại tên Controller/Action giỏ hàng nhé *@
+                                                @if (item.MaHhNavigation.SoLuong > 0)
+                                                {
+                                                    @* Dùng class 'add-to-cart-js' và 'data-id' để JS bắt được sự kiện *@
+                                                    <a class="btn btn-primary w-100 rounded-pill py-2  shadow-sm add-to-cart-js"
+                                                       data-id="@item.MaHh"
+                                                       href="javascript:void(0);">
+                                                        <i class="fa fa-shopping-bag me-2"></i> THÊM VÀO GIỎ
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-secondary w-100 rounded-pill py-2 btn-sm-buy shadow-sm" disabled>
+                                                        <i class="fa fa-times-circle me-2"></i> HẾT HÀNG
+                                                    </button>
+                                                }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 pb-3">
+                                    <small class="text-muted italic" style="font-size: 0.7rem;">
+                                        Đã thích lúc: @(item.NgayChon?.ToString("dd/MM/yyyy"))
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-hover:hover {
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
+<script>
+    function removeFromWishlist(id) {
+        if (confirm("Ní có chắc muốn bỏ thích món này không?")) {
+            $.ajax({
+                url: '/KhachHang/ToggleWishlist',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        // Tìm đúng cái ID item-MaHh để xóa
+                        $("#item-" + id).fadeOut(500, function () {
+                            $(this).remove();
+
+                            // Nếu xóa xong mà hết sạch hàng thì hiện thông báo trống
+                            if ($('.col[id^="item-"]').length == 0) {
+                                location.reload(); // Hoặc hiện thông báo empty
+                            }
+                        });
+
+                        // Thông báo cho xịn xò
+                        alert(res.message);
+                    }
+                }
+            });
+        }
+    }
+</script>

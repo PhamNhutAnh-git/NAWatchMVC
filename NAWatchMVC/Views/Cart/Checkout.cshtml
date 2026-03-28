@@ -82,6 +82,7 @@
                                 {
                                     <tr>
                                         <th scope="row">
+                                            <input type="hidden" name="selectedIds" value="@item.MaHH" />
                                             <img src="~/anhall/@item.Hinh" class="img-fluid rounded shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
                                         </th>
                                         <td class="small">@item.TenHH</td>
@@ -229,45 +230,3 @@
         });
     </script>
 }
-@* @section Scripts {
-    <script>
-        $(document).ready(function () {
-            $("#btnApplyVoucher").click(function () {
-                var code = $("#voucherCode").val();
-                // Lấy subtotal, xóa dấu phẩy nếu có
-                var subtotal = parseFloat($("#subtotal").text().replace(/,/g, ''));
-                var phiShip = 50000;
-
-                if (!code) {
-                    $("#voucherMessage").html("<span class='text-warning'>Bạn chưa nhập mã mà!</span>");
-                    return;
-                }
-
-                $.ajax({
-                    url: "/Voucher/CheckVoucher",
-                    type: "POST",
-                    data: { code: code, subtotal: subtotal },
-                    success: function (res) {
-                        if (res.success) {
-                            $("#voucherMessage").html("<span class='text-success'>" + res.message + "</span>");
-
-                            // Cập nhật số tiền giảm
-                            $("#discountValue").text(res.discount.toLocaleString());
-
-                            // Tính lại tổng cuối cùng
-                            var newTotal = subtotal + phiShip - res.discount;
-                            $("#finalTotal").text(newTotal.toLocaleString());
-                        } else {
-                            $("#voucherMessage").html("<span class='text-danger'>" + res.message + "</span>");
-                            $("#discountValue").text("0");
-                            $("#finalTotal").text((subtotal + phiShip).toLocaleString());
-                        }
-                    },
-                    error: function () {
-                        alert("Lỗi kết nối rồi ní ơi!");
-                    }
-                });
-            });
-        });
-    </script>
-} *@
