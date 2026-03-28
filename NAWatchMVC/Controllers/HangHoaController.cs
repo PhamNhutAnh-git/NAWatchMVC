@@ -6,16 +6,19 @@ using System.Linq;
 using NAWatchMVC.Helpers; // Thay 'NAWatchMVC' bằng tên Project của bạn nếu khác
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.AspNetCore.Authorization;
-
+using NAWatchMVC.Services.Implementations;
+using NAWatchMVC.Services.Interfaces;
+using NAWatchMVC.Services.Interfaces;
 namespace NAWatchMVC.Controllers
 {
     public class HangHoaController : Controller
     {
         private readonly NawatchMvcContext db;
-
-        public HangHoaController(NawatchMvcContext context)
+        private readonly IInteractionService _interactionService; // Thêm dòng này
+        public HangHoaController(NawatchMvcContext context, IInteractionService interactionService)
         {
             db = context;
+            _interactionService = interactionService; // Gán vào đây
         }
 
         public async Task<IActionResult> Index(int? page, string mucGia, string query,int? loai, string ncc, double? giaMin, double? giaMax, string loaiMay, string day, string sort)
@@ -165,11 +168,19 @@ namespace NAWatchMVC.Controllers
             {
                 return RedirectToAction("Index");
             }
-            // Tìm sản phẩm và tăng lượt xem
+            //A.Tìm sản phẩm và tăng lượt xem
             hangHoa.SoLanXem++;
             db.Update(hangHoa);
             await db.SaveChangesAsync();
-
+            // B. === CHÈN LOGIC GỢI Ý MUA SẮM Ở ĐÂY ===
+            var maKh = User.Claims.FirstOrDefault(c => c.Type == "CustomerId")?.Value;
+            if (!string.IsNullOrEmpty(maKh))
+            {
+                // Ghi lại tương tác vào bảng UserInteraction (Type 1 = Xem)
+                // Dùng await vì hàm Record là Task
+                await _interactionService.Record(maKh, id, 1);
+            }
+            // =========================================
             // sử lý sp tương tự
             // 2. Lấy danh sách sản phẩm tương tự (Cùng MaLoai nhưng khác MaHh hiện tại)
             var dsTuongTu = await db.HangHoas

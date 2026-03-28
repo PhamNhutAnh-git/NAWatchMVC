@@ -1,0 +1,29 @@
+﻿@model IEnumerable<NAWatchMVC.Data.HangHoa>
+
+<div class="container py-5">
+    <div class="section-title mb-5">
+        <h3 class="fw-bold text-uppercase" style="border-left: 5px solid #1E88E5; padding-left: 15px;">
+            Dành riêng cho ní <i class="fas fa-magic text-warning"></i>
+        </h3>
+        <p class="text-muted">Dựa trên những gì ní đã "tăm tia", tui chọn ra mấy mẫu này nè.</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                @* Dùng lại cái Card sản phẩm xịn xò của ní ở đây *@
+                <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+                    <img src="~/anhall/@item.Hinh" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    <div class="card-body text-center">
+                        <h6 class="fw-bold text-truncate">@item.TenHh</h6>
+                        <p class="text-danger fw-bold">@item.DonGia?.ToString("#,##0") đ</p>
+                        <a asp-controller="HangHoa" asp-action="Detail" asp-route-id="@item.MaHh"
+                           class="btn btn-sm btn-outline-primary rounded-pill px-3">Xem ngay</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@* @await Component.InvokeAsync("Recommendation") *@

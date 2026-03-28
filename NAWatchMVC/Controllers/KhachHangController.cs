@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using NAWatchMVC.Services.Interfaces;
+using NAWatchMVC.Services.Implementations;
 namespace NAWatchMVC.Controllers
 {
     public class KhachHangController : Controller
@@ -21,9 +23,11 @@ namespace NAWatchMVC.Controllers
         private readonly IPasswordHasher<KhachHang> _passwordHasher;
         private readonly MyEmailSender _emailSender;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IInteractionService _interactionService;
         public KhachHangController(IWebHostEnvironment webHostEnvironment,NawatchMvcContext context,
-            IPasswordHasher<KhachHang> passwordHasher, MyEmailSender emailSender)
+            IPasswordHasher<KhachHang> passwordHasher, MyEmailSender emailSender, IInteractionService interactionService)
         {
+            _interactionService = interactionService;
             _webHostEnvironment = webHostEnvironment;
             db = context;
             _passwordHasher = passwordHasher;
@@ -605,6 +609,11 @@ namespace NAWatchMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleWishlist(int id)
         {
+            // 1. Chặn Admin/Staff
+            if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+            {
+                return View("AdminNotification");
+            }
             // 1. Lấy MaKh từ Claim (Dùng cái này đồng bộ với Identity ní đang xài)
             var maKh = User.Claims.FirstOrDefault(c => c.Type == "CustomerId")?.Value;
 
@@ -619,6 +628,8 @@ namespace NAWatchMVC.Controllers
                 // Đã có -> XÓA (Hủy yêu thích)
                 db.YeuThiches.Remove(item);
                 await db.SaveChangesAsync();
+                // (Tùy chọn) Ní có thể RecordInteraction với Type = 5 (Hủy thích) nếu muốn sau này trừ điểm
+                // await _interactionService.Record(maKh, id, 5);
                 return Json(new { success = true, action = "removed", message = "Đã bỏ yêu thích món này!" });
             }
             else
@@ -632,6 +643,10 @@ namespace NAWatchMVC.Controllers
                 };
                 db.YeuThiches.Add(yeuThich);
                 await db.SaveChangesAsync();
+                // === CHÈN Ở ĐÂY NÈ NÍ ===
+                // Type 2 = Wishlist (Ghi lại lượt thả tim)
+                await _interactionService.Record(maKh, id, 2);
+                // ========================
                 return Json(new { success = true, action = "added", message = "Đã thêm vào yêu thích của ní!" });
             }
         }
@@ -639,6 +654,11 @@ namespace NAWatchMVC.Controllers
         [Authorize]
         public IActionResult SanPhamDaMua()
         {
+            // 1. Chặn Admin/Staff
+            if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+            {
+                return View("AdminNotification");
+            }
             var maKH = User.FindFirst("CustomerId")?.Value;
 
             // 1. Lấy danh sách ID sản phẩm từ các đơn hàng ĐÃ GIAO THÀNH CÔNG (MaTrangThai = 3)
@@ -655,6 +675,23 @@ namespace NAWatchMVC.Controllers
                 .ToList();
 
             return View(dsSanPham);
+        }
+        [Authorize]
+        public async Task<IActionResult> GoiYChoBan()
+        {
+            // 1. Chặn Admin/Staff
+            if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+            {
+                return View("AdminNotification");
+            }
+            // 1. Lấy MaKh từ Claim
+            var maKh = User.Claims.FirstOrDefault(c => c.Type == "CustomerId")?.Value;
+
+            // 2. Gọi Service "thần thánh" mà ní vừa viết xong
+            var dsGoiY = await _interactionService.GetRecommendedProducts(maKh ?? "");
+
+            // 3. Trả về View cùng với danh sách sản phẩm
+            return View(dsGoiY);
         }
 
     }

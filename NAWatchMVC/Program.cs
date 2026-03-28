@@ -2,6 +2,8 @@
 using NAWatchMVC.Data;
 using Microsoft.AspNetCore.Authentication.Cookies; // Thêm dòng này để dùng Cookie
 using Microsoft.AspNetCore.Identity; // Thêm dòng này để dùng PasswordHasher
+using NAWatchMVC.Services.Interfaces;
+using NAWatchMVC.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +41,8 @@ builder.Services.AddTransient<NAWatchMVC.Helpers.MyEmailSender>(); // Gửi mail
 builder.Services.AddScoped<IPasswordHasher<KhachHang>, PasswordHasher<KhachHang>>();
 builder.Services.AddScoped<IPasswordHasher<NhanVien>, PasswordHasher<NhanVien>>(); // Thêm ông này nữa ní nhé
 
+// 6.Đăng ký Service vào hệ thống Dependency Injection
+builder.Services.AddScoped<IInteractionService, InteractionService>();
 
 var app = builder.Build();
 

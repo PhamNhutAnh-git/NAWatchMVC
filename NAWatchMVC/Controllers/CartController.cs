@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NAWatchMVC.Helpers; // Nhớ using Helper để dùng Session
 using Microsoft.Extensions.Configuration; // <--- Thêm dòng này nếu thấy IConfiguration báo đỏ
+using NAWatchMVC.Services.Interfaces;
+using NAWatchMVC.Services.Implementations;
 namespace NAWatchMVC.Controllers
 {
     // [Authorize] <-- Đã bỏ để khách vãng lai vào được
@@ -12,16 +14,18 @@ namespace NAWatchMVC.Controllers
     {
         private readonly NawatchMvcContext db;
         private readonly IConfiguration _configuration; // <--- THÊM BIẾN NÀY VNP
+        private readonly IInteractionService _interactionService; // Khai báo ở đây
         const string CART_KEY = "MYCART";
         //private readonly MyEmailSender _emailSender; // <--- KHAI BÁO
         // Helper để lấy giỏ hàng từ Session nhanh gọn
         public List<CartItemVM> Cart => HttpContext.Session.Get<List<CartItemVM>>(CART_KEY) ?? new List<CartItemVM>();
 
-        public CartController(NawatchMvcContext context, MyEmailSender emailSender, IConfiguration configuration)
+        public CartController(NawatchMvcContext context, MyEmailSender emailSender, IConfiguration configuration, IInteractionService interactionService)
         {
             db = context;
             //_emailSender = emailSender;// <--- GÁN gmail
             _configuration = configuration; // <--- GÁN GIÁ TRỊ VNP
+            _interactionService = interactionService;
         }
 
         // 1. XEM GIỎ HÀNG
@@ -70,7 +74,8 @@ namespace NAWatchMVC.Controllers
         // 2. THÊM VÀO GIỎ HÀNG (HYBRID)
         [HttpPost]
         [Route("Cart/Add/{id}")] // Thêm dòng này để khớp với URL: /Cart/Add/117
-        public IActionResult AddToCart(int id, int quantity = 1)
+        //public IActionResult AddToCart(int id, int quantity = 1)
+        public async Task<IActionResult> AddToCart(int id, int quantity = 1)
         {
             // 1. Lấy thông tin hàng hóa để kiểm tra Tồn kho
             var hangHoa = db.HangHoas.Find(id);
@@ -126,7 +131,18 @@ namespace NAWatchMVC.Controllers
                     chiTiet.SoLuong += quantity;
                     
                 }
-                db.SaveChanges();
+                //db.SaveChanges();// Lưu xong giỏ hàng vào DB
+                // ĐỔI TỪ: db.SaveChanges();
+                // SANG: 
+                await db.SaveChangesAsync(); // Lưu giỏ hàng/chi tiết xong mới đi tiếp
+                // === CHÈN GHI ĐIỂM Ở ĐÂY NÈ NÍ ===
+                // Type 3 = Add to Cart (Thêm vào giỏ - 5 điểm)
+                if (!string.IsNullOrEmpty(maKH))
+                {
+                    // Dùng _interactionService đã tiêm vào Constructor
+                    await _interactionService.Record(maKH, id, 3);
+                }
+                // ================================
             }
             // TRƯỜNG HỢP 2: KHÁCH VÃNG LAI (Lưu Session)
             else
@@ -585,6 +601,18 @@ namespace NAWatchMVC.Controllers
                     if (v != null) v.SoLuongDaDung++;
                 }
                 await db.SaveChangesAsync(); // Lưu lần cuối cho database
+
+                // === CHÈN LOGIC GỢI Ý MUA SẮM (TYPE 4: MUA HÀNG) TẠI ĐÂY ===
+                if (!string.IsNullOrEmpty(maKH) && myCart != null)
+                {
+                    foreach (var item in myCart)
+                    {
+                        // Ghi lại tương tác cho từng món hàng trong đơn (Type 4 = Mua/Thanh toán)
+                        // Đây là hành động được cộng điểm cao nhất (10 điểm)
+                        await _interactionService.Record(maKH, item.MaHH, 4);
+                    }
+                }
+                // ========================================================
                 // D. Xóa giỏ hàng (Đã đặt xong thì xóa giỏ) thêm xóa voucher
                 if (buyNowId.HasValue)
                 {
