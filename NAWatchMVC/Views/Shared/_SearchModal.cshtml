@@ -80,7 +80,7 @@
             </div>
 
             <div class="modal-body p-4">
-                @* Ô tìm kiếm gọn gàng hơn *@
+                @* 1. Ô tìm kiếm (Giữ nguyên của ní) *@
                 <div class="search-box-compact">
                     <input type="search" id="searchInput" class="search-input-mini"
                            placeholder="Bạn muốn tìm đồng hồ gì nè?" autocomplete="off">
@@ -89,14 +89,12 @@
                     </button>
                 </div>
 
-                @* Gợi ý từ khóa thu nhỏ lại bên dưới *@
-                <div class="mt-3">
-                    <small class="text-muted d-block mb-2">Gợi ý cho Bạn:</small>
-                    <div class="d-flex flex-wrap gap-2">
-                        <span class="mini-tag" onclick="fillSearch('Casio')">Casio</span>
-                        <span class="mini-tag" onclick="fillSearch('Dây da')">Dây da</span>
-                        <span class="mini-tag" onclick="fillSearch('Nam')">Nam</span>
-                        <span class="mini-tag" onclick="fillSearch('Nữ')">Nữ</span>
+                @* 2. VÙNG CHỨA DỮ LIỆU ĐỘNG (Bao gồm cả Tag và Sản phẩm) *@
+                <div id="search-recommendations" class="mt-4">
+                    <div class="text-center py-3 opacity-50">
+                        <div class="spinner-border spinner-border-sm text-primary mb-2"></div>
+                        <br />
+                        <small>Đang tìm món hợp gu của bạn...</small>
                     </div>
                 </div>
             </div>

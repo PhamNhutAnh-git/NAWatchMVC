@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NAWatchMVC.Controllers;
 using NAWatchMVC.Data;
 using NAWatchMVC.Services.Interfaces;
@@ -90,8 +91,10 @@ namespace NAWatchMVC.Services.Implementations
                 .ToListAsync();
 
             // Sắp xếp lại danh sách finalProducts theo đúng thứ tự finalIds (View -> Tim -> Giỏ)
+            //finalProducts = finalIds.Select(id => finalProducts.FirstOrDefault(p => p.MaHh == id))
+            //                        .Where(p => p != null).ToList();
             finalProducts = finalIds.Select(id => finalProducts.FirstOrDefault(p => p.MaHh == id))
-                                    .Where(p => p != null).ToList();
+                                    .OfType<HangHoa>().ToList();
 
             // Thêm các món gợi ý vào sau
             finalProducts.AddRange(suggestions);
@@ -109,5 +112,7 @@ namespace NAWatchMVC.Services.Implementations
 
             return finalProducts.Take(6).ToList();
         }
+
+        
     }
 }

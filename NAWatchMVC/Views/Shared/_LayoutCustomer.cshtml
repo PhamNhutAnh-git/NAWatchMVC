@@ -340,7 +340,7 @@
         </div>
         </form>
     </div>
-    </div>
+    
 
     <script>
         $(document).ready(function () {
@@ -451,7 +451,7 @@
                 renderStickyBar();
             };
 
-            // MỚI: Cập nhật hàm vẽ để xử lý Ẩn/Hiện
+            // MỚI: Cập nhật hàm vẽ để xử lý Ẩn/Hiện so sánh
             function renderStickyBar() {
                 const bar = $("#sticky-compare-bar");
                 const expandBtn = $("#compare-expand-btn"); // Nút nhỏ ở góc trái
@@ -485,13 +485,6 @@
                                         </div>
                                     </div>
                                 `);
-                                // list.append(`
-                                //     <div class="compare-item-slot border-solid">
-                                //         <span class="btn-remove-compare" onclick="removeFromCompare('${compareList[i].id}')">x</span>
-                                //         <img src="/anhall/${compareList[i].img}" />
-                                //         <div class="small text-truncate" style="width:80px; font-size:0.6rem">${compareList[i].name}</div>
-                                //     </div>
-                                // `);
                             } else {
                                 list.append(`<div class="compare-item-slot text-muted small" style="font-size:0.6rem">Trống</div>`);
                             }
@@ -517,7 +510,7 @@
             @if (TempData["Success"] != null) { <text>Toast.fire({ icon: 'success', title: '@TempData["Success"]' });</text> }
             @if (TempData["Error"] != null) { <text>Toast.fire({ icon: 'error', title: '@TempData["Error"]' });</text> }
             
-            //tìm kiếm chung
+            //==================== tìm kiếm chung ============================
             // Hàm thực hiện chuyển trang tìm kiếm
             function performSearch() {
                 var query = $('#searchInput').val(); // Lấy chữ Bạn vừa nhập
@@ -530,7 +523,7 @@
                     alert("Bạn nhập từ khóa cái đã!");
                 }
             }
-
+            
             // 1. Bắt sự kiện Click nút
             $(document).on('click', '#search-button-modal', function () {
                 performSearch();
@@ -548,7 +541,31 @@
                 // Có thể tự động tìm luôn sau khi điền
                 $('#search-button-modal').click();
             }
-        });
+            console.log("CHECK 1: JQuery đã chạy ở Layout!");
+
+            // Lắng nghe sự kiện mở Modal - Ní soi kỹ ID cái Modal của ní có đúng là searchModal không nhé
+            $(document).on('shown.bs.modal', '#searchModal', function () {
+                console.log("CHECK 2: Đã thấy Modal mở. Đang gọi AJAX...");
+            
+                $.ajax({
+                    url: '/HangHoa/GetSearchSuggestions',
+                    type: 'GET',
+                    success: function (res) {
+                        console.log("CHECK 3: AJAX thành công!");
+                        $('#search-recommendations').html(res);
+                    },
+                    error: function (xhr) {
+                        console.log("CHECK 4: Lỗi AJAX - Mã lỗi: " + xhr.status);
+                        $('#search-recommendations').html('<small class="text-danger">Lỗi kết nối Server!</small>');
+                    }
+                });
+            });
+            });
+            // Hàm fillSearch để ngoài cùng để tag click được
+        function fillSearch(keyword) {
+            $("#searchInput").val(keyword);
+            $("#search-button-modal").click();
+        }
     </script>
     
 </body>

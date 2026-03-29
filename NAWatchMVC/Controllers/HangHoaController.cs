@@ -8,7 +8,6 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.AspNetCore.Authorization;
 using NAWatchMVC.Services.Implementations;
 using NAWatchMVC.Services.Interfaces;
-using NAWatchMVC.Services.Interfaces;
 namespace NAWatchMVC.Controllers
 {
     public class HangHoaController : Controller
@@ -367,7 +366,24 @@ namespace NAWatchMVC.Controllers
 
             return View(model); // Trả về trang Views/HangHoa/Compare.cshtml
         }
+        // hàm gợi ý sản phẩm thẻ và chữ
+        public async Task<IActionResult> GetSearchSuggestions()
+        {
+            var maKh = User.FindFirst("CustomerId")?.Value;
+            var products = await _interactionService.GetRecommendedProducts(maKh ?? "");
 
-        
+            // 1. Lấy danh sách các từ khóa "Sống" (Ví dụ: Tên hãng - lấy chữ đầu tiên của TenHh)
+            // Hoặc lấy TenLoai từ Navigation Property
+            var dynamicTags = products
+                .Select(p => p.TenHh.Split(' ')[0]) // Lấy chữ đầu (thường là Brand: Casio, Citizen...)
+                .Distinct()
+                .Take(4) // Chỉ lấy 4 tag cho đẹp
+                .ToList();
+
+            // 2. Tạo một đối tượng vô danh (Anonymous) để truyền qua PartialView
+            ViewBag.DynamicTags = dynamicTags;
+
+            return PartialView("_SearchSuggestionsPartial", products.Take(5));
+        }
     }
 }
