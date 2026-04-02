@@ -1,0 +1,116 @@
+﻿@model NAWatchMVC.Data.BoSuuTapHome
+
+@{
+    ViewData["Title"] = "Chi tiết Bộ Sưu Tập";
+}
+
+<div class="container-fluid">
+    @* --- HEADER --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark">🔍 Chi tiết Bộ Sưu Tập</h2>
+            <p class="text-muted">Xem thông tin đầy đủ về nhóm hàng hiển thị trên trang chủ</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary shadow-sm me-2">
+                <i class="bi bi-arrow-left me-1"></i> Quay lại
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary shadow-sm">
+                <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa ngay
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        @* --- CỘT TRÁI: THÔNG TIN CHI TIẾT --- *@
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h6 class="m-0 fw-bold text-primary">📑 Thông tin hệ thống</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-bold" style="width: 200px;">Mã định danh (ID):</td>
+                                <td class="text-dark">#@Model.Id</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-bold">Tên bộ sưu tập:</td>
+                                <td class="text-dark fs-5 fw-bold">@Model.CollectionName</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-bold">Thứ tự hiển thị:</td>
+                                <td>
+                                    <span class="badge bg-primary px-3 rounded-pill">Vị trí @Model.Order</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-bold">Trạng thái:</td>
+                                <td>
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-soft-success text-success">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Đang hiển thị ngoài trang chủ
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-soft-secondary text-secondary">
+                                            <i class="bi bi-eye-slash-fill me-1"></i> Đang tạm ẩn
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @* --- CỘT PHẢI: XEM TRƯỚC HÌNH ẢNH --- *@
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h6 class="m-0 fw-bold text-primary">🖼️ Hình ảnh Background</h6>
+                </div>
+                <div class="card-body p-2">
+                    <div class="rounded overflow-hidden border">
+                        @if (!string.IsNullOrEmpty(Model.BackgroundImage))
+                        {
+                            <img src="~/images/collections/@Model.BackgroundImage"
+                                 class="img-fluid w-100"
+                                 style="max-height: 400px; object-fit: cover;"
+                                 alt="@Model.CollectionName">
+                            <div class="bg-light p-2 text-center small text-muted border-top">
+                                <i class="bi bi-file-earmark-image me-1"></i> File: @Model.BackgroundImage
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="bg-light py-5 text-center">
+                                <i class="bi bi-image text-muted fs-1 d-block mb-2"></i>
+                                <span class="text-muted">Chưa có ảnh nền</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card { border-radius: 15px; }
+        .table td { padding: 1rem 0; border-bottom: 1px solid #f8f9fa; }
+
+        /* Đồng bộ Badge Soft Style */
+        .bg-soft-success { background-color: #e8f5e9; border: 1px solid #c8e6c9; }
+        .bg-soft-secondary { background-color: #f5f5f5; border: 1px solid #e0e0e0; }
+        .badge { font-weight: 600; padding: 0.6em 1em; border-radius: 8px; }
+
+        .container-fluid { animation: fadeIn 0.5s ease; }
+        @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+}

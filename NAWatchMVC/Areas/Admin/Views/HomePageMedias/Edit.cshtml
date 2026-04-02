@@ -1,0 +1,163 @@
+﻿@model NAWatchMVC.Data.HomePageMedia
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Media";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">📝 Chỉnh sửa Media</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">Quay lại</a>
+    </div>
+
+    <div class="row">
+        @* --- CỘT NHẬP LIỆU --- *@
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Tiêu đề</label>
+                                <input asp-for="Title" class="form-control" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Loại Media</label>
+                                <select asp-for="MediaType" id="MediaTypeSelect" class="form-select border-primary">
+                                    <option value="Slide">Slide chạy (Carousel)</option>
+                                    <option value="Banner">Banner tĩnh (Quảng cáo)</option>
+                                    <option value="Video">Video YouTube</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Vị trí hiển thị</label>
+                                <select asp-for="ViTri" class="form-select border-warning">
+                                    <option value="Top">Đầu trang (Top)</option>
+                                    <option value="Middle">Giữa trang (Middle)</option>
+                                    <option value="Popup">Popup khuyến mãi</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-12" id="YoutubeInputGroup">
+                                <label class="form-label fw-bold text-danger">Link YouTube</label>
+                                <input asp-for="YoutubeUrl" class="form-control" placeholder="https://..." />
+                            </div>
+
+                            <div class="col-md-12" id="NavLinkGroup">
+                                <label class="form-label fw-bold">Link điều hướng (Navigation)</label>
+                                <input asp-for="NavigationLink" class="form-control" placeholder="/HangHoa/Detail/..." />
+                            </div>
+
+                            <div class="col-md-8" id="ImageInputGroup">
+                                <label class="form-label fw-bold">Thay đổi hình ảnh (Bỏ trống nếu giữ ảnh cũ)</label>
+                                <input type="file" name="HinhAnh" id="imgInput" class="form-control" accept="image/*" />
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Thứ tự</label>
+                                <input asp-for="Order" class="form-control" type="number" />
+                            </div>
+
+                            <div class="col-md-2 d-flex align-items-end">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsActive">
+                                    <label class="form-check-label">Kích hoạt</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-4">
+                                <hr />
+                                <button type="submit" class="btn btn-primary btn-lg px-5 shadow">Cập nhật thay đổi</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @* --- CỘT XEM TRƯỚC --- *@
+        <div class="col-md-4">
+            @* Preview ảnh cũ *@
+            @if (Model.MediaType != "Video" && !string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="card shadow-sm border-0 mb-3">
+                    <div class="card-header bg-white py-2 text-center">
+                        <small class="fw-bold text-muted">ẢNH HIỆN TẠI</small>
+                    </div>
+                    <div class="card-body p-2 text-center">
+                        <img src="~/images/homepage/@Model.ImageUrl" class="img-fluid rounded border shadow-sm" style="max-height: 150px; object-fit: cover;" />
+                    </div>
+                </div>
+            }
+
+            @* Preview ảnh mới *@
+            <div class="card shadow-sm border-0" id="NewPreviewCard">
+                <div class="card-header bg-white py-2 text-center">
+                    <small class="fw-bold text-primary">XEM TRƯỚC ẢNH MỚI</small>
+                </div>
+                <div class="card-body text-center" id="newPreviewBox">
+                    <img id="imgPreview" src="#" class="img-fluid rounded d-none shadow-sm" style="max-height: 200px; object-fit: cover;" />
+                    <p id="placeholderText" class="text-muted small py-4">Chưa chọn ảnh mới</p>
+                </div>
+            </div>
+
+            @* Preview Video *@
+            <div class="card shadow-sm border-0 mt-3" id="VideoPreviewCard" style="display:none;">
+                <div class="card-header bg-white py-2 text-center text-danger fw-bold small">XEM TRƯỚC VIDEO</div>
+                <div class="card-body p-2">
+                    <div class="ratio ratio-16x9">
+                        <iframe id="videoIframe" src="@Model.YoutubeUrl" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            // 1. Xử lý ẩn hiện input theo loại Media
+            function toggleInputs() {
+                var type = $('#MediaTypeSelect').val();
+                if (type === "Video") {
+                    $('#YoutubeInputGroup').fadeIn();
+                    $('#VideoPreviewCard').show();
+                    $('#ImageInputGroup').hide();
+                    $('#NavLinkGroup').hide();
+                    $('#NewPreviewCard').hide();
+                } else {
+                    $('#YoutubeInputGroup').hide();
+                    $('#VideoPreviewCard').hide();
+                    $('#ImageInputGroup').fadeIn();
+                    $('#NavLinkGroup').fadeIn();
+                    $('#NewPreviewCard').show();
+                }
+            }
+
+            $('#MediaTypeSelect').on('change', toggleInputs);
+            toggleInputs(); // Chạy khi load trang
+
+            // 2. Xem trước ảnh mới ngay khi chọn file
+            document.getElementById('imgInput').onchange = evt => {
+                const [file] = document.getElementById('imgInput').files;
+                if (file) {
+                    const preview = document.getElementById('imgPreview');
+                    const placeholder = document.getElementById('placeholderText');
+                    preview.src = URL.createObjectURL(file);
+                    preview.classList.remove('d-none');
+                    placeholder.classList.add('d-none');
+                }
+            }
+        });
+    </script>
+}

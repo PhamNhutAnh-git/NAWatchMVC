@@ -16,7 +16,7 @@
     <!-- Icon Font Stylesheet -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <!-- Libraries Stylesheet -->
     <link href="~/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
     <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
@@ -147,7 +147,6 @@
     </div>
 
     <div>
-
         <!-- Navbar start thanh thông tin trên cùng layout -->
         <div class="container-fluid fixed-top ">
             <div class="container topbar d-none d-lg-block" style="background-color: #1E88E5 !important;">
@@ -220,8 +219,9 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
                         @* tìm kim *@
-                        <div class="d-flex m-3 me-0">
+                      <div class="d-flex m-3 me-0">
                             <button class="btn border rounded-circle bg-white me-4" style="border-color: #1E88E5 !important;" data-bs-toggle="modal" data-bs-target="#searchModal">
                                 <i class="fas fa-search" style="color: #1E88E5;"></i>
                             </button>
@@ -266,22 +266,22 @@
                                     }
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                      </div>
                 </nav>
-            </div>
+            </div>   
         </div>
+    </div>
         <!-- Navbar End -->
         
-        <div style="min-height: 1000px;">
-            @RenderBody()
-        </div>
-        @* 1. Chân trang - hiện ra bình thường *@
-        @await Html.PartialAsync("_Footer")
+    <div style="min-height: 1000px;">
+        @RenderBody()
+    </div>   
+     @* 1. Chân trang - hiện ra bình thường *@
+     @await Html.PartialAsync("_Footer")
 
-        @* 2. Các thành phần Overlay - Chỉ hiện khi cần *@
-        <partial name="_SearchModal" />
-    </div>
+     @* 2. Các thành phần Overlay - Chỉ hiện khi cần *@
+     <partial name="_SearchModal" />   
+    
 
 
     <!-- Back to Top -->
@@ -349,7 +349,7 @@
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 2000,
                 timerProgressBar: true,
                 didOpen: (toast) => {
                     toast.addEventListener('mouseenter', Swal.stopTimer)

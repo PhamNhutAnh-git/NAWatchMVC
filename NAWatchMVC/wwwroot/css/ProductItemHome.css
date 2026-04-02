@@ -1,0 +1,101 @@
+﻿body {
+}
+/* 1. Tổng thể thẻ: Canh giữa toàn bộ */
+.product-home-card {
+    max-width: 100%;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-align: center; /* Canh giữa tên, giá, sao... */
+
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Hiệu ứng mượt mà */
+    border: 1px solid transparent !important; /* Chuẩn bị viền ẩn */
+    cursor: pointer;
+    z-index: 1;
+}
+
+.product-home-card:hover {
+    transform: translateY(-8px); /* Nhấc thẻ lên 8px */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    border-color: #ffc107 !important; /* Hiện viền màu vàng thương hiệu */
+    z-index: 10; /* Đảm bảo thẻ đang hover nằm trên cùng */
+}
+    /* Badge sẽ không bao giờ làm kẹt chuột nữa */
+ .product-home-card .badge {
+     pointer-events: none !important;
+     z-index: 5;
+ }   
+
+/* 2. Ảnh: Thu nhỏ lại cho vừa khung 6 thẻ */
+.product-img {
+    height: 110px; /* Hạ xuống 110px là vừa xinh cho 6 thẻ */
+    object-fit: contain;
+    padding: 5px;
+}
+
+/* 3. Tên sản phẩm: Nhỏ và gọn */
+.product-name {
+    font-size: 11px;
+    line-height: 1.3;
+    height: 30px; /* Ép độ cao 2 dòng */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* 4. GIÁ TIỀN: Canh giữa và tối ưu khoảng cách */
+.price-box {
+    display: flex;
+    flex-direction: column; /* Xếp chồng lên nhau để canh giữa đẹp hơn */
+    align-items: center;
+    justify-content: center;
+    min-height: 35px;
+}
+
+.current-price {
+    font-size: 13px !important;
+    line-height: 1;
+}
+
+.old-price {
+    font-size: 10px !important;
+    margin-right: 3px;
+}
+
+.discount-percent {
+    font-size: 10px !important;
+}
+
+/* 5. Sao & Đã bán: Cho lên 1 hàng canh giữa */
+.stats-box {
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: auto;
+    padding-bottom: 5px;
+}
+
+/* 6. Nút bấm: Mỏng và tinh tế */
+.btn-add-cart {
+    height: 24px;
+    font-size: 9px !important;
+    padding: 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+    .btn-add-cart:hover {
+        background-color: #1E88E5;
+        color: white;
+    }
+/* 3. QUAN TRỌNG: Kiểm tra khung bao ngoài (Owl Carousel) */
+.owl-item, .item {
+    overflow: visible !important; /* Cho phép thẻ "bay" ra ngoài biên của slider */
+}

@@ -14,9 +14,14 @@ public partial class NawatchMvcContext : DbContext
         : base(options)
     {
     }
+
     // DÁN 2 DÒNG ĐÓ VÀO ĐÂY NÈ NÍ!
     public virtual DbSet<Voucher> Vouchers { get; set; } = null!;
     public virtual DbSet<ChiTietSuDungVoucher> ChiTietSuDungVouchers { get; set; } = null!;
+    public virtual DbSet<HomePageMedia> HomePageMedias { get; set; } = null!;
+    public virtual DbSet<BoSuuTapHome> BoSuuTapHomes { get; set; } = null!;
+    public virtual DbSet<NewsArticle> NewsArticles { get; set; } = null!;
+    public virtual DbSet<ChatHistory> ChatHistories { get; set; } = null!;
     //
     public virtual DbSet<ChiTietGioHang> ChiTietGioHangs { get; set; }
 

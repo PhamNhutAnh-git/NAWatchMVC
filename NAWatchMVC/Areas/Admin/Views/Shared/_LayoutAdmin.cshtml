@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
@@ -193,6 +194,33 @@
                         <i class="fas fa-star"></i> <span>Quản lý Đánh giá</span>
                     </a>
                 </li>
+                <hr>
+
+                <div class="sidebar-heading">Nội dung giới thiệu</div>
+                <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "HomePageMedias" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="HomePageMedias" asp-action="Index">
+                        <i class="fas fa-images"></i> <span>Media Trang Chủ</span>
+                    </a>
+                </li>
+
+                <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "BoSuuTapHomes" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="BoSuuTapHomes" asp-action="Index">
+                        <i class="fas fa-layer-group"></i> <span>Bộ Sưu Tập Home</span>
+                    </a>
+                </li>
+
+                <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "NewsArticles" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="NewsArticles" asp-action="Index">
+                        <i class="fas fa-newspaper"></i> <span>Tin Tức & Sự Kiện</span>
+                    </a>
+                </li>
+
+                <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "ChatHistories" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="ChatHistories" asp-action="Index">
+                        <i class="fas fa-robot"></i> <span>Lịch Sử Chat AI</span>
+                    </a>
+                </li>
+
                 <hr class="mt-4">
 
                 <li>
@@ -255,15 +283,15 @@
     <script>
         $(document).ready(function () {
             // 1. Cấu hình mặc định cho DataTable (ní giữ nguyên cái cũ của ní)
-            $('.datatable').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json"
-                },
-                "pageLength": 10,
-                "responsive": true,
-                "ordering": false // <--- THÊM DÒNG NÀY: Xóa sổ mấy cái mũi tên ở tiêu đề cột
-            });
-
+            // $('.datatable').DataTable({
+            // //$.extend(true, $.fn.dataTable.defaults, {
+            //     "language": {
+            //         "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json"
+            //     },
+            //     "pageLength": 10,
+            //     "responsive": true,
+            //     "ordering": false // <--- THÊM DÒNG NÀY: Xóa sổ mấy cái mũi tên ở tiêu đề cột
+            // });
             // 2. XỬ LÝ THÔNG BÁO TỪ TEMP DATA (Độ lại cho mượt)
         @if (TempData["Success"] != null)
         {
@@ -284,7 +312,7 @@
             <text>
                         Swal.fire({
                             icon: 'error',
-                        title: 'Lỗi rồi ní ơi!',
+                        title: 'Lỗi rồi bạn ơi!',
                         html: '@Html.Raw(TempData["Error"])',
                         confirmButtonText: 'Đã rõ'
                         });

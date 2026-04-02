@@ -1,0 +1,51 @@
+﻿@model NAWatchMVC.ViewModels.HangHoaVM
+
+<div class="card h-100 border-0 shadow-sm product-home-card">
+    @* 1. Ảnh sản phẩm (Nhỏ & Gọn) *@
+    <div class="p-2 text-center position-relative">
+        <a asp-action="Detail" asp-controller="HangHoa" asp-route-id="@Model.MaHh">
+            <img src="~/anhall/@Model.Hinh" class="img-fluid product-img" alt="@Model.TenHh">
+        </a>
+    </div>
+
+    <div class="card-body p-2 d-flex flex-column">
+        @* 2. Tên sản phẩm (Cắt chữ nếu quá 2 dòng) *@
+        <h6 class="product-name mb-1">@Model.TenHh</h6>
+
+        @* 3. Giá tiền (Đã sửa logic: Đỏ là giá giảm, Xám là giá gốc) *@
+        <div class="price-box mb-1">
+            @* Đây là giá cuối cùng khách phải trả (Đã tính giảm giá) *@
+            <span class="current-price text-danger fw-bold">@Model.GiaBan.ToString("#,##0")₫</span>
+
+            @if (Model.GiamGia > 0)
+            {
+                <br />
+                @* Đây là giá gốc ban đầu, bị gạch ngang *@
+                <small class="old-price text-muted text-decoration-line-through">
+                    @Model.DonGia.ToString("#,##0")₫
+                </small>
+                @* Phần trăm giảm giá *@
+                <small class="discount-percent text-danger small fw-bold"> -@Model.GiamGia%</small>
+            }
+        </div>
+
+        @* 4. Đánh giá & Đã bán *@
+        <div class="stats-box mb-2 mt-auto">
+            <span class="text-warning small">
+                <i class="bi bi-star-fill"></i> @Model.DiemDanhGia.ToString("G29")
+                @* Dùng "G29" để hiện 4.5 hoặc 5 cho gọn *@
+            </span>
+            <span class="text-muted small ms-1">
+                • Đã bán @(Model.SoLuongBan > 0 ? Model.SoLuongBan : 0)
+            </span>
+        </div>
+
+        @* 5. Nút Thêm vào giỏ (Đã gắn thêm ID sản phẩm) *@
+        @* Sửa class thành add-to-cart-js để khớp với hàm ở Layout *@
+        <button class="btn btn-outline-danger btn-sm py-0 w-100 add-to-cart-js"
+                data-id="@Model.MaHh">
+            <i class="bi bi-cart-plus small"></i>
+            <span style="font-size: 11px;">THÊM GIỎ HÀNG</span>
+        </button>
+    </div>
+</div>

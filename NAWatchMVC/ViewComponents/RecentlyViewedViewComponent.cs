@@ -9,7 +9,7 @@ namespace NAWatchMVC.ViewComponents
         private readonly NawatchMvcContext _db;
         public RecentlyViewedViewComponent(NawatchMvcContext db) => _db = db;
 
-        public IViewComponentResult Invoke(int limit = 3)
+        public IViewComponentResult Invoke(int limit = 6, bool isHome = false)
         {
             var viewedIds = HttpContext.Session.Get<List<int>>("ViewedProducts") ?? new List<int>();
 
@@ -25,7 +25,8 @@ namespace NAWatchMVC.ViewComponents
                     Hinh = p.Hinh,
                     DonGia = p.DonGia ?? 0
                 }).ToList();
-
+            // Nếu truyền isHome = true thì dùng file Home.cshtml, ngược lại dùng Default.cshtml
+            if (isHome) return View("Home", products);
             return View(products);
         }
     }

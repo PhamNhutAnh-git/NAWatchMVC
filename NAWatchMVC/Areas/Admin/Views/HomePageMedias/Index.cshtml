@@ -1,0 +1,223 @@
+﻿@model IEnumerable<NAWatchMVC.Data.HomePageMedia>
+
+@{
+    ViewData["Title"] = "Quản lý Media Trang Chủ";
+}
+
+<div class="container-fluid">
+    @* --- HEADER --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark">🖼️ Quản lý Media Trang Chủ</h2>
+            <p class="text-muted">Điều khiển Slide, Banner và Video hiển thị theo từng vị trí</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle-fill me-2"></i>Thêm mới Media
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable" id="dataTableMedia">
+                    <thead class="bg-light text-uppercase">
+                        <tr>
+                            <th class="text-center" style="width: 70px;">Thứ tự</th>
+                            <th style="width: 130px;">Hình ảnh / Video</th>
+                            <th>Thông tin tiêu đề</th>
+                            <th style="width: 150px;">Vị trí hiển thị</th> @* CỘT MỚI ĐÃ ĐƯỢC THÊM *@
+                            <th style="width: 110px;">Loại</th>
+                            <th style="width: 110px;">Trạng thái</th>
+                            <th class="text-center" style="width: 140px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <span class="fw-bold text-primary">#@item.Order</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.YoutubeUrl))
+                                    {
+                                        @* Logic lấy Thumbnail tự động từ Youtube *@
+                                        var videoId = item.YoutubeUrl.Split('/').Last().Split('?').First();
+                                        <div class="position-relative video-thumb-container">
+                                            <img src="https://img.youtube.com/vi/@videoId/mqdefault.jpg"
+                                                 class="rounded shadow-sm w-100 h-100 object-fit-cover" alt="Youtube">
+                                            <span class="position-absolute top-50 start-50 translate-middle">
+                                                <i class="bi bi-play-circle-fill text-danger fs-5"></i>
+                                            </span>
+                                        </div>
+                                    }
+                                    else if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="~/images/homepage/@item.ImageUrl"
+                                             class="rounded shadow-sm img-preview"
+                                             alt="@item.Title">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center img-preview text-muted small">N/A</div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">@item.Title</div>
+                                    <small class="text-muted text-truncate d-block" style="max-width: 180px;">
+                                        Link: @(string.IsNullOrEmpty(item.NavigationLink) ? "---" : item.NavigationLink)
+                                    </small>
+                                </td>
+                                <td>
+                                    @* BADGE VỊ TRÍ - GIÚP ADMIN BIẾT NÓ HIỆN Ở ĐÂU *@
+                                    @if (item.ViTri == "Top")
+                                    {
+                                        <span class="badge bg-soft-warning text-warning border-warning"><i class="bi bi-arrow-up-circle me-1"></i>Đầu trang</span>
+                                    }
+                                    else if (item.ViTri == "Middle")
+                                    {
+                                        <span class="badge bg-soft-primary text-primary border-primary"><i class="bi bi-distribute-vertical me-1"></i>Giữa trang</span>
+                                    }
+                                    else if (item.ViTri == "Popup")
+                                    {
+                                        <span class="badge bg-soft-purple text-purple border-purple"><i class="bi bi-window-stack me-1"></i>Popup</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark border">@item.ViTri</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.MediaType == "Slide")
+                                    {
+                                        <span class="badge bg-soft-info"><i class="bi bi-layers me-1"></i>Slide</span>
+                                    }
+                                    else if (item.MediaType == "Banner")
+                                    {
+                                        <span class="badge bg-soft-warning"><i class="bi bi-image me-1"></i>Banner</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-soft-danger"><i class="bi bi-play-btn me-1"></i>Video</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" @(item.IsActive ? "checked" : "") disabled>
+                                        <label class="form-check-label small">@(item.IsActive ? "Hiện" : "Ẩn")</label>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary action-btn" title="Sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info action-btn" title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger action-btn" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .action-btn {
+            width: 32px !important;
+            height: 32px !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 0 !important;
+            border-radius: 8px;
+        }
+
+        .img-preview, .video-thumb-container {
+            width: 100px;
+            height: 55px;
+            object-fit: cover;
+            border: 1px solid #eee;
+        }
+
+        /* --- SOFT BADGE STYLES --- */
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+            border-radius: 6px;
+            border: 1px solid transparent;
+        }
+
+        .bg-soft-info {
+            background-color: #e1f5fe;
+            color: #0288d1;
+            border-color: #b3e5fc;
+        }
+
+        .bg-soft-warning {
+            background-color: #fff9c4;
+            color: #f57f17;
+            border-color: #fff176;
+        }
+
+        .bg-soft-danger {
+            background-color: #ffebee;
+            color: #c62828;
+            border-color: #ffcdd2;
+        }
+
+        .bg-soft-primary {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+            border-color: #cfe2ff;
+        }
+
+        .bg-soft-purple {
+            background-color: #f3e5f5;
+            color: #8e24aa;
+            border-color: #e1bee7;
+        }
+
+        .text-purple {
+            color: #8e24aa;
+        }
+
+        .border-purple {
+            border-color: #e1bee7 !important;
+        }
+
+        .table th {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            if ($.fn.DataTable.isDataTable('#dataTableMedia')) {
+                $('#dataTableMedia').DataTable().destroy();
+            }
+
+            $('#dataTableMedia').DataTable({
+                "ordering": true,
+                "order": [[0, "asc"]], // Sắp xếp theo cột thứ tự mặc định
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": [1, 6] } // Khóa sort cho ảnh và thao tác
+                ]
+            });
+        });
+    </script>
+}

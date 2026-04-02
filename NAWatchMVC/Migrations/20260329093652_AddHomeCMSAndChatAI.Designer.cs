@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NAWatchMVC.Data;
 
@@ -11,9 +12,11 @@ using NAWatchMVC.Data;
 namespace NAWatchMVC.Migrations
 {
     [DbContext(typeof(NawatchMvcContext))]
-    partial class NawatchMvcContextModelSnapshot : ModelSnapshot
+    [Migration("20260329093652_AddHomeCMSAndChatAI")]
+    partial class AddHomeCMSAndChatAI
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

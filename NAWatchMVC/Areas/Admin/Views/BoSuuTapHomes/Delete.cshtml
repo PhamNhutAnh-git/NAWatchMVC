@@ -1,0 +1,93 @@
+﻿@model NAWatchMVC.Data.BoSuuTapHome
+
+@{
+    ViewData["Title"] = "Xác nhận xóa Bộ Sưu Tập";
+}
+
+<div class="container-fluid">
+    @* --- HEADER --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-danger">⚠️ Xác nhận xóa dữ liệu</h2>
+            <p class="text-muted">Hành động này không thể hoàn tác, vui lòng kiểm tra kỹ!</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm border-0 border-top border-danger border-5">
+                <div class="card-body p-4 text-center">
+                    @* --- CẢNH BÁO --- *@
+                    <div class="alert alert-danger d-inline-block px-4 py-2 rounded-pill mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Bạn có thực sự muốn xóa bộ sưu tập này khỏi hệ thống?
+                    </div>
+
+                    @* --- HIỂN THỊ HÌNH ẢNH SẼ XÓA --- *@
+                    <div class="mb-4">
+                        @if (!string.IsNullOrEmpty(Model.BackgroundImage))
+                        {
+                            <img src="~/images/collections/@Model.BackgroundImage"
+                                 class="rounded shadow border"
+                                 style="max-height: 200px; width: 350px; object-fit: cover;" />
+                            <p class="mt-2 text-muted small">Tên file: @Model.BackgroundImage</p>
+                        }
+                    </div>
+
+                    @* --- THÔNG TIN CHI TIẾT --- *@
+                    <div class="row justify-content-center mb-4 text-start">
+                        <div class="col-md-8">
+                            <div class="p-3 bg-light rounded border">
+                                <div class="mb-2">
+                                    <span class="text-muted small">Tên bộ sưu tập:</span>
+                                    <h5 class="fw-bold mb-0">@Model.CollectionName</h5>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span class="text-muted small">Thứ tự hiển thị:</span>
+                                        <p class="fw-bold mb-0">#@Model.Order</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted small">Trạng thái hiện tại:</span>
+                                        <p class="fw-bold mb-0">@(Model.IsActive ? "Đang hiện" : "Đang ẩn")</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* --- NÚT BẤM --- *@
+                    <form asp-action="Delete" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger btn-lg px-5 shadow">
+                            <i class="bi bi-trash-fill me-2"></i>Xác nhận xóa vĩnh viễn
+                        </button>
+                        <a asp-action="Index" class="btn btn-light btn-lg px-4 ms-2 border">Hủy bỏ</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card { border-radius: 15px; }
+        .btn-lg { border-radius: 10px; font-weight: 600; }
+
+        /* Hiệu ứng rung nhẹ khi load trang để cảnh báo */
+        .card {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @@keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+}

@@ -1,0 +1,36 @@
+﻿@model IEnumerable<NAWatchMVC.ViewModels.HangHoaVM>
+
+@if (Model != null && Model.Any())
+{
+    <section class="container mt-5 mb-5">
+        @* Dùng lại class section-title có sẵn cho nhàn nè ní *@
+        <h4 class="section-title text-uppercase fw-bold mb-4">
+            ✨ Gợi ý dành riêng cho bạn
+        </h4>
+
+        <div class="row g-3 row-cols-2 row-cols-md-3 row-cols-lg-5">
+            @foreach (var item in Model)
+            {
+                <div class="col mb-4">
+                    @* Tận dụng cái product-home-card ní vừa làm hover xong *@
+                    <div class="card h-100 border-0 shadow-sm product-home-card">
+                        @await Html.PartialAsync("_ProductItemHome", item)
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<style>
+    /* Ép tên sản phẩm 1 hàng - ba chấm (Copy lại cho chắc nếu chưa có) */
+    .product-home-card h4,
+    .product-home-card .fruite-item h4 {
+        display: block !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        width: 100%;
+        font-size: 0.9rem !important;
+    }
+</style>

@@ -1,0 +1,122 @@
+﻿@model NAWatchMVC.Data.HomePageMedia
+
+@{
+    ViewData["Title"] = "Thêm mới Media Trang Chủ";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">✨ Thêm mới Media</h2>
+        <a asp-action="Index" class="btn btn-secondary shadow-sm">Quay lại</a>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row">
+                    @* 1. Tiêu đề *@
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Tiêu đề (Title)</label>
+                        <input asp-for="Title" class="form-control" placeholder="Ví dụ: Banner khuyến mãi Tết" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    @* 2. Loại Media & Vị trí *@
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Loại Media</label>
+                        <select asp-for="MediaType" id="MediaTypeSelect" class="form-select border-primary">
+                            <option value="Slide">Slide chạy (Carousel)</option>
+                            <option value="Banner">Banner tĩnh (Quảng cáo)</option>
+                            <option value="Video">Video YouTube</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Vị trí hiển thị (Rất quan trọng)</label>
+                        <select asp-for="ViTri" class="form-select border-warning">
+                            <option value="Top">Đầu trang (Top)</option>
+                            <option value="Middle">Giữa trang (Middle)</option>
+                            <option value="Popup">Popup hiện lên</option>
+                            <option value="VideoNam">Short Nam</option>
+                            <option value="VideoNu">Short Nu</option>
+                            <option value="VideoUnisex">Short Unisex</option>
+                            <option value="VideoTreEm">Short Tre em</option>
+                            <option value="VideoIdIntro">VideoIdIntro</option>
+                            <option value="VideoIdIntro1">VideoIdIntro1</option>
+                        </select>
+                    </div>
+
+                    @* 3. Link điều hướng (Dành cho Slide/Banner) *@
+                    <div class="col-md-12 mb-3" id="NavLinkGroup">
+                        <label class="form-label fw-bold">Link khi click vào ảnh</label>
+                        <input asp-for="NavigationLink" class="form-control" placeholder="/HangHoa/Detail/1" />
+                    </div>
+
+                    @* 4. Link YouTube (Mặc định ẩn) *@
+                    <div class="col-md-12 mb-3" id="YoutubeInputGroup" style="display:none;">
+                        <label class="form-label fw-bold text-danger">Đường dẫn Video YouTube</label>
+                        <input asp-for="YoutubeUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=..." />
+                        <span asp-validation-for="YoutubeUrl" class="text-danger"></span>
+                    </div>
+
+                    @* 5. Chọn Hình ảnh *@
+                    <div class="col-md-8 mb-3" id="ImageInputGroup">
+                        <label class="form-label fw-bold">Chọn hình ảnh</label>
+                        <input type="file" name="HinhAnh" id="imgInput" class="form-control" accept="image/*" />
+                        <div class="form-text">Khuyên dùng ảnh 1920x600 cho Slide Top.</div>
+                    </div>
+
+                    @* 6. Thứ tự & Trạng thái *@
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label fw-bold">Thứ tự</label>
+                        <input asp-for="Order" class="form-control" type="number" value="1" />
+                    </div>
+
+                    <div class="col-md-2 mb-3 d-flex align-items-end">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" checked>
+                            <label class="form-check-label">Kích hoạt</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow">Lưu Media</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // Hàm xử lý ẩn hiện linh hoạt
+            function toggleInputs() {
+                var mediaType = $('#MediaTypeSelect').val();
+
+                if (mediaType === "Video") {
+                    $('#YoutubeInputGroup').fadeIn(); // Hiện link Youtube
+                    $('#ImageInputGroup').hide();    // Ẩn chọn ảnh
+                    $('#NavLinkGroup').hide();      // Ẩn link điều hướng
+                } else {
+                    $('#YoutubeInputGroup').hide();
+                    $('#ImageInputGroup').fadeIn();
+                    $('#NavLinkGroup').fadeIn();
+                }
+            }
+
+            // Chạy khi thay đổi select
+            $('#MediaTypeSelect').on('change', toggleInputs);
+
+            // Chạy lần đầu khi load trang
+            toggleInputs();
+        });
+    </script>
+}

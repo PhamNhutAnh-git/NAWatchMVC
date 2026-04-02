@@ -1,0 +1,180 @@
+﻿@model NAWatchMVC.Data.HomePageMedia
+
+@{
+    ViewData["Title"] = "Chi tiết Media Trang Chủ";
+}
+
+<div class="container-fluid">
+    @* --- HEADER --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark">🔍 Chi tiết Media</h2>
+            <p class="text-muted">Quản lý hiển thị nội dung trên trang chủ NAWatch</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary shadow-sm me-2">
+                <i class="bi bi-arrow-left me-1"></i> Quay lại
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary shadow-sm">
+                <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        @* --- CỘT TRÁI: THÔNG TIN HỆ THỐNG --- *@
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 mb-4 h-100">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h6 class="m-0 fw-bold text-primary">📑 Thông số thiết lập</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless align-middle">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-bold" style="width: 180px;">Tiêu đề:</td>
+                                <td class="text-dark fs-5 fw-bold">@Model.Title</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-bold">Vị trí hiển thị:</td>
+                                <td>
+                                    @* ĐỒNG BỘ CỘT VỊ TRÍ NÈ NÍ *@
+                                    <span class="badge bg-warning text-dark px-3 rounded-pill">
+                                        <i class="bi bi-pin-map-fill me-1"></i> @Model.ViTri
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-bold">Loại Media:</td>
+                                <td>
+                                    <span class="badge bg-info text-dark">@Model.MediaType</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-bold">Thứ tự ưu tiên:</td>
+                                <td><span class="fw-bold">#@Model.Order</span></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-bold">Trạng thái:</td>
+                                <td>
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-soft-success text-success">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Đang hoạt động
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-soft-secondary text-secondary">
+                                            <i class="bi bi-eye-slash-fill me-1"></i> Đang tạm ẩn
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                            @if (!string.IsNullOrEmpty(Model.NavigationLink))
+                            {
+                                <tr>
+                                    <td class="text-muted fw-bold">Link điều hướng:</td>
+                                    <td class="text-primary text-break">@Model.NavigationLink</td>
+                                </tr>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.YoutubeUrl))
+                            {
+                                <tr>
+                                    <td class="text-muted fw-bold">Link nhúng YouTube:</td>
+                                    <td class="small text-danger">@Model.YoutubeUrl</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @* --- CỘT PHẢI: XEM TRƯỚC MEDIA --- *@
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h6 class="m-0 fw-bold text-primary">🖼️ Xem trước nội dung</h6>
+                </div>
+                <div class="card-body">
+                    <div class="rounded overflow-hidden border shadow-inner">
+                        @if (Model.MediaType == "Video")
+                        {
+                            <div class="ratio ratio-16x9">
+                                <iframe src="@Model.YoutubeUrl" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        }
+                        else
+                        {
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="~/images/homepage/@Model.ImageUrl"
+                                     class="img-fluid w-100"
+                                     style="min-height: 200px; object-fit: cover;"
+                                     alt="@Model.Title">
+                                <div class="bg-light p-2 text-center small text-muted border-top">
+                                    <i class="bi bi-image me-1"></i> File: @Model.ImageUrl
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="bg-light py-5 text-center">
+                                    <i class="bi bi-camera-video-off fs-1 d-block mb-2 text-muted"></i>
+                                    <span class="text-muted">Không tìm thấy hình ảnh</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 15px;
+        }
+
+        .table td {
+            padding: 1.2rem 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        /* Badge Soft Style cho nó chuyên nghiệp */
+        .bg-soft-success {
+            background-color: #d1e7dd;
+            border: 1px solid #badbcc;
+        }
+
+        .bg-soft-secondary {
+            background-color: #e2e3e5;
+            border: 1px solid #d3d3d4;
+        }
+
+        .badge {
+            font-weight: 600;
+            padding: 0.6em 1em;
+            border-radius: 8px;
+        }
+
+        /* Hiệu ứng FadeIn lúc load trang */
+        .container-fluid {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}
