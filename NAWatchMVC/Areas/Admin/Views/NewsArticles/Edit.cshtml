@@ -1,0 +1,164 @@
+﻿@model NAWatchMVC.Data.NewsArticle
+
+@{
+    ViewData["Title"] = "Chỉnh sửa bài viết";
+    Layout = "_LayoutAdmin";
+}
+<div asp-validation-summary="All" class="text-danger"></div>
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-0">
+        <div class="card-header py-3 bg-warning d-flex justify-content-between align-items-center">
+            <h5 class="m-0 font-weight-bold text-dark">
+                <i class="fas fa-edit me-2"></i>Chỉnh Sửa Bài Viết
+            </h5>
+            <span class="badge bg-dark text-white">ID: #@Model.Id</span>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" enctype="multipart/form-data" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                @* Cực kỳ quan trọng: Hidden field để giữ ID và Ảnh cũ *@
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ImageUrl" />
+
+                <div class="row">
+                    <div class="col-lg-8 border-end">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold">Tiêu đề bài viết</label>
+                            <input asp-for="Title" class="form-control shadow-sm" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label fw-bold">Nội dung chi tiết</label>
+                            <textarea asp-for="Content" id="editor" class="form-control">@Model.Content</textarea>
+                            <span asp-validation-for="Content" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="mb-4 text-center">
+                            <label class="form-label fw-bold d-block text-start">Ảnh đại diện hiện tại</label>
+                            <div id="imagePreview" class="border rounded p-2 mb-2 bg-light shadow-sm">
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <img src="~/Hinh/TinTuc/@Model.ImageUrl" class="img-fluid rounded" style="max-height: 200px" id="oldImg" />
+                                }
+                                else
+                                {
+                                    <i class="fas fa-image fa-3x text-muted py-4"></i>
+                                }
+                            </div>
+                            <input type="file" name="fHinh" class="form-control" onchange="previewImage(this)" />
+                            <small class="text-muted italic">Chọn ảnh khác nếu muốn thay đổi</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Summary" class="form-label fw-bold">Tóm tắt ngắn</label>
+                            <textarea asp-for="Summary" class="form-control" rows="4">@Model.Summary</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PublishedDate" class="form-label fw-bold">Ngày đăng bài</label>
+                            <input asp-for="PublishedDate" class="form-control" type="datetime-local" />
+                        </div>
+
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive">
+                            <label class="form-check-label fw-bold" asp-for="IsActive">Cho phép hiển thị</label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg shadow text-dark fw-bold">
+                                <i class="fas fa-save me-1"></i> CẬP NHẬT THAY ĐỔI
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.3/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#editor',
+            height: 500,
+            plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount emoticons',
+            toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | image link emoticons | code',
+
+            // 1. Đồng bộ dữ liệu liên tục
+            setup: function (editor) {
+                editor.on('change', function () {
+                    editor.save();
+                });
+            },
+
+            // 2. Cấu hình Upload ảnh (Phải nằm TRONG init)
+            images_upload_url: '/Admin/NewsArticles/UploadImageEditor',
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            // THÊM 3 DÒNG NÀY VÀO NÈ NÍ
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: true,
+            // 3. Hàm chọn ảnh từ máy tính
+            file_picker_callback: function (cb, value, meta) {
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+                input.onchange = function () {
+                    var file = this.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        var id = 'blobid' + (new Date()).getTime();
+                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        var base64 = reader.result.split(',')[1];
+                        var blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+                        cb(blobInfo.blobUri(), { title: file.name });
+                    };
+                    reader.readAsDataURL(file);
+                };
+                input.click();
+            },
+
+            // 4. Cấu hình chỉnh size & Responsive
+            image_dimensions: true,
+            object_resizing: true,
+            image_class_list: [
+                { title: 'Responsive (Khuyên dùng)', value: 'img-fluid rounded shadow-sm' },
+                { title: 'Ảnh tròn', value: 'rounded-circle shadow' },
+                { title: 'Không class', value: '' }
+            ],
+
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+            paste_data_images: true
+        }); // <-- Dấu đóng ngoặc chuẩn phải nằm ở cuối cùng này
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imagePreview').html('<img src="' + e.target.result + '" class="img-fluid rounded shadow-sm" style="max-height: 200px" />');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        // Ép mọi trình soạn thảo TinyMCE lưu nội dung vào textarea trước khi submit form
+        // Ép đồng bộ dữ liệu TinyMCE ngay khi nhấn nút Submit
+        $('form').on('submit', function () {
+            if (typeof (tinymce) !== "undefined") {
+                tinymce.triggerSave();
+            }
+        });
+    </script>
+}

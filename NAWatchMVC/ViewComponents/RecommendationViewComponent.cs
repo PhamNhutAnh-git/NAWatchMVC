@@ -8,7 +8,7 @@ public class RecommendationViewComponent : ViewComponent
     public RecommendationViewComponent(IInteractionService interactionService)
         => _interactionService = interactionService;
 
-    public async Task<IViewComponentResult> InvokeAsync(bool viewName = false)
+    public async Task<IViewComponentResult> InvokeAsync(bool isHome = false)
     {
         var maKh = UserClaimsPrincipal.FindFirst("CustomerId")?.Value;
         // Dù có đăng nhập hay không, hàm GetRecommendedProducts ở trên đã xử lý trả về list rồi
@@ -28,9 +28,9 @@ public class RecommendationViewComponent : ViewComponent
             GiamGia = h.GiamGia ?? 0,
             DiemDanhGia = (int)(h.DiemDanhGia ?? 5),
             SoLuongBan = h.SoLuongBan ?? 0,
-            IsHot = viewName
+            isHome = isHome
         }).ToList();
-        if (viewName) return View("RecommendationHome", model);
+        if (isHome) return View("RecommendationHome", model);
         return View( model);
     }
 }

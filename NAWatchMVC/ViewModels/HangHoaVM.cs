@@ -31,6 +31,7 @@ namespace NAWatchMVC.ViewModels
         // tim
         public bool IsLiked { get; set; }
         public bool IsHot { get; set; }
+        public bool isHome { get; set; } 
 
     }
     public class ChiTietHangHoaVM

@@ -1,0 +1,97 @@
+﻿@model NAWatchMVC.Data.NewsArticle
+
+@{
+    ViewData["Title"] = "Chi tiết bài viết";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="position-relative">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="~/Hinh/TinTuc/@Model.ImageUrl" class="card-img-top" style="max-height: 400px; object-fit: cover;" alt="Banner">
+                    }
+                    else
+                    {
+                        <div class="bg-light text-center py-5">
+                            <i class="fas fa-image fa-5x text-muted"></i>
+                            <p class="text-muted mt-2">Bài viết không có ảnh đại diện</p>
+                        </div>
+                    }
+
+                    <div class="position-absolute top-0 end-0 m-3">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success shadow-sm px-3 py-2"><i class="fas fa-check-circle me-1"></i>Đang hiển thị</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger shadow-sm px-3 py-2"><i class="fas fa-eye-slash me-1"></i>Đang ẩn</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <h1 class="display-5 fw-bold text-dark mb-3">@Model.Title</h1>
+                        <div class="text-muted small">
+                            <span class="me-3"><i class="far fa-calendar-alt me-1"></i>@Model.PublishedDate.ToString("dd/MM/yyyy HH:mm")</span>
+                            <span><i class="far fa-user me-1"></i>Quản trị viên: Phạm Nhựt Anh</span>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Summary))
+                    {
+                        <div class="p-4 bg-light rounded-3 border-start border-primary border-5 mb-5 shadow-sm italic">
+                            <i class="fas fa-quote-left text-primary mb-2"></i>
+                            <p class="mb-0 text-dark fw-bold">@Model.Summary</p>
+                        </div>
+                    }
+
+                    <div class="news-article-content text-dark lh-lg" style="font-size: 1.1rem;">
+                        @* QUAN TRỌNG: Dùng Html.Raw để render nội dung từ TinyMCE *@
+                        @Html.Raw(Model.Content)
+                    </div>
+
+                    <hr class="my-5">
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Quay lại
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning px-4 text-white">
+                                <i class="fas fa-edit me-1"></i> Chỉnh sửa bài viết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Đảm bảo ảnh trong nội dung bài viết không bị tràn khung */
+    .news-article-content img {
+        max-width: 100%;
+        height: auto !important;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .news-article-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .news-article-content h2, .news-article-content h3 {
+        color: #1E88E5;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+</style>

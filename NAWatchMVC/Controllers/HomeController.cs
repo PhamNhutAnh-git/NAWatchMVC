@@ -63,7 +63,7 @@ namespace NAWatchMVC.Controllers
             model.Vouchers = await _context.Vouchers.Where(x => x.TrangThai == true).ToListAsync();
             model.News = await _context.NewsArticles.Where(x => x.IsActive)
                                        .OrderByDescending(x => x.PublishedDate)
-                                       .Take(3).ToListAsync();
+                                       .Take(4).ToListAsync();
 
             // 5. LẤY BỘ SƯU TẬP (Giao diện 6 thẻ/hàng)
             var activeCollections = await _context.BoSuuTapHomes
@@ -186,7 +186,12 @@ namespace NAWatchMVC.Controllers
         {
             return View();
         }
-
+        // Thêm đoạn này vào trong class HomeController
+        public IActionResult About()
+        {
+            // Hàm này sẽ đi tìm file Views/Home/About.cshtml để hiển thị
+            return View();
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

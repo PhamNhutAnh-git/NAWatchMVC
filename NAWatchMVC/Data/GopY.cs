@@ -18,4 +18,5 @@ public partial class GopY
     public DateTime? NgayGy { get; set; }
 
     public bool? IsRead { get; set; }
+    public bool IsVisible { get; set; } = true; // Mặc định là hiện lên luôn
 }

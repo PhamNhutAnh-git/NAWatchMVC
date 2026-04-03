@@ -214,10 +214,22 @@
                         <i class="fas fa-newspaper"></i> <span>Tin Tức & Sự Kiện</span>
                     </a>
                 </li>
+                <hr>
+                <div class="sidebar-heading text-uppercase small fw-bold mb-2" style="font-size: 0.75rem; opacity: 0.8;">
+                    Hỗ trợ chuyên sâu
+                </div>
 
-                <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "ChatHistories" ? "active" : "")">
-                    <a asp-area="Admin" asp-controller="ChatHistories" asp-action="Index">
-                        <i class="fas fa-robot"></i> <span>Lịch Sử Chat AI</span>
+                <li class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "ChatHistories" ? "active" : "")">
+                    <a class="nav-link" asp-area="Admin" asp-controller="ChatHistories" asp-action="Index">
+                        <i class="fas fa-brain"></i> @* Icon bộ não hoặc AI *@
+                        <span>Lịch Sử Chat AI</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Gopies" ? "active" : "")">
+                    <a class="nav-link" asp-area="Admin" asp-controller="Gopies" asp-action="Index">
+                        <i class="fas fa-headset"></i> @* Icon tổng đài viên cực chuẩn chuyên sâu *@
+                        <span>Phản hồi & Hỗ trợ</span>
                     </a>
                 </li>
 

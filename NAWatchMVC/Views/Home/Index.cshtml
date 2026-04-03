@@ -7,8 +7,8 @@
 @section Styles {
     <style>
         /* =========================================================
-                                   1. CSS VOUCHER & SECTION (GIỮ NGUYÊN BẢN GỐC CỦA NÍ)
-                                   ========================================================= */
+             1. CSS VOUCHER & SECTION (GIỮ NGUYÊN BẢN GỐC CỦA NÍ)
+         ========================================================= */
         .voucher-container {
             display: flex;
             gap: 15px;
@@ -474,6 +474,23 @@
                 justify-content: space-between;
                 padding: 10px !important;
             }
+            /* trang báo nhỏ */
+        .hover-effect {
+            transition: all 0.3s ease-in-out;
+        }
+
+            .hover-effect:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+            }
+
+        .transition {
+            transition: transform 0.5s ease;
+        }
+
+        .hover-effect:hover img {
+            transform: scale(1.1);
+        }
     </style>
 }
 
@@ -498,9 +515,19 @@
                         <p class="text-muted fs-5 mb-5 fw-bold naw-sub-slogan">
                             Khám phá bộ sưu tập đồng hồ chính hãng,mọi lúc mọi nơi cùng NAWATCHMVC nơi mỗi giây phút đều trở nên vô giá.
                         </p>
-                        <form asp-controller="HangHoa" asp-action="Search" method="get" class="input-group mb-3 shadow-sm" style="max-width: 500px;">
-                            <input type="text" name="query" class="form-control naw-search-box py-3" placeholder="Tìm mẫu đồng hồ...">
-                            <button class="btn btn-primary naw-btn-search text-white" type="submit">TÌM KIẾM</button>
+                        <form asp-controller="HangHoa" asp-action="Search" method="get" id="home-search-form" class="input-group mb-3 shadow-sm" style="max-width: 500px;">
+                            @* Thêm id để JavaScript bắt được sự kiện *@
+                            <input type="text" name="query" id="home-search-input"
+                                   class="form-control naw-search-box py-3"
+                                   placeholder="Tìm mẫu đồng hồ..."
+                                   autocomplete="off">
+                            @* Sửa nút này: type="button" và thêm data-bs-target *@
+                            <button class="btn btn-primary naw-btn-search text-white"
+                                    type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#searchModal">
+                                TÌM KIẾM
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -589,7 +616,7 @@
 @await Component.InvokeAsync("RecentlyViewed", new { limit = 6, isHome = true })
 
 @* Nhớ gõ đúng tên file RecommendationHome (không cần đuôi .cshtml) *@
-@await Component.InvokeAsync("Recommendation", new { viewName = true })
+@await Component.InvokeAsync("Recommendation", new { isHome = true })
 
 @*  Sản Phẩm của chúng tôiii *@
 @* Ní hãy lặp lại cấu trúc này 4 lần cho: Nam, Nữ, Trẻ Em, Thể Thao *@
@@ -770,19 +797,40 @@
         </div>
     </div>
 }
-<p class="text-danger">DEBUG: ID Video là [@Model.VideoIdIntro]</p>
+
 <div class="container mt-5 mb-5">
     <h4 class="section-title">📰 Tin tức mới nhất</h4>
-    <div class="row">
+    <div class="row g-4">
+        @* g-4 để tạo khoảng cách (gap) giữa các cột cho thoáng *@
         @foreach (var news in Model.News)
         {
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <img src="~/images/news/@news.ImageUrl" class="card-img-top" style="height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <h6 class="card-title fw-bold">@news.Title</h6>
-                        <p class="card-text small text-muted">@news.Summary</p>
-                        <a href="/News/Detail/@news.Id" class="btn btn-sm btn-outline-dark">Đọc thêm</a>
+            @* col-lg-3: 4 cột trên máy tính | col-md-6: 2 cột trên máy tính bảng | col-12: 1 cột trên điện thoại *@
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm hover-effect">
+                    <div class="overflow-hidden rounded-top">
+                        <img src="~/Hinh/TinTuc/@news.ImageUrl"
+                             class="card-img-top transition"
+                             style="height: 180px; object-fit: cover;"
+                             alt="@news.Title">
+                    </div>
+
+                    <div class="card-body d-flex flex-column p-3">
+                        <h6 class="card-title fw-bold text-dark mb-2"
+                            style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px;">
+                            @news.Title
+                        </h6>
+                        <span class="badge bg-warning text-dark mb-2">@news.PublishedDate.ToString("dd/MM/yyyy")</span>
+                        <p class="card-text small text-muted mb-3"
+                           style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 60px;">
+                            @news.Summary
+                        </p>
+
+                        <div class="mt-auto">
+                            <a asp-controller="News" asp-action="Details" asp-route-id="@news.Id"
+                               class="btn btn-sm btn-dark w-100 rounded-pill shadow-sm py-2 fw-bold">
+                                ĐỌC CHI TIẾT <i class="fas fa-chevron-right ms-1" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -790,10 +838,6 @@
     </div>
 </div>
 
-<div style="padding: 50px; background: #f8f9fa;">
-    <h5 class="text-danger">DEBUG MODE:</h5>
-    <p>Slides: @Model.Slides.Count | Banners: @Model.Banners.Count | Videos: @Model.Videos.Count</p>
-</div>
 
 @section Scripts {
     <script>
@@ -822,6 +866,24 @@
                     1200: { items: 5 } /* Laptop hiện 5 cái chuẩn bài */
                 }
             });
+        });
+        $(document).ready(function () {
+            // 1. Khi khách nhấn vào ô input
+            $('#home-search-input').on('click', function (e) {
+                // Nếu khách chưa gõ gì (ô trống)
+                if ($(this).val().trim() === "") {
+                    e.preventDefault(); // Ngăn form gửi đi (không bị load lại trang)
+                    $('#searchModal').modal('show'); // Bật cái modal tìm kiếm có gợi ý của ní lên
+                }
+            });
+
+            // 2. Tự động focus vào ô search của Modal khi nó hiện ra (UX cực tốt)
+            $('#searchModal').on('shown.bs.modal', function () {
+                $(this).find('input[type="text"]').focus();
+            });
+
+            // 3. Nếu khách gõ chữ rồi mới nhấn "TÌM KIẾM" hoặc Enter
+            // Form sẽ tự động submit về /HangHoa/Search?query=... theo đúng chuẩn MVC
         });
     </script>
 }

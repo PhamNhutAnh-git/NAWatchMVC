@@ -1,0 +1,84 @@
+﻿@model NAWatchMVC.Data.NewsArticle
+
+@{
+    ViewData["Title"] = "Xóa bài viết";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-0">
+                <div class="card-header py-3 bg-danger text-center">
+                    <h5 class="m-0 font-weight-bold text-white">
+                        <i class="fas fa-exclamation-triangle me-2"></i>XÁC NHẬN XÓA BÀI VIẾT
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <p class="text-muted">Ní có chắc chắn muốn xóa bài viết này không? <br> Hành động này <b>không thể hoàn tác</b> đâu nhé!</p>
+                    </div>
+
+                    <div class="p-3 border rounded bg-light mb-4">
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="~/Hinh/TinTuc/@Model.ImageUrl" class="rounded me-3 shadow-sm" style="width: 100px; height: 75px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="bg-secondary text-white rounded me-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 75px;">
+                                    <i class="fas fa-image fa-2x"></i>
+                                </div>
+                            }
+                            <div class="overflow-hidden">
+                                <h6 class="fw-bold mb-1 text-dark text-truncate">@Model.Title</h6>
+                                <p class="small text-muted mb-0">Ngày đăng: @Model.PublishedDate.ToString("dd/MM/yyyy")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-danger w-100 py-2 fw-bold">
+                                    <i class="fas fa-trash-alt me-1"></i> XÓA VĨNH VIỄN
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <a asp-action="Index" class="btn btn-outline-secondary w-100 py-2">
+                                    Hủy bỏ
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <small class="text-muted italic">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <b>Mẹo:</b> Nếu ní chỉ muốn tạm ẩn bài viết, hãy dùng tính năng <b>Chỉnh sửa</b> và tắt <b>IsActive</b> thay vì xóa nhé.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hiệu ứng rung nhẹ cho icon cảnh báo khi load trang */
+    .fa-exclamation-triangle {
+        animation: shake 0.5s infinite;
+    }
+
+    @@keyframes shake {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(5deg); }
+        50% { transform: rotate(0eg); }
+        75% { transform: rotate(-5deg); }
+        100% { transform: rotate(0deg); }
+    }
+</style>

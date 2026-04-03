@@ -9,6 +9,7 @@ namespace NAWatchMVC.Models
         public List<HomePageMedia> Banners { get; set; } = new();
         public List<Voucher> Vouchers { get; set; } = new();
         public List<NewsArticle> News { get; set; } = new();
+        
         // THÊM DÒNG NÀY NÈ NÍ!
         public List<HomePageMedia> Videos { get; set; } = new();
         // Cái này để chứa danh sách các Bộ sưu tập kèm sản phẩm bên trong
@@ -22,6 +23,7 @@ namespace NAWatchMVC.Models
         public List<HangHoaVM> MonthlyProducts { get; set; } = new List<HangHoaVM>();
         // Danh sách các khối hãng sản xuất
         public List<BrandProductSection> BrandSections { get; set; } = new List<BrandProductSection>();
+        
         // Thêm 4 cái "ăng-ten" thu sóng Video này vào:
         public string VideoIdNam { get; set; }
         public string VideoIdNu { get; set; }
@@ -29,6 +31,7 @@ namespace NAWatchMVC.Models
         public string VideoIdTreEm { get; set; }
         public string VideoIdIntro { get; set; }
         public string VideoIdIntro1 { get; set; }
+
     }
 
     public class CollectionData

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\Admin\Models\" />
+    <Folder Include="wwwroot\Hinh\TinTuc\Uploads\" />
     <Folder Include="wwwroot\images\homepage\" />
   </ItemGroup>
 

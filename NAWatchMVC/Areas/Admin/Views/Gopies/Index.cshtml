@@ -1,0 +1,162 @@
+﻿@model IEnumerable<NAWatchMVC.Data.GopY>
+
+@{
+    ViewData["Title"] = "Quản lý Góp ý";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-0">
+        <div class="card-header py-3 bg-primary d-flex justify-content-between align-items-center">
+            <h5 class="m-0 font-weight-bold text-white"><i class="fas fa-comments me-2"></i>Hệ thống Ticket Phản hồi</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th style="width: 20%;">Khách hàng</th>
+                            <th style="width: 25%;">Nội dung</th>
+                            <th style="width: 15%;">Ngày gửi</th>
+                            <th class="text-center" style="width: 12%;">Tiến độ</th> @* Cột IsRead *@
+                            <th class="text-center" style="width: 12%;">Trạng thái</th> @* Cột IsVisible *@
+                            <th class="text-center" style="width: 16%;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr id="row-@item.MaGy" class="@(item.IsVisible ? "table-light opacity-75" : "")">
+                                <td>
+                                    <div class="fw-bold text-dark">@item.HoTen</div>
+                                    <div class="small text-muted"><i class="fas fa-phone-alt me-1"></i>@item.DienThoai</div>
+                                </td>
+                                <td>
+                                    <div class="text-wrap" style="max-width: 250px;">
+                                        @item.NoiDung
+                                    </div>
+                                    @if (item.IsRead == false && item.IsVisible == false)
+                                    {
+                                        <span class="badge bg-danger text-white" style="font-size: 0.6rem;">MỚI</span>
+                                    }
+                                </td>
+                                <td class="small text-muted">
+                                    @item.NgayGy?.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+
+                                @* CỘT 1: ĐANG XỬ LÝ (IsRead) *@
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="proc-@item.MaGy"
+                                        @(item.IsRead == true ? "checked" : "")
+                                        @(item.IsVisible ? "disabled" : "")
+                                               onclick="ajaxToggle('/Admin/Gopies/ToggleProcessing', '@item.MaGy', 'proc')">
+                                        <div class="small mt-1 label-proc">@(item.IsRead == true ? "Đang làm" : "Chờ")</div>
+                                    </div>
+                                </td>
+
+                                @* CỘT 2: HOÀN TẤT (IsVisible) *@
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="fin-@item.MaGy"
+                                        @(item.IsVisible ? "checked" : "")
+                                               onclick="ajaxToggle('/Admin/Gopies/ToggleFinished', '@item.MaGy', 'fin')">
+                                        <div class="small mt-1 fw-bold label-fin @(item.IsVisible ? "text-success" : "text-muted")">
+                                            @(item.IsVisible ? "Xong" : "Chưa")
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <a asp-action="Details" asp-route-id="@item.MaGy" class="btn btn-outline-info btn-sm shadow-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button onclick="confirmDelete('@item.MaGy')" class="btn btn-outline-danger btn-sm shadow-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000
+        });
+
+        function ajaxToggle(url, id, type) {
+            $.post(url, { id: id }, function (res) {
+                if (res.success) {
+                    Toast.fire({ icon: 'success', title: res.message });
+
+                    if (type === 'fin') {
+                        let isFin = $(`#fin-${id}`).is(':checked');
+                        let procInput = $(`#proc-${id}`);
+
+                        if (isFin) {
+                            procInput.prop('checked', false).prop('disabled', true);
+                            $(`#row-${id}`).addClass('opacity-75 bg-light');
+                            $(`#fin-${id}`).siblings('.label-fin').text("Xong").addClass('text-success').removeClass('text-muted');
+                            procInput.siblings('.label-proc').text("Chờ");
+                        } else {
+                            procInput.prop('disabled', false);
+                            $(`#row-${id}`).removeClass('opacity-75 bg-light');
+                            $(`#fin-${id}`).siblings('.label-fin').text("Chưa").removeClass('text-success').addClass('text-muted');
+                        }
+                    } else {
+                        let isProc = $(`#proc-${id}`).is(':checked');
+                        $(`#proc-${id}`).siblings('.label-proc').text(isProc ? "Đang làm" : "Chờ");
+                    }
+                } else {
+                    Swal.fire('Lỗi logic!', res.message, 'error');
+                    location.reload();
+                }
+            });
+        }
+
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Xóa ticket này?',
+                text: "Xóa là mất luôn đó ní ơi!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Ừ, xóa đi!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/Admin/Gopies/Delete/${id}`;
+                }
+            })
+        }
+    </script>
+}
+
+<style>
+    .form-check-input:checked {
+        background-color: #1E88E5 !important;
+        border-color: #1E88E5 !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(30, 136, 229, 0.03);
+    }
+
+    .opacity-75 {
+        opacity: 0.7;
+        transition: 0.3s;
+    }
+</style>

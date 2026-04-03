@@ -1,0 +1,96 @@
+﻿@{
+    ViewData["Title"] = "Về NAWatch - Đẳng cấp thời gian";
+}
+<div style="padding-top: 165px;">
+<section class="py-5 bg-dark text-white text-center" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/Hinh/about-banner.jpg') center/cover;">
+    <div class="container py-5">
+        <h1 class="display-4 fw-bold mb-3" style="letter-spacing: 3px;">VỀ CHÚNG TÔI</h1>
+        <p class="lead text-uppercase" style="letter-spacing: 2px;">NAWatch - Khẳng định phong cách, nâng tầm giá trị</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6 pe-lg-5">
+            <h2 class="fw-bold mb-4">Câu Chuyện Của <span class="text-warning">NAWatch</span></h2>
+            <p class="text-secondary mb-4" style="text-align: justify; line-height: 1.8;">
+                Khởi nguồn từ niềm đam mê với những cỗ máy thời gian tinh xảo, **NAWatch** tự hào là điểm đến tin cậy cho những tín đồ yêu thích đồng hồ tại Long Xuyên, An Giang.
+                Chúng tôi không chỉ bán đồng hồ, chúng tôi mang đến cho bạn một người bạn đồng hành, một biểu tượng của sự thành đạt và phong cách sống đẳng cấp.
+            </p>
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="p-3 border rounded shadow-sm text-center bg-light">
+                        <i class="fas fa-check-circle fa-2x text-warning mb-2"></i>
+                        <h6 class="fw-bold mb-0">Chính hãng 100%</h6>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 border rounded shadow-sm text-center bg-light">
+                        <i class="fas fa-tools fa-2x text-warning mb-2"></i>
+                        <h6 class="fw-bold mb-0">Bảo hành 5 năm</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+            <div class="position-relative overflow-hidden rounded-4 shadow-lg">
+                <img src="~/anhall/NAWATCH.png" class="img-fluid transition-zoom" alt="Cửa hàng NAWatch">
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-5">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100 p-4 bg-light">
+                <h4 class="fw-bold mb-4 border-bottom pb-2">Thông Tin Liên Hệ</h4>
+                <div class="d-flex mb-3">
+                    <i class="fas fa-map-marker-alt text-warning me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Địa chỉ cửa hàng:</h6>
+                        <p class="text-muted mb-0 small">360/F4 Hà Hoàng Hổ, Tây Khánh 3, Mỹ Hòa, TP. Long Xuyên, An Giang</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <i class="fas fa-phone-alt text-warning me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Số điện thoại:</h6>
+                        <p class="text-muted mb-0 small">09xx.xxx.xxx (Phạm Nhựt Anh)</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <i class="fas fa-envelope text-warning me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Email:</h6>
+                        <p class="text-muted mb-0 small">nawatch@gmail.com</p>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <i class="fas fa-clock text-warning me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Giờ mở cửa:</h6>
+                        <p class="text-muted mb-0 small">08:00 AM - 09:30 PM (Tất cả các ngày)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="rounded-4 overflow-hidden shadow-sm border" style="height: 400px;">
+                @* Đoạn Iframe Google Map trỏ đúng địa chỉ Hà Hoàng Hổ *@
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.3411785239!2d105.41400267484396!3d10.394432266133857!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x310a72e8f192b005%3A0x6b09395f13459e7e!2zMzYwL0Y0IEjDoCBIb8OgbmcgSOG7lSwgTeG7uSBIw7LQsCwgVGjDoG5oIHBo4buRIExvbmcgWHV5w6puLCBBbiBHaWFuZywgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1712170000000!5m2!1svi!2s"
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<style>
+    .transition-zoom { transition: transform 0.5s ease; }
+    .transition-zoom:hover { transform: scale(1.1); }
+</style>

@@ -1,4 +1,6 @@
-﻿@{
+﻿@* Dòng này phải nằm ở TRÊN CÙNG của file nè ní *@
+@model NAWatchMVC.ViewModels.GopYVM
+@{
     ViewData["Title"] = "Liên hệ NAWatch";
     Layout = "_LayoutCustomer";
 }
@@ -50,17 +52,23 @@
             <div class="col-lg-6">
                 <div class="card border-0 shadow-lg rounded-4 p-4">
                     <h4 class="fw-bold mb-4">Gửi yêu cầu hỗ trợ</h4>
-                    <form>
+                    <form id="feedbackForm">
+                        @* Thêm ID cho Form *@
                         <div class="mb-3">
-                            <input type="text" class="form-control border-0 bg-light py-3 rounded-3" placeholder="Tên của ní">
+                            <input asp-for="HoTen" class="form-control border-0 bg-light py-3 rounded-3" placeholder="Tên của ní">
+                            <span asp-validation-for="HoTen" class="text-danger small"></span>
                         </div>
                         <div class="mb-3">
-                            <input type="email" class="form-control border-0 bg-light py-3 rounded-3" placeholder="Email liên hệ">
+                            <input asp-for="Email" class="form-control border-0 bg-light py-3 rounded-3" placeholder="Email liên hệ">
+                            <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
                         <div class="mb-4">
-                            <textarea class="form-control border-0 bg-light rounded-3" rows="4" placeholder="Bạn đang gặp vấn đề gì nè?"></textarea>
+                            <textarea asp-for="NoiDung" class="form-control border-0 bg-light rounded-3" rows="4" placeholder="Bạn đang gặp vấn đề gì nè?"></textarea>
+                            <span asp-validation-for="NoiDung" class="text-danger small"></span>
                         </div>
-                        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm" type="submit" style="background-color: #1E88E5;">
+                        @* Chuyển type="submit" thành type="button" để dùng AJAX *@
+                        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm"
+                                type="button" onclick="sendContact()" style="background-color: #1E88E5;">
                             GỬI YÊU CẦU NGAY
                         </button>
                     </form>
@@ -93,3 +101,33 @@
         }
     }
 </style>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function sendContact() {
+            var data = $('#feedbackForm').serialize();
+
+            $.ajax({
+                url: '/Contact/GuiGopY',
+                type: 'POST',
+                data: data,
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Ngon lành!',
+                            text: res.message,
+                            confirmButtonColor: '#1E88E5'
+                        });
+                        $('#feedbackForm')[0].reset(); // Xóa sạch form
+                    } else {
+                        Swal.fire('Lỗi rồi ní ơi!', res.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Thất bại', 'Không kết nối được với server rồi!', 'error');
+                }
+            });
+        }
+    </script>
+}

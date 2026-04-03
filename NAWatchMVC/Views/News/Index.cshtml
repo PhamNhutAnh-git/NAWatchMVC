@@ -1,0 +1,104 @@
+﻿@model IEnumerable<NAWatchMVC.Data.NewsArticle>
+
+@{
+    ViewData["Title"] = "Tin tức & Sự kiện";
+}
+<div style="padding: 165px;">
+<section class="bg-dark py-5 mb-5 text-center text-white" style="background: url('/Hinh/news-banner.jpg') center/cover; background-attachment: fixed;">
+    <div class="container-fluid py-5" style="background: rgba(0,0,0,0.6);">
+        <h1 class="display-4 fw-bold" style="letter-spacing: 3px;">TIN TỨC & SỰ KIỆN</h1>
+        <p class="lead text-uppercase small" style="letter-spacing: 2px;">Thế giới đồng hồ trong tầm tay bạn</p>
+    </div>
+</section>
+
+<div class="container-fluid " >
+    <div class="row">
+        <div class="col-lg-12">
+            @foreach (var item in Model)
+            {
+                <div class="news-item-list mb-4 pb-4 border-bottom transition">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 col-lg-3">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="d-block overflow-hidden rounded-3 shadow-sm">
+                                <img src="~/Hinh/TinTuc/@item.ImageUrl"
+                                     class="img-fluid w-100 transition-zoom"
+                                     style="height: 180px; object-fit: cover;"
+                                     alt="@item.Title">
+                            </a>
+                        </div>
+
+                        <div class="col-md-8 col-lg-9 mt-3 mt-md-0">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none">
+                                <h4 class="fw-bold text-dark mb-2 hover-text-primary">@item.Title</h4>
+                            </a>
+
+                            <div class="text-muted small mb-3">
+                                <i class="far fa-clock me-1"></i> @item.PublishedDate.ToString("dd/MM/yyyy")
+                            </div>
+
+                            <p class="text-secondary mb-3 line-clamp-3" style="font-size: 1.05rem;">
+                                @item.Summary
+                            </p>
+
+                            <a asp-action="Details" asp-route-id="@item.Id" class="text-primary fw-bold text-decoration-none small">
+                                ĐỌC TIẾP <i class="fas fa-chevron-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "") mx-1">
+                        <a class="page-link border-0 shadow-sm @(i == ViewBag.CurrentPage ? "bg-dark text-white" : "text-dark")"
+                           asp-action="Index" asp-route-page="@i" style="border-radius: 8px;">
+                            @i
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+</div>
+<style>
+    /* Hiệu ứng khi rê chuột vào cả dòng */
+    .news-item-list:hover {
+        background-color: #fafafa;
+        padding-left: 10px;
+    }
+
+    /* Hiệu ứng phóng to ảnh khi hover */
+    .transition-zoom {
+        transition: transform 0.5s ease;
+    }
+
+    .news-item-list:hover .transition-zoom {
+        transform: scale(1.1);
+    }
+
+    /* Đổi màu tiêu đề khi hover */
+    .hover-text-primary:hover {
+        color: #0d6efd !important;
+        transition: color 0.3s ease;
+    }
+
+    .transition {
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* Giới hạn 3 dòng cho tóm tắt */
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
